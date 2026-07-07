@@ -69,7 +69,7 @@ public class TicketServiceImpl implements TicketService {
                 saved.getSubject()
         );
 
-        return mapToResponse(ticketRepository.save(ticket));
+        return mapToResponse(saved);
     }
 
     @Override
