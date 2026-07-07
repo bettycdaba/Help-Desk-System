@@ -6,6 +6,7 @@ import com.helpdesk.helpdesk_backend.entity.enums.TicketPriority;
 import com.helpdesk.helpdesk_backend.entity.enums.TicketStatus;
 import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.*;
+import com.helpdesk.helpdesk_backend.service.EmailService;
 import com.helpdesk.helpdesk_backend.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketCategoryRepository categoryRepository;
     private final TicketAssignmentHistoryRepository assignmentHistoryRepository;
     private final TicketStatusHistoryRepository statusHistoryRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -58,6 +60,14 @@ public class TicketServiceImpl implements TicketService {
                 .assignedTo(assignedTo)
                 .category(category)
                 .build();
+        Ticket saved = ticketRepository.save(ticket);
+
+        emailService.sendTicketCreatedEmail(
+                createdBy.getEmail(),
+                createdBy.getFirstName() + " " + createdBy.getLastName(),
+                saved.getTicketNumber(),
+                saved.getSubject()
+        );
 
         return mapToResponse(ticketRepository.save(ticket));
     }
@@ -179,6 +189,15 @@ public class TicketServiceImpl implements TicketService {
 
         assignmentHistoryRepository.save(history);
 
+        emailService.sendTicketAssignedEmail(
+            newAssignee.getEmail(),
+            newAssignee.getFirstName() + " " + newAssignee.getLastName(),
+            saved.getTicketNumber(),
+            saved.getSubject(),
+            assignedBy.getFirstName() + " " + assignedBy.getLastName()
+        );
+
+
         return mapToResponse(saved);
     }
 
@@ -212,6 +231,20 @@ public class TicketServiceImpl implements TicketService {
                 .build();
 
         statusHistoryRepository.save(history);
+
+        if (request.getNewStatus() == TicketStatus.RESOLVED
+            || request.getNewStatus() == TicketStatus.CLOSED) {
+        emailService.sendStatusChangedEmail(
+                saved.getCreatedBy().getEmail(),
+                saved.getCreatedBy().getFirstName()
+                        + " " + saved.getCreatedBy().getLastName(),
+                saved.getTicketNumber(),
+                saved.getSubject(),
+                oldStatus,
+                request.getNewStatus().name()
+        );
+    }
+
 
         return mapToResponse(saved);
     }

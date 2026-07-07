@@ -9,6 +9,7 @@ import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.TicketCommentRepository;
 import com.helpdesk.helpdesk_backend.repository.TicketRepository;
 import com.helpdesk.helpdesk_backend.repository.UserRepository;
+import com.helpdesk.helpdesk_backend.service.EmailService;
 import com.helpdesk.helpdesk_backend.service.TicketCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ public class TicketCommentServiceImpl implements TicketCommentService {
     private final TicketCommentRepository commentRepository;
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
+
 
     @Override
     @Transactional
@@ -44,6 +47,39 @@ public class TicketCommentServiceImpl implements TicketCommentService {
                 .ticket(ticket)
                 .user(user)
                 .build();
+
+        TicketComment saved = commentRepository.save(comment);
+            if (ticket.getCreatedBy() != null
+            && !ticket.getCreatedBy().getId().equals(request.getUserId())) {
+
+        emailService.sendCommentAddedEmail(
+                ticket.getCreatedBy().getEmail(),
+                ticket.getCreatedBy().getFirstName()
+                        + " " + ticket.getCreatedBy().getLastName(),
+                ticket.getTicketNumber(),
+                ticket.getSubject(),
+                user.getFirstName() + " " + user.getLastName(),
+                request.getComment()
+        );
+        
+        if (ticket.getAssignedTo() != null
+            && !ticket.getAssignedTo().getId().equals(request.getUserId())
+            && !ticket.getAssignedTo().getId().equals(
+                    ticket.getCreatedBy().getId())) {
+
+        emailService.sendCommentAddedEmail(
+                ticket.getAssignedTo().getEmail(),
+                ticket.getAssignedTo().getFirstName()
+                        + " " + ticket.getAssignedTo().getLastName(),
+                ticket.getTicketNumber(),
+                ticket.getSubject(),
+                user.getFirstName() + " " + user.getLastName(),
+                request.getComment()
+                );
+        }
+
+        return mapToResponse(saved);
+        }
 
         return mapToResponse(commentRepository.save(comment));
     }

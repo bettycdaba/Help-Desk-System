@@ -12,6 +12,8 @@ import com.helpdesk.helpdesk_backend.repository.RoleRepository;
 import com.helpdesk.helpdesk_backend.repository.UserRepository;
 import com.helpdesk.helpdesk_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -55,6 +58,7 @@ public class UserServiceImpl implements UserService {
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
                 .active(request.getActive())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .department(department)
                 .roles(roles)
                 .build();
