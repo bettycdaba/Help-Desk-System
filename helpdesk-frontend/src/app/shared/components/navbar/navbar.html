@@ -1,1 +1,93 @@
-<p>navbar works!</p>
+<div class="sidebar" [class.collapsed]="isCollapsed">
+
+  <div class="sidebar-header">
+    <div class="brand" *ngIf="!isCollapsed">
+      <i class="bi bi-headset"></i>
+      <span>Help Desk</span>
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      <i class="bi" 
+         [class.bi-list]="isCollapsed"
+         [class.bi-x]="!isCollapsed"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+
+    <a routerLink="/dashboard" 
+       routerLinkActive="active"
+       class="nav-item">
+      <i class="bi bi-speedometer2"></i>
+      <span *ngIf="!isCollapsed">Dashboard</span>
+    </a>
+
+    <a routerLink="/tickets" 
+       routerLinkActive="active"
+       class="nav-item">
+      <i class="bi bi-ticket-perforated"></i>
+      <span *ngIf="!isCollapsed">Tickets</span>
+    </a>
+
+    <a routerLink="/tickets/new" 
+       routerLinkActive="active"
+       class="nav-item">
+      <i class="bi bi-plus-circle"></i>
+      <span *ngIf="!isCollapsed">New Ticket</span>
+    </a>
+
+    <ng-container *ngIf="isAdmin()">
+      <div class="nav-section" *ngIf="!isCollapsed">
+        ADMIN
+      </div>
+
+      <a routerLink="/users" 
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="bi bi-people"></i>
+        <span *ngIf="!isCollapsed">Users</span>
+      </a>
+
+      <a routerLink="/departments" 
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="bi bi-building"></i>
+        <span *ngIf="!isCollapsed">Departments</span>
+      </a>
+
+      <a routerLink="/roles" 
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="bi bi-shield-check"></i>
+        <span *ngIf="!isCollapsed">Roles</span>
+      </a>
+
+      <a routerLink="/categories" 
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="bi bi-tag"></i>
+        <span *ngIf="!isCollapsed">Categories</span>
+      </a>
+    </ng-container>
+
+  </nav>
+
+  <div class="sidebar-footer" *ngIf="currentUser">
+    <div class="user-info" *ngIf="!isCollapsed">
+      <div class="user-avatar">
+        {{ currentUser.firstName?.charAt(0) }}
+        {{ currentUser.lastName?.charAt(0) }}
+      </div>
+      <div class="user-details">
+        <div class="user-name">
+          {{ currentUser.firstName }} {{ currentUser.lastName }}
+        </div>
+        <div class="user-email">{{ currentUser.email }}</div>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span *ngIf="!isCollapsed">Logout</span>
+    </button>
+  </div>
+
+</div>

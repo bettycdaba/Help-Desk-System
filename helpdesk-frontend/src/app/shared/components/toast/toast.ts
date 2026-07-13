@@ -1,9 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ToastService, Toast } 
+  from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-toast',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './toast.html',
-  styleUrl: './toast.css',
+  styleUrl: './toast.css'
 })
-export class Toast {}
+export class ToastComponent implements OnInit {
+
+  toasts: Toast[] = [];
+
+  constructor(private toastService: ToastService) {}
+
+  ngOnInit(): void {
+    this.toastService.toasts$.subscribe(toasts => {
+      this.toasts = toasts;
+    });
+  }
+
+  remove(id: number): void {
+    this.toastService.removeToast(id);
+  }
+
+  getIcon(type: string): string {
+    switch(type) {
+      case 'success': return 'bi-check-circle-fill';
+      case 'error': return 'bi-x-circle-fill';
+      case 'warning': return 'bi-exclamation-triangle-fill';
+      default: return 'bi-info-circle-fill';
+    }
+  }
+}
