@@ -8,8 +8,17 @@ export const authInterceptor: HttpInterceptorFn =
   const authService = inject(AuthService);
   const token = authService.getToken();
   // Do not attach Authorization header for authentication endpoints
-  const url = req.url || '';
-  const isAuthEndpoint = url.includes('/api/auth/');
+  const rawUrl = req.url || '';
+  let path = rawUrl;
+  try {
+    const parsed = new URL(rawUrl);
+    path = parsed.pathname;
+  } catch {
+    // not an absolute URL, use as-is
+    path = rawUrl;
+  }
+
+  const isAuthEndpoint = path.startsWith('/api/auth');
 
   if (token && !isAuthEndpoint) {
     const cloned = req.clone({
