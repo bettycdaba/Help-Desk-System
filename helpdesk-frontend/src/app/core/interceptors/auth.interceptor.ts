@@ -7,11 +7,13 @@ export const authInterceptor: HttpInterceptorFn =
 
   const authService = inject(AuthService);
   const token = authService.getToken();
+  // Do not attach Authorization header for authentication endpoints
+  const url = req.url || '';
+  const isAuthEndpoint = url.includes('/api/auth/');
 
-  if (token) {
+  if (token && !isAuthEndpoint) {
     const cloned = req.clone({
-      headers: req.headers.set(
-        'Authorization', `Bearer ${token}`)
+      headers: req.headers.set('Authorization', `Bearer ${token}`)
     });
     return next(cloned);
   }

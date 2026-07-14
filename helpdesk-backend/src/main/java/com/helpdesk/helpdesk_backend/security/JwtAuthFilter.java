@@ -20,7 +20,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path != null && path.startsWith("/api/auth/");
+    }
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                      HttpServletResponse response,
@@ -29,33 +34,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        System.out.println("=== JWT DEBUG ===");
-        System.out.println("URL: " + request.getRequestURI());
-        System.out.println("Auth Header: " + authHeader);
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("DEBUG: No Bearer token — skipping filter");
             filterChain.doFilter(request, response);
             return;
         }
 
         final String token = authHeader.substring(7);
-        System.out.println("DEBUG: Token extracted = " + token);
 
         try {
             final String email = jwtUtil.extractUsername(token);
-            System.out.println("DEBUG: Email extracted = " + email);
 
             if (email != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails =
                         userDetailsService.loadUserByUsername(email);
-                System.out.println("DEBUG: User found = " +
-                        userDetails.getUsername());
 
                 boolean isValid = jwtUtil.isTokenValid(token, userDetails);
-                System.out.println("DEBUG: Token valid = " + isValid);
 
                 if (isValid) {
                     UsernamePasswordAuthenticationToken authToken =
@@ -70,14 +65,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext()
                             .setAuthentication(authToken);
-
-                    System.out.println("DEBUG: Auth set successfully!");
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("DEBUG: Exception = " + e.getMessage());
-            e.printStackTrace();
+            // Intentionally ignore parsing/validation exceptions to avoid
+            // exposing sensitive information and to allow unauthenticated
+            // requests to continue. Authentication won't be set.
         }
 
         filterChain.doFilter(request, response);
