@@ -1,0 +1,27 @@
+/* Styles for dashboard */
+.page-header .page-title {
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+.stat-card {
+	background: #fff;
+	border: 1px solid #e9ecef;
+	padding: 1rem;
+	border-radius: 6px;
+	text-align: center;
+}
+
+.stat-icon { color: #6c757d; font-size: 1.4rem; }
+.stat-number { font-size: 1.4rem; font-weight: 600; }
+.stat-label { color: #6c757d; font-size: 0.9rem; }
+
+.empty-state { padding: 2rem; text-align: center; color: #6c757d; }
+
+.clickable-row { cursor: pointer; }
+.clickable-row:hover { background-color: #f8f9fa; }
+
+@media (max-width: 576px) {
+	.stat-number { font-size: 1.1rem; }
+}
+
