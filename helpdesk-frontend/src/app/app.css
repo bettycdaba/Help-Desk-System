@@ -1,5 +1,7 @@
 .main-content {
+  margin-left: 250px;
   min-height: 100vh;
   background-color: #f0f2f5;
   padding: 24px;
+  transition: margin-left 0.3s ease;
 }
