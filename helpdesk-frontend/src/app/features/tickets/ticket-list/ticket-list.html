@@ -1,1 +1,130 @@
-<p>ticket-list works!</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Tickets</h1>
+    <p class="text-muted mb-0">View and manage support requests.</p>
+  </div>
+
+  <a routerLink="/tickets/new" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>
+    New Ticket
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label">Search</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by ticket, subject, category, or user"
+          [(ngModel)]="searchTerm">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Status</label>
+        <select class="form-select" [(ngModel)]="selectedStatus">
+          <option value="">All statuses</option>
+          <option *ngFor="let status of statuses" [value]="status">
+            {{ status.replace('_', ' ') }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Priority</label>
+        <select class="form-select" [(ngModel)]="selectedPriority">
+          <option value="">All priorities</option>
+          <option *ngFor="let priority of priorities" [value]="priority">
+            {{ priority }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-1">
+        <button
+          type="button"
+          class="btn btn-outline-secondary w-100"
+          (click)="clearFilters()"
+          title="Clear filters">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="empty-state">
+  <div class="spinner-border text-primary mb-3" role="status"></div>
+  <p>Loading tickets...</p>
+</div>
+
+<div *ngIf="errorMessage" class="alert alert-danger">
+  <i class="bi bi-exclamation-circle me-2"></i>
+  {{ errorMessage }}
+  <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadTickets()">
+    Retry
+  </button>
+</div>
+
+<div *ngIf="!loading && !errorMessage" class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>All Tickets</span>
+    <span class="text-muted fw-normal">{{ filteredTickets.length }} result(s)</span>
+  </div>
+
+  <div *ngIf="filteredTickets.length === 0" class="empty-state">
+    <i class="bi bi-ticket-perforated"></i>
+    <h5>No tickets found</h5>
+    <p class="mb-0">Try changing the filters or create a new ticket.</p>
+  </div>
+
+  <div *ngIf="filteredTickets.length > 0" class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Subject</th>
+          <th>Category</th>
+          <th>Created By</th>
+          <th>Assigned To</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let ticket of filteredTickets" class="clickable-row">
+          <td class="fw-semibold">
+            {{ ticket.ticketNumber || ('#' + ticket.id) }}
+          </td>
+          <td>{{ ticket.subject }}</td>
+          <td>{{ ticket.categoryName || '—' }}</td>
+          <td>{{ ticket.createdByName || '—' }}</td>
+          <td>{{ ticket.assignedToName || 'Unassigned' }}</td>
+          <td>
+            <span class="badge priority-{{ ticket.priority || 'LOW' }}">
+              {{ ticket.priority || 'LOW' }}
+            </span>
+          </td>
+          <td>
+            <span class="badge status-{{ ticket.status || 'OPEN' }}">
+              {{ (ticket.status || 'OPEN').replace('_', ' ') }}
+            </span>
+          </td>
+          <td>{{ ticket.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <a
+              class="btn btn-sm btn-outline-primary"
+              [routerLink]="['/tickets', ticket.id]">
+              View
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+.back-link {
+  color: #2d5986;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.description {
+  white-space: pre-wrap;
+  line-height: 1.7;
+  color: #444;
+}
+
+.detail-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-list div:last-child {
+  border-bottom: 0;
+}
+
+.detail-list dt {
+  color: #6c757d;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.detail-list dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.timeline {
+  padding: 4px 20px 12px 32px;
+}
+
+.timeline li {
+  position: relative;
+  padding: 12px 0;
+  font-size: 13px;
+  border-left: 2px solid #dce5ef;
+  padding-left: 16px;
+}
+
+.timeline li::before {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  left: -6px;
+  top: 16px;
+  border-radius: 50%;
+  background-color: #2d5986;
+}

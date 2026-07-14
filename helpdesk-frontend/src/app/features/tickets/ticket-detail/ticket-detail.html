@@ -1,1 +1,142 @@
-<p>ticket-detail works!</p>
+<div *ngIf="loading" class="empty-state">
+  <div class="spinner-border text-primary mb-3" role="status"></div>
+  <p>Loading ticket...</p>
+</div>
+
+<div *ngIf="errorMessage" class="empty-state">
+  <i class="bi bi-exclamation-circle text-danger"></i>
+  <h5>{{ errorMessage }}</h5>
+  <a routerLink="/tickets" class="btn btn-primary mt-2">
+    Back to Tickets
+  </a>
+</div>
+
+<div *ngIf="!loading && ticket">
+  <div class="page-header">
+    <div>
+      <a routerLink="/tickets" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Tickets
+      </a>
+      <h1 class="page-title mt-2">
+        {{ ticket.ticketNumber || ('Ticket #' + ticket.id) }}
+      </h1>
+      <p class="text-muted mb-0">{{ ticket.subject }}</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <span class="badge status-{{ ticket.status || 'OPEN' }}">
+        {{ (ticket.status || 'OPEN').replace('_', ' ') }}
+      </span>
+      <span class="badge priority-{{ ticket.priority || 'LOW' }}">
+        {{ ticket.priority || 'LOW' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">Description</div>
+        <div class="card-body">
+          <p class="description mb-0">
+            {{ ticket.description || 'No description was provided.' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          Comments
+          <span class="text-muted fw-normal">({{ comments.length }})</span>
+        </div>
+
+        <div *ngIf="comments.length === 0" class="empty-state py-4">
+          <i class="bi bi-chat-left-text"></i>
+          <p class="mb-0">No comments yet.</p>
+        </div>
+
+        <div *ngIf="comments.length > 0" class="list-group list-group-flush">
+          <div *ngFor="let comment of comments" class="list-group-item">
+            <div class="d-flex justify-content-between gap-3 mb-2">
+              <strong>{{ comment.userName || 'Unknown user' }}</strong>
+              <small class="text-muted">
+                {{ comment.commentedAt | date:'medium' }}
+              </small>
+            </div>
+            <p class="mb-0">{{ comment.comment }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">Ticket Details</div>
+        <div class="card-body">
+          <dl class="detail-list mb-0">
+            <div>
+              <dt>Category</dt>
+              <dd>{{ ticket.categoryName || '—' }}</dd>
+            </div>
+            <div>
+              <dt>Created By</dt>
+              <dd>{{ ticket.createdByName || '—' }}</dd>
+            </div>
+            <div>
+              <dt>Assigned To</dt>
+              <dd>{{ ticket.assignedToName || 'Unassigned' }}</dd>
+            </div>
+            <div>
+              <dt>Created</dt>
+              <dd>{{ ticket.createdAt | date:'medium' }}</dd>
+            </div>
+            <div>
+              <dt>Last Updated</dt>
+              <dd>{{ ticket.updatedAt | date:'medium' }}</dd>
+            </div>
+            <div *ngIf="ticket.resolvedAt">
+              <dt>Resolved</dt>
+              <dd>{{ ticket.resolvedAt | date:'medium' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Status History</div>
+
+        <div *ngIf="statusHistory.length === 0" class="p-3 text-muted">
+          No status history.
+        </div>
+
+        <ul *ngIf="statusHistory.length > 0" class="timeline list-unstyled mb-0">
+          <li *ngFor="let item of statusHistory">
+            <strong>{{ item.newStatus?.replace('_', ' ') }}</strong>
+            <span class="d-block text-muted small">
+              {{ item.changedByName || 'Unknown user' }} ·
+              {{ item.changedAt | date:'medium' }}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Assignment History</div>
+
+        <div *ngIf="assignmentHistory.length === 0" class="p-3 text-muted">
+          No assignment history.
+        </div>
+
+        <ul *ngIf="assignmentHistory.length > 0" class="timeline list-unstyled mb-0">
+          <li *ngFor="let item of assignmentHistory">
+            <strong>{{ item.newAssigneeName || 'Unassigned' }}</strong>
+            <span class="d-block text-muted small">
+              Assigned by {{ item.assignedByName || 'Unknown user' }} ·
+              {{ item.assignedAt | date:'medium' }}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

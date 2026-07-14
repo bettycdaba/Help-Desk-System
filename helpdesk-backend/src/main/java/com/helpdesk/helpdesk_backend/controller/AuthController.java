@@ -48,6 +48,7 @@ public class AuthController {
 
         LoginResponseDTO response = LoginResponseDTO.builder()
                 .token(token)
+                .id(user.getId())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())

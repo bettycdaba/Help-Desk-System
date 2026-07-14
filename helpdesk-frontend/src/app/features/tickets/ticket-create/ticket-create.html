@@ -1,1 +1,54 @@
-<p>ticket-create works!</p>
+<div class="page-header mb-3">
+	<div>
+		<h2 class="page-title">Create Ticket</h2>
+	</div>
+	<div>
+		<a class="btn btn-secondary" [routerLink]="['/tickets']">Back to list</a>
+	</div>
+</div>
+
+<div *ngIf="loading" class="empty-state">Loading...</div>
+
+<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+<form *ngIf="!loading" (ngSubmit)="onSubmit()">
+	<div class="mb-3">
+		<label class="form-label">Subject</label>
+		<input class="form-control" [(ngModel)]="subject" name="subject" required />
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Description</label>
+		<textarea class="form-control" rows="4" [(ngModel)]="description" name="description"></textarea>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6 mb-3">
+			<label class="form-label">Category</label>
+			<select class="form-select" [(ngModel)]="categoryId" name="categoryId">
+				<option [ngValue]="null">-- Select --</option>
+				<option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+			</select>
+		</div>
+
+		<div class="col-md-6 mb-3">
+			<label class="form-label">Assignee (optional)</label>
+			<select class="form-select" [(ngModel)]="assignedToId" name="assignedToId">
+				<option [ngValue]="null">-- Unassigned --</option>
+				<option *ngFor="let u of users" [ngValue]="u.id">{{ u.firstName }} {{ u.lastName }} ({{ u.email }})</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Priority</label>
+		<select class="form-select" [(ngModel)]="priority" name="priority">
+			<option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+		</select>
+	</div>
+
+	<div class="d-flex gap-2">
+		<button class="btn btn-primary" type="submit" [disabled]="saving">Create</button>
+		<a class="btn btn-light" [routerLink]="['/tickets']">Cancel</a>
+	</div>
+</form>
