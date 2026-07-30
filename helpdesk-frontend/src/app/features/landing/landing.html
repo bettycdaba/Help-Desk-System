@@ -1,0 +1,172 @@
+<div class="landing-page">
+
+  <nav class="landing-nav">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <i class="bi bi-headset"></i>
+        Help Desk System
+      </div>
+      <!-- <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#about" class="nav-link">About</a>
+        <button class="btn-login" (click)="goToLogin()">
+          <i class="bi bi-box-arrow-in-right me-1"></i>
+          Login
+        </button>
+      </div> -->
+      
+      <div class="nav-links">
+        <button class="nav-link-btn" 
+          (click)="scrollTo('features')">
+          Features
+        </button>
+        <button class="nav-link-btn" 
+          (click)="scrollTo('about')">
+          About
+        </button>
+        <button class="btn-login" (click)="goToLogin()">
+          <i class="bi bi-box-arrow-in-right me-1"></i>
+          Login
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="bi bi-stars me-2"></i>
+        Bank Internal Support Portal
+      </div>
+      <h1 class="hero-title">
+        Your IT Support,<br>
+        <span class="hero-highlight">Simplified.</span>
+      </h1>
+      <p class="hero-subtitle">
+        A modern help desk system built for your bank's
+        internal teams. Submit tickets, track issues,
+        and get faster resolutions — all in one place.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary-hero"
+          (click)="goToLogin()">
+          <i class="bi bi-rocket-takeoff me-2"></i>
+          Get Started
+        </button>
+        <!-- <a href="#features" class="btn-secondary-hero">
+          <i class="bi bi-arrow-down-circle me-2"></i>
+          Learn More
+        </a> -->
+        
+        <button class="btn-secondary-hero"
+          (click)="scrollTo('features')">
+          <i class="bi bi-arrow-down-circle me-2"></i>
+          Learn More
+        </button>        
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <span class="hero-card-dot red"></span>
+          <span class="hero-card-dot yellow"></span>
+          <span class="hero-card-dot green"></span>
+          <span class="ms-2 text-muted small">
+            TKT-A1B2C3D4
+          </span>
+        </div>
+        <div class="hero-card-body">
+          <div class="hero-ticket-row">
+            <span class="label">Subject</span>
+            <span>Laptop won't power on</span>
+          </div>
+          <div class="hero-ticket-row">
+            <span class="label">Status</span>
+            <span class="badge-open">OPEN</span>
+          </div>
+          <div class="hero-ticket-row">
+            <span class="label">Priority</span>
+            <span class="badge-high">HIGH</span>
+          </div>
+          <div class="hero-ticket-row">
+            <span class="label">Assigned To</span>
+            <span>Sara Tesfaye</span>
+          </div>
+          <div class="hero-comment">
+            <div class="hero-comment-avatar">S</div>
+            <div class="hero-comment-text">
+              Checked the adapter, will replace tomorrow.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-section">
+    <div class="stats-inner">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-item">
+          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="features-section" id="features">
+    <div class="section-header">
+      <h2 class="section-title">
+        Everything you need to manage support
+      </h2>
+      <p class="section-subtitle">
+        Built specifically for bank internal teams
+        who need reliable, fast, and secure IT support.
+      </p>
+    </div>
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi {{ feature.icon }}"></i>
+          </div>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-desc">
+            {{ feature.description }}
+          </p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="cta-section" id="about">
+    <div class="cta-content">
+      <h2 class="cta-title">
+        Ready to streamline your IT support?
+      </h2>
+      <p class="cta-subtitle">
+        Join your team on the Help Desk System today.
+        Fast setup, secure access, zero hassle.
+      </p>
+      <button class="btn-primary-hero"
+        (click)="goToLogin()">
+        <i class="bi bi-box-arrow-in-right me-2"></i>
+        Login to Get Started
+      </button>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <i class="bi bi-headset me-2"></i>
+        Help Desk System
+      </div>
+      <p class="footer-copy">
+        &copy; 2026 Bank Internal Support Portal.
+        All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+</div>

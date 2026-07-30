@@ -1,0 +1,150 @@
+<div class="login-page">
+  <div class="login-container">
+
+    <div class="login-header">
+      <div class="login-logo">
+        <i class="bi bi-person-plus"></i>
+      </div>
+      <h1 class="login-title">Create Account</h1>
+      <p class="login-subtitle">
+        Join the Help Desk System
+      </p>
+    </div>
+
+    <div class="login-card">
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Employee ID</label>
+          <input type="text" class="form-control"
+            placeholder="EMP-001"
+            [(ngModel)]="employeeId"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Phone Number</label>
+          <input type="text" class="form-control"
+            placeholder="0911000001"
+            [(ngModel)]="phoneNumber"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">
+            First Name <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control"
+            [(ngModel)]="firstName"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">
+            Last Name <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control"
+            [(ngModel)]="lastName"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-12">
+          <label class="form-label">
+            Email <span class="text-danger">*</span>
+          </label>
+          <input type="email" class="form-control"
+            [(ngModel)]="email"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">
+            Password <span class="text-danger">*</span>
+          </label>
+          <input [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            [(ngModel)]="password"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">
+            Confirm Password <span class="text-danger">*</span>
+          </label>
+          <input [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            [(ngModel)]="confirmPassword"
+            [disabled]="isLoading">
+        </div>
+        <div class="col-12">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input"
+              id="showPwd"
+              [(ngModel)]="showPassword">
+            <label class="form-check-label" for="showPwd">
+              Show passwords
+            </label>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label">
+            Department <span class="text-danger">*</span>
+          </label>
+          <select class="form-select"
+            [(ngModel)]="departmentId"
+            [disabled]="isLoading">
+            <option [ngValue]="null">
+              Select department
+            </option>
+            @for (dept of departments; track dept.id) {
+              <option [ngValue]="dept.id">
+                {{ dept.name }}
+              </option>
+            }
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Roles</label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (role of roles; track role.id) {
+              <div class="form-check">
+                <input type="checkbox"
+                  class="form-check-input"
+                  [id]="'reg-role-' + role.id"
+                  [checked]="isRoleSelected(role.id)"
+                  (change)="toggleRole(role.id)">
+                <label class="form-check-label"
+                  [for]="'reg-role-' + role.id">
+                  {{ role.name }}
+                </label>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-danger py-2 mt-3 mb-0">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ errorMessage }}
+        </div>
+      }
+
+      <button class="btn btn-primary w-100 login-btn mt-3"
+        (click)="onRegister()"
+        [disabled]="isLoading">
+        @if (isLoading) {
+          <span class="spinner-border 
+                       spinner-border-sm me-2"></span>
+          Creating account...
+        } @else {
+          <i class="bi bi-person-check me-2"></i>
+          Create Account
+        }
+      </button>
+
+      <p class="text-center mt-3 mb-0 text-muted small">
+        Already have an account?
+        <a routerLink="/login" class="text-primary">
+          Login
+        </a>
+      </p>
+
+    </div>
+
+  </div>
+</div>

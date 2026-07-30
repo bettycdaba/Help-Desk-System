@@ -40,10 +40,18 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByDepartment(departmentId));
     }
 
-    @PutMapping("/{id}")
+    // @PutMapping("/{id}")
+    // public ResponseEntity<UserResponseDTO> updateFullUser(
+    // @PathVariable Long id,
+    // @RequestBody UserRequestDTO request) {// @Valid
+
+    // return ResponseEntity.ok(userService.updateUser(id, request));
+    // }
+    @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserRequestDTO request) {
+            @RequestBody UserRequestDTO request) {// @Valid
+
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 

@@ -1,18 +1,9 @@
-.card-body {
-  padding: 20px;
-}
-
-.table td,
-.table th {
-  white-space: nowrap;
-}
-
-.table td:nth-child(2) {
-  min-width: 220px;
-  white-space: normal;
-}
-
-.empty-state .spinner-border {
-  width: 2.5rem;
-  height: 2.5rem;
+.ticket-number {
+  font-family: monospace;
+  font-size: 12px;
+  background: #f0f2f5;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #1e3a5f;
+  font-weight: 600;
 }

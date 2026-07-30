@@ -8,6 +8,8 @@ import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.*;
 import com.helpdesk.helpdesk_backend.service.EmailService;
 import com.helpdesk.helpdesk_backend.service.TicketService;
+import com.helpdesk.helpdesk_backend.service.WebSocketNotificationService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketAssignmentHistoryRepository assignmentHistoryRepository;
     private final TicketStatusHistoryRepository statusHistoryRepository;
     private final EmailService emailService;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     @Transactional
@@ -179,6 +182,9 @@ public class TicketServiceImpl implements TicketService {
         ticket.setUpdatedAt(LocalDateTime.now());
         Ticket saved = ticketRepository.save(ticket);
 
+        webSocketNotificationService.notifyTicketUpdate(
+    "ASSIGNED", mapToResponse(saved));
+
         TicketAssignmentHistory history = TicketAssignmentHistory.builder()
                 .ticket(saved)
                 .oldAssignee(oldAssignee)
@@ -231,6 +237,9 @@ public class TicketServiceImpl implements TicketService {
                 .build();
 
         statusHistoryRepository.save(history);
+
+        webSocketNotificationService.notifyTicketUpdate(
+        "STATUS_CHANGED", mapToResponse(saved));
 
         if (request.getNewStatus() == TicketStatus.RESOLVED
             || request.getNewStatus() == TicketStatus.CLOSED) {

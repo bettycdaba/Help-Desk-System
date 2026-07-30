@@ -1,130 +1,185 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Tickets</h1>
-    <p class="text-muted mb-0">View and manage support requests.</p>
-  </div>
-
+  <h1 class="page-title">
+    <i class="bi bi-ticket-perforated me-2"></i>Tickets
+  </h1>
   <a routerLink="/tickets/new" class="btn btn-primary">
-    <i class="bi bi-plus-circle me-2"></i>
-    New Ticket
+    <i class="bi bi-plus-circle me-2"></i>New Ticket
   </a>
 </div>
 
-<div class="card">
+<div class="card mb-3">
   <div class="card-body">
-    <div class="row g-3 align-items-end">
-      <div class="col-md-5">
-        <label class="form-label">Search</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search by ticket, subject, category, or user"
-          [(ngModel)]="searchTerm">
+    <div class="row g-2">
+      <div class="col-md-4">
+        <input type="text" class="form-control"
+          placeholder="Search by subject or ticket number..."
+          [(ngModel)]="searchText"
+          (ngModelChange)="applyFilters()">
       </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Status</label>
-        <select class="form-select" [(ngModel)]="selectedStatus">
-          <option value="">All statuses</option>
-          <option *ngFor="let status of statuses" [value]="status">
-            {{ status.replace('_', ' ') }}
-          </option>
+      <div class="col-md-2">
+        <select class="form-select"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilters()">
+          <option value="">All Statuses</option>
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
         </select>
       </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Priority</label>
-        <select class="form-select" [(ngModel)]="selectedPriority">
-          <option value="">All priorities</option>
-          <option *ngFor="let priority of priorities" [value]="priority">
-            {{ priority }}
-          </option>
+      <div class="col-md-2">
+        <select class="form-select"
+          [(ngModel)]="selectedPriority"
+          (ngModelChange)="applyFilters()">
+          <option value="">All Priorities</option>
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ p }}</option>
+          }
         </select>
       </div>
-
-      <div class="col-md-1">
-        <button
-          type="button"
-          class="btn btn-outline-secondary w-100"
-          (click)="clearFilters()"
-          title="Clear filters">
-          <i class="bi bi-arrow-counterclockwise"></i>
+      <div class="col-md-2">
+        <select class="form-select"
+          [(ngModel)]="selectedCategory"
+          (ngModelChange)="applyFilters()">
+          <option value="">All Categories</option>
+          @for (c of categories; track c.id) {
+            <option [value]="c.name">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-secondary w-100"
+          (click)="clearFilters()">
+          <i class="bi bi-x-circle me-1"></i>Clear
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="loading" class="empty-state">
-  <div class="spinner-border text-primary mb-3" role="status"></div>
-  <p>Loading tickets...</p>
-</div>
+<div class="card">
+  <div class="card-body p-0">
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="text-muted mt-2">Loading tickets...</p>
+      </div>
+    } @else if (filteredTickets.length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No tickets found</p>
+        <a routerLink="/tickets/new"
+           class="btn btn-primary btn-sm">
+          Create New Ticket
+        </a>
+      </div>
+    } @else {
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Subject</th>
+            <th>Category</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- @for (ticket of paginatedTickets; track ticket.id) {
+            <tr class="clickable-row"
+                (click)="goToTicket(ticket.id)">
+              <td>
+                <span class="ticket-number">
+                  {{ ticket.ticketNumber }}
+                </span>
+              </td>
+              <td>{{ ticket.subject }}</td>
+              <td>{{ ticket.categoryName }}</td>
+              <td>
+                <span class="badge"
+                  [ngClass]="getPriorityClass(ticket.priority)">
+                  {{ ticket.priority }}
+                </span>
+              </td>
+              <td>
+                <span class="badge"
+                  [ngClass]="getStatusClass(ticket.status)">
+                  {{ ticket.status }}
+                </span>
+              </td>
+              <td>{{ ticket.assignedToName || '—' }}</td>
+              <td>{{ ticket.createdByName }}</td>
+            </tr>
+          } -->
+        @for (ticket of paginatedTickets; track ticket.id) {
+          <tr class="clickable-row"
+              style="cursor: pointer;"
+              (click)="goToTicket(ticket.id)">
+            <td>
+              <span class="ticket-number">
+                {{ ticket.ticketNumber }}
+              </span>
+            </td>
+            <td>{{ ticket.subject }}</td>
+            <td>{{ ticket.categoryName }}</td>
+            <td>
+              <span class="badge"
+                [ngClass]="getPriorityClass(ticket.priority)">
+                {{ ticket.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge"
+                [ngClass]="getStatusClass(ticket.status)">
+                {{ ticket.status }}
+              </span>
+            </td>
+            <td>{{ ticket.assignedToName || '—' }}</td>
+            <td>{{ ticket.createdByName }}</td>
+          </tr>
+        }
+        </tbody>
+      </table>
 
-<div *ngIf="errorMessage" class="alert alert-danger">
-  <i class="bi bi-exclamation-circle me-2"></i>
-  {{ errorMessage }}
-  <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadTickets()">
-    Retry
-  </button>
-</div>
-
-<div *ngIf="!loading && !errorMessage" class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <span>All Tickets</span>
-    <span class="text-muted fw-normal">{{ filteredTickets.length }} result(s)</span>
-  </div>
-
-  <div *ngIf="filteredTickets.length === 0" class="empty-state">
-    <i class="bi bi-ticket-perforated"></i>
-    <h5>No tickets found</h5>
-    <p class="mb-0">Try changing the filters or create a new ticket.</p>
-  </div>
-
-  <div *ngIf="filteredTickets.length > 0" class="table-responsive">
-    <table class="table table-hover mb-0">
-      <thead>
-        <tr>
-          <th>Ticket</th>
-          <th>Subject</th>
-          <th>Category</th>
-          <th>Created By</th>
-          <th>Assigned To</th>
-          <th>Priority</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th></th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let ticket of filteredTickets" class="clickable-row">
-          <td class="fw-semibold">
-            {{ ticket.ticketNumber || ('#' + ticket.id) }}
-          </td>
-          <td>{{ ticket.subject }}</td>
-          <td>{{ ticket.categoryName || '—' }}</td>
-          <td>{{ ticket.createdByName || '—' }}</td>
-          <td>{{ ticket.assignedToName || 'Unassigned' }}</td>
-          <td>
-            <span class="badge priority-{{ ticket.priority || 'LOW' }}">
-              {{ ticket.priority || 'LOW' }}
-            </span>
-          </td>
-          <td>
-            <span class="badge status-{{ ticket.status || 'OPEN' }}">
-              {{ (ticket.status || 'OPEN').replace('_', ' ') }}
-            </span>
-          </td>
-          <td>{{ ticket.createdAt | date:'mediumDate' }}</td>
-          <td>
-            <a
-              class="btn btn-sm btn-outline-primary"
-              [routerLink]="['/tickets', ticket.id]">
-              View
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      @if (totalPages > 1) {
+        <div class="d-flex justify-content-between 
+                    align-items-center p-3">
+          <small class="text-muted">
+            Showing {{ (currentPage-1)*pageSize+1 }}–
+            {{ [currentPage*pageSize,
+                filteredTickets.length] | slice:0:1 }}
+            of {{ filteredTickets.length }} tickets
+          </small>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item"
+                  [class.disabled]="currentPage === 1">
+                <button class="page-link"
+                  (click)="goToPage(currentPage - 1)">
+                  &laquo;
+                </button>
+              </li>
+              @for (page of pages; track page) {
+                <li class="page-item"
+                    [class.active]="page === currentPage">
+                  <button class="page-link"
+                    (click)="goToPage(page)">
+                    {{ page }}
+                  </button>
+                </li>
+              }
+              <li class="page-item"
+                [class.disabled]="currentPage === totalPages">
+                <button class="page-link"
+                  (click)="goToPage(currentPage + 1)">
+                  &raquo;
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
+    }
   </div>
 </div>

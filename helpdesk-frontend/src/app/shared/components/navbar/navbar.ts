@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } 
+import { Router, RouterLink, RouterLinkActive }
   from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
-import { LoginResponse } from '../../../core/models/auth.model';
+import { AuthService }
+  from '../../../core/services/auth.service';
+import { LoginResponse }
+  from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-navbar',
@@ -29,8 +31,13 @@ export class NavbarComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    if (!this.currentUser) return false;
-    return true;
+    return this.authService.isAdmin();
+  }
+
+  getDashboardRoute(): string {
+    return this.isAdmin()
+      ? '/admin/dashboard'
+      : '/dashboard';
   }
 
   toggleSidebar(): void {

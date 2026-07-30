@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef }
+  from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TicketService } from '../../../core/services/ticket.service';
-import { CategoryService } from '../../../core/services/category.service';
-import { UserService } from '../../../core/services/user.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { ToastService } from '../../../core/services/toast.service';
-import { Ticket } from '../../../core/models/ticket.model';
-import { TicketCategory } from '../../../core/models/category.model';
+import { TicketService }
+  from '../../../core/services/ticket.service';
+import { CategoryService }
+  from '../../../core/services/category.service';
+import { UserService }
+  from '../../../core/services/user.service';
+import { ToastService }
+  from '../../../core/services/toast.service';
+import { TicketCategory }
+  from '../../../core/models/category.model';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -16,21 +20,19 @@ import { User } from '../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ticket-create.html',
-  styleUrls: ['./ticket-create.css'],
+  styleUrl: './ticket-create.css'
 })
 export class TicketCreate implements OnInit {
+
   subject = '';
   description = '';
+  priority = 'MEDIUM';
   categoryId: number | null = null;
   assignedToId: number | null = null;
-  priority = 'LOW';
 
   categories: TicketCategory[] = [];
   users: User[] = [];
-
-  loading = false;
-  saving = false;
-  error: string | null = null;
+  isSubmitting = false;
 
   priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
@@ -38,65 +40,88 @@ export class TicketCreate implements OnInit {
     private ticketService: TicketService,
     private categoryService: CategoryService,
     private userService: UserService,
-    private authService: AuthService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadCategories();
+    this.loadUsers();
   }
 
-  loadData(): void {
-    this.loading = true;
-    this.error = null;
-
+  loadCategories(): void {
     this.categoryService.getAll().subscribe({
-      next: cats => { this.categories = cats || []; },
-      error: () => { /* ignore for now */ }
+      next: (cats) => {
+        this.categories = cats;
+        this.cdr.detectChanges();
+      },
+      error: () =>
+        this.toastService.error('Failed to load categories')
     });
+  }
 
+  loadUsers(): void {
     this.userService.getAll().subscribe({
-      next: users => { this.users = users || []; },
-      error: () => { /* ignore */ }
+      next: (users) => {
+        this.users = users;
+        this.cdr.detectChanges();
+      },
+      error: () =>
+        this.toastService.error('Failed to load users')
     });
+  }
 
-    this.loading = false;
+  getCurrentUserId(): number {
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
+      const user = JSON.parse(stored);
+      return user.id || user.userId || 1;
+    }
+    return 1;
   }
 
   onSubmit(): void {
-    if (!this.subject) {
-      this.error = 'Subject is required.';
+    if (!this.subject.trim()) {
+      this.toastService.error('Subject is required');
+      return;
+    }
+    if (!this.categoryId) {
+      this.toastService.error('Please select a category');
       return;
     }
 
-    const current = this.authService.getCurrentUser();
-    const createdById = current ? current.id : undefined;
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
 
-    const payload: Ticket = {
+    const payload: any = {
       subject: this.subject,
       description: this.description,
-      categoryId: this.categoryId || undefined,
-      assignedToId: this.assignedToId || undefined,
       priority: this.priority,
-      createdById: createdById
-    } as Ticket;
+      categoryId: this.categoryId,
+      createdById: this.getCurrentUserId()
+    };
 
-    this.saving = true;
+    if (this.assignedToId) {
+      payload.assignedToId = this.assignedToId;
+    }
+
     this.ticketService.create(payload).subscribe({
       next: (created) => {
-        this.saving = false;
-        this.toastService.success('Ticket created successfully');
-        if (created && created.id) {
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+        this.toastService.success(
+          `Ticket ${created.ticketNumber} created!`);
+        setTimeout(() => {
           this.router.navigate(['/tickets', created.id]);
-        } else {
-          this.router.navigate(['/tickets']);
-        }
+        }, 500);
       },
       error: (err) => {
-        this.saving = false;
-        this.error = err && err.message ? err.message : 'Failed to create ticket.';
-        this.toastService.error(this.error || 'Failed to create ticket.');
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+        this.toastService.error(
+          err?.error?.message ||
+          'Failed to create ticket. Please try again.');
       }
     });
   }

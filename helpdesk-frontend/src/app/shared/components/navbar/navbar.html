@@ -14,9 +14,9 @@
 
   <nav class="sidebar-nav">
 
-    <a routerLink="/dashboard" 
-       routerLinkActive="active"
-       class="nav-item">
+    <a [routerLink]="getDashboardRoute()"
+      routerLinkActive="active"
+      class="nav-item">
       <i class="bi bi-speedometer2"></i>
       <span *ngIf="!isCollapsed">Dashboard</span>
     </a>
@@ -35,39 +35,39 @@
       <span *ngIf="!isCollapsed">New Ticket</span>
     </a>
 
-    <ng-container *ngIf="isAdmin()">
+    @if (isAdmin()) {
       <div class="nav-section" *ngIf="!isCollapsed">
         ADMIN
       </div>
 
-      <a routerLink="/users" 
-         routerLinkActive="active"
-         class="nav-item">
+      <a routerLink="/users"
+        routerLinkActive="active"
+        class="nav-item">
         <i class="bi bi-people"></i>
         <span *ngIf="!isCollapsed">Users</span>
       </a>
 
-      <a routerLink="/departments" 
-         routerLinkActive="active"
-         class="nav-item">
+      <a routerLink="/departments"
+        routerLinkActive="active"
+        class="nav-item">
         <i class="bi bi-building"></i>
         <span *ngIf="!isCollapsed">Departments</span>
       </a>
 
-      <a routerLink="/roles" 
-         routerLinkActive="active"
-         class="nav-item">
+      <a routerLink="/roles"
+        routerLinkActive="active"
+        class="nav-item">
         <i class="bi bi-shield-check"></i>
         <span *ngIf="!isCollapsed">Roles</span>
       </a>
 
-      <a routerLink="/categories" 
-         routerLinkActive="active"
-         class="nav-item">
+      <a routerLink="/categories"
+        routerLinkActive="active"
+        class="nav-item">
         <i class="bi bi-tag"></i>
         <span *ngIf="!isCollapsed">Categories</span>
       </a>
-    </ng-container>
+    }
 
   </nav>
 

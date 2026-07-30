@@ -1,86 +1,147 @@
-<div class="page-header d-flex justify-content-between align-items-center mb-4">
-	<div>
-		<h1 class="page-title">Dashboard</h1>
-		<p class="text-muted">Overview of recent activity and ticket statistics</p>
-	</div>
-	<div>
-		<a class="btn btn-primary" [routerLink]="['/tickets/new']">New Ticket</a>
-	</div>
-</div>
+<div class="dashboard">
 
-<div *ngIf="loading" class="empty-state">
-	Loading tickets...
-</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        @if (isAdmin()) {
+          Admin Dashboard
+        } @else {
+          My Dashboard
+        }
+      </h1>
+      @if (currentUser) {
+        <p class="text-muted mb-0">
+          Welcome back,
+          <strong>
+            {{ currentUser.firstName }}
+            {{ currentUser.lastName }}
+          </strong>!
+          @if (isAdmin()) {
+            You have full system access.
+          } @else {
+            Here are your tickets.
+          }
+        </p>
+      }
+    </div>
+    <a routerLink="/tickets/new"
+      class="btn btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>
+      New Ticket
+    </a>
+  </div>
 
-<div *ngIf="error" class="alert alert-danger">
-	{{ error }}
-</div>
+  <div class="row g-3 mb-4">
 
-<div *ngIf="!loading && !error">
-	<div class="row mb-4">
-		<div class="col-6 col-md-3 mb-3">
-			<div class="stat-card">
-				<div class="stat-icon"><i class="bi bi-list-check"></i></div>
-				<div class="stat-number">{{ total }}</div>
-				<div class="stat-label">Total Tickets</div>
-			</div>
-		</div>
+    <div class="col-md-3">
+      <div class="stat-card" 
+           style="background: linear-gradient(135deg, #1e3a5f, #2d5986)">
+        <div class="stat-number">{{ totalTickets }}</div>
+        <div class="stat-label">Total Tickets</div>
+        <i class="bi bi-ticket-perforated stat-icon"></i>
+      </div>
+    </div>
 
-		<div class="col-6 col-md-3 mb-3">
-			<div class="stat-card">
-				<div class="stat-icon"><i class="bi bi-exclamation-circle"></i></div>
-				<div class="stat-number">{{ open }}</div>
-				<div class="stat-label">Open Tickets</div>
-			</div>
-		</div>
+    <div class="col-md-3">
+      <div class="stat-card"
+           style="background: linear-gradient(135deg, #1565c0, #1976d2)">
+        <div class="stat-number">{{ openTickets }}</div>
+        <div class="stat-label">Open Tickets</div>
+        <i class="bi bi-folder2-open stat-icon"></i>
+      </div>
+    </div>
 
-		<div class="col-6 col-md-3 mb-3">
-			<div class="stat-card">
-				<div class="stat-icon"><i class="bi bi-check-circle"></i></div>
-				<div class="stat-number">{{ resolved }}</div>
-				<div class="stat-label">Resolved Tickets</div>
-			</div>
-		</div>
+    <div class="col-md-3">
+      <div class="stat-card"
+           style="background: linear-gradient(135deg, #6a1b9a, #7b1fa2)">
+        <div class="stat-number">{{ inProgressTickets }}</div>
+        <div class="stat-label">In Progress</div>
+        <i class="bi bi-arrow-repeat stat-icon"></i>
+      </div>
+    </div>
 
-		<div class="col-6 col-md-3 mb-3">
-			<div class="stat-card">
-				<div class="stat-icon"><i class="bi bi-x-circle"></i></div>
-				<div class="stat-number">{{ closed }}</div>
-				<div class="stat-label">Closed Tickets</div>
-			</div>
-		</div>
-	</div>
+    <div class="col-md-3">
+      <div class="stat-card"
+           style="background: linear-gradient(135deg, #2e7d32, #388e3c)">
+        <div class="stat-number">{{ resolvedTickets }}</div>
+        <div class="stat-label">Resolved</div>
+        <i class="bi bi-check-circle stat-icon"></i>
+      </div>
+    </div>
 
-	<div class="card">
-		<div class="card-body">
-			<h5 class="card-title">Recent Tickets</h5>
+  </div>
 
-			<div *ngIf="recent.length === 0" class="empty-state">
-				No recent tickets found.
-			</div>
+  <div class="card">
+    <div class="card-header d-flex justify-content-between 
+                align-items-center">
+      <span>
+        <i class="bi bi-clock-history me-2"></i>
+        Recent Tickets
+      </span>
+      <a routerLink="/tickets" class="btn btn-sm btn-outline-primary">
+        View All
+      </a>
+    </div>
+    <div class="card-body p-0">
 
-			<div *ngIf="recent.length > 0" class="table-responsive">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th>Ticket</th>
-							<th>Subject</th>
-							<th>Status</th>
-							<th>Priority</th>
-							<th>Created</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr *ngFor="let ticket of recent" [routerLink]="['/tickets', ticket.id]" class="clickable-row">
-							<td>{{ ticket.ticketNumber || ('#' + (ticket.id || '')) }}</td>
-							<td>{{ ticket.subject }}</td>
-							<td><span class="badge status-{{ (ticket.status || 'UNKNOWN') | lowercase }}">{{ ticket.status }}</span></td>
-							<td><span class="badge priority-{{ (ticket.priority || 'LOW') | lowercase }}">{{ ticket.priority }}</span></td>
-							<td>{{ ticket.createdAt | date:'short' }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+      @if (isLoading) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+          <p class="text-muted mt-2">Loading tickets...</p>
+        </div>
+      } @else if (getRecentTickets().length === 0) {
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>No tickets found</p>
+          <a routerLink="/tickets/new" 
+             class="btn btn-primary btn-sm">
+            Create First Ticket
+          </a>
+        </div>
+      } @else {
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Subject</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Created By</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ticket of getRecentTickets(); 
+                  track ticket.id) {
+              <tr class="clickable-row"
+                  (click)="goToTicket(ticket.id)">
+                <td>
+                  <span class="ticket-number">
+                    {{ ticket.ticketNumber }}
+                  </span>
+                </td>
+                <td>{{ ticket.subject }}</td>
+                <td>{{ ticket.categoryName }}</td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="getPriorityClass(ticket.priority)">
+                    {{ ticket.priority }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="getStatusClass(ticket.status)">
+                    {{ ticket.status }}
+                  </span>
+                </td>
+                <td>{{ ticket.createdByName }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+    </div>
+  </div>
+
 </div>

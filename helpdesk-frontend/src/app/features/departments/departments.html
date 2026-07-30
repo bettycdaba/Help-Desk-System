@@ -1,1 +1,108 @@
-<p>departments works!</p>
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="bi bi-building me-2"></i>Departments
+  </h1>
+  <button class="btn btn-primary" (click)="openAddForm()">
+    <i class="bi bi-plus-circle me-2"></i>Add Department
+  </button>
+</div>
+
+@if (showForm) {
+  <div class="card mb-3">
+    <div class="card-header">
+      {{ isEditing ? 'Edit Department' : 'Add Department' }}
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">
+            Name <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control"
+            placeholder="Department name"
+            [(ngModel)]="form.name"
+            [disabled]="isSubmitting">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Description</label>
+          <input type="text" class="form-control"
+            placeholder="Optional description"
+            [(ngModel)]="form.description"
+            [disabled]="isSubmitting">
+        </div>
+      </div>
+    </div>
+    <div class="card-footer d-flex gap-2">
+      <button class="btn btn-primary"
+        (click)="onSubmit()"
+        [disabled]="isSubmitting">
+        @if (isSubmitting) {
+          <span class="spinner-border 
+                       spinner-border-sm me-2"></span>
+        }
+        {{ isEditing ? 'Update' : 'Create' }}
+      </button>
+      <button class="btn btn-outline-secondary"
+        (click)="closeForm()">
+        Cancel
+      </button>
+    </div>
+  </div>
+}
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between 
+              align-items-center">
+    <span>All Departments ({{ departments.length }})</span>
+    <input type="text" class="form-control form-control-sm"
+      style="width: 250px"
+      placeholder="Search departments..."
+      [(ngModel)]="searchText">
+  </div>
+  <div class="card-body p-0">
+    @if (isLoading) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary"></div>
+      </div>
+    } @else if (filteredDepartments.length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-building"></i>
+        <p>No departments found</p>
+      </div>
+    } @else {
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (dept of filteredDepartments; track dept.id) {
+            <tr>
+              <td>{{ dept.id }}</td>
+              <td><strong>{{ dept.name }}</strong></td>
+              <td class="text-muted">
+                {{ dept.description || '—' }}
+              </td>
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-primary"
+                    (click)="openEditForm(dept)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger"
+                    (click)="delete(dept)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

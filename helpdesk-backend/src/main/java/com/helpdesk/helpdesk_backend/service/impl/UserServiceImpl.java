@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.helpdesk.helpdesk_backend.service.EmailService;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final DepartmentRepository departmentRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -57,10 +60,13 @@ public class UserServiceImpl implements UserService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .active(request.getActive())
+                // .active(request.getActive())
+                .active(request.getActive() != null 
+                    ? request.getActive() : true)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .department(department)
                 .roles(roles)
+                .mustChangePassword(false)
                 .build();
 
         return mapToResponse(userRepository.save(user));
@@ -167,4 +173,61 @@ public class UserServiceImpl implements UserService {
                 .roleNames(roleNames)
                 .build();
     }
+
+    @Override
+public void forgotPassword(String email) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException(
+            "No account found with email: " + email));
+
+    String tempPassword = generateTempPassword();
+    user.setPassword(
+        passwordEncoder.encode(tempPassword));
+    user.setMustChangePassword(true);
+    userRepository.save(user);
+
+    emailService.sendPasswordResetEmail(
+        email,
+        user.getFirstName() + " " + user.getLastName(),
+        tempPassword
+    );
+}
+
+@Override
+public void resetPassword(String email,
+    String temporaryPassword, String newPassword) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException(
+            "User not found"));
+
+    if (!passwordEncoder.matches(
+        temporaryPassword, user.getPassword())) {
+        throw new BadRequestException(
+            "Temporary password is incorrect");
+    }
+
+    user.setPassword(
+        passwordEncoder.encode(newPassword));
+    user.setMustChangePassword(false);
+    userRepository.save(user);
+}
+
+@Override
+public boolean mustChangePassword(String email) {
+    return userRepository.findByEmail(email)
+        .map(User::getMustChangePassword)
+        .orElse(false);
+}
+
+private String generateTempPassword() {
+    String chars = 
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    StringBuilder sb = new StringBuilder();
+    java.util.Random random = new java.util.Random();
+    for (int i = 0; i < 10; i++) {
+        sb.append(chars.charAt(
+            random.nextInt(chars.length())));
+    }
+    return sb.toString();
+}
 }

@@ -1,11 +1,18 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./features/landing/landing')
+        .then(m => m.Landing)
   },
   {
     path: 'login',
@@ -14,12 +21,37 @@ export const routes: Routes = [
         .then(m => m.Login)
   },
   {
-    path: 'dashboard',
-    canActivate: [authGuard],
+    path: 'register',
     loadComponent: () =>
-      import('./features/dashboard/dashboard')
-        .then(m => m.Dashboard)
+      import('./features/auth/register/register')
+        .then(m => m.Register)
   },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password')
+        .then(m => m.ForgotPassword)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password')
+        .then(m => m.ResetPassword)
+  },
+  // {
+  //   path: 'admin/dashboard',
+  //   canActivate: [authGuard, adminGuard],
+  //   loadComponent: () =>
+  //     import('./features/dashboard/admin-dashboard/admin-dashboard')
+  //       .then(m => m.AdminDashboard)
+  // },
+  // {
+  //   path: 'dashboard',
+  //   canActivate: [authGuard],
+  //   loadComponent: () =>
+  //     import('./features/dashboard/user-dashboard/user-dashboard')
+  //       .then(m => m.UserDashboard)
+  // },
   {
     path: 'tickets',
     canActivate: [authGuard],
@@ -43,28 +75,28 @@ export const routes: Routes = [
   },
   {
     path: 'users',
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/users/users')
         .then(m => m.Users)
   },
   {
     path: 'departments',
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/departments/departments')
         .then(m => m.Departments)
   },
   {
     path: 'roles',
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/roles/roles')
         .then(m => m.Roles)
   },
   {
     path: 'categories',
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/categories/categories')
         .then(m => m.Categories)

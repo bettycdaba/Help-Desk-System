@@ -1,0 +1,100 @@
+/* .dashboard {
+  max-width: 1200px;
+}
+
+.stat-card {
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.stat-number {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.stat-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 44px;
+  opacity: 0.2;
+}
+
+.user-shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: white;
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-decoration: none;
+  color: #1e3a5f;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid #eef0f5;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.user-shortcut i {
+  font-size: 30px;
+  color: #2d5986;
+}
+
+.user-shortcut span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-shortcut small {
+  color: #888;
+  font-size: 12px;
+}
+
+.user-shortcut:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(30,58,95,0.15);
+  border-color: #2d5986;
+  color: #1e3a5f;
+}
+
+.user-shortcut.primary {
+  background: linear-gradient(135deg, #1e3a5f, #2d5986);
+  color: white;
+  border: none;
+}
+
+.user-shortcut.primary i,
+.user-shortcut.primary span,
+.user-shortcut.primary small {
+  color: rgba(255,255,255,0.9);
+}
+
+.user-shortcut.primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(30,58,95,0.3);
+  color: white;
+}
+
+.ticket-number {
+  font-family: monospace;
+  font-size: 12px;
+  background: #f0f2f5;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #1e3a5f;
+  font-weight: 600;
+} */

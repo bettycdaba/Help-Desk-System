@@ -144,4 +144,25 @@ public class EmailServiceImpl implements EmailService {
                 + "<p style='color: #888;'>Help Desk System</p>"
                 + "</div>";
     }
+
+@Override
+@Async
+public void sendPasswordResetEmail(String toEmail,
+    String recipientName, String temporaryPassword) {
+    String subject = "Help Desk — Password Reset";
+    String body = "<div style='font-family:Arial,sans-serif;max-width:600px'>"
+        + "<h2 style='color:#2f6fed'>Password Reset Request</h2>"
+        + "<p>Hello <strong>" + recipientName + "</strong>,</p>"
+        + "<p>Your temporary password is:</p>"
+        + "<div style='background:#f4f6f8;padding:16px;"
+        + "border-radius:8px;margin:16px 0;font-size:24px;"
+        + "font-weight:bold;letter-spacing:4px;text-align:center'>"
+        + temporaryPassword
+        + "</div>"
+        + "<p>Please log in with this temporary password "
+        + "and change it immediately.</p>"
+        + "<p style='color:#888'>Help Desk System</p>"
+        + "</div>";
+    sendHtmlEmail(toEmail, subject, body);
+}
 }

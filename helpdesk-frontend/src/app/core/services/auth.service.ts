@@ -59,4 +59,50 @@ export class AuthService {
   getCurrentUser(): LoginResponse | null {
     return this.currentUserSubject.value;
   }
+  getUserRoles(): string[] {
+    const user = this.getCurrentUser();
+    if (!user) return [];
+    return user.roles || [];
+  }
+
+  isAdmin(): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes('ADMIN');
+  }
+
+  isSupportOfficer(): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes('SUPPORT_OFFICER');
+  }
+
+  isSupervisor(): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes('SUPERVISOR');
+  }
+
+  isEmployee(): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes('EMPLOYEE') && !this.isAdmin();
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(data: {
+    email: string;
+    temporaryPassword: string;
+    newPassword: string;
+  }): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/auth/reset-password`, data);
+  }
+
+  checkMustChangePassword(email: string): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/auth/must-change-password`,
+      { params: { email } }
+    );
+  }  
 }

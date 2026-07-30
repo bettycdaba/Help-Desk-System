@@ -16,4 +16,7 @@ public interface EmailService {
     void sendCommentAddedEmail(String toEmail, String recipientName,
                                 String ticketNumber, String subject,
                                 String commenterName, String comment);
+    void sendPasswordResetEmail(String toEmail, 
+                                String recipientName, 
+                                String temporaryPassword);
 }

@@ -96,4 +96,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return active != null && active;
     }
+
+    @Column(name = "must_change_password", nullable = false)
+    @Builder.Default
+    private Boolean mustChangePassword = false;
 }
