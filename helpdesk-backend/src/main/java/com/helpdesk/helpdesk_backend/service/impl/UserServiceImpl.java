@@ -181,6 +181,14 @@ public void forgotPassword(String email) {
             "No account found with email: " + email));
 
     String tempPassword = generateTempPassword();
+
+    // TEMPORARY — remove before production
+    System.out.println("=== TEMP PASSWORD FOR TESTING ===");
+    System.out.println("Email: " + email);
+    System.out.println("Temp Password: " + tempPassword);
+    System.out.println("=================================");
+    // this will be removed later, but for now, it helps to see the temp password in the console for testing purposes.
+
     user.setPassword(
         passwordEncoder.encode(tempPassword));
     user.setMustChangePassword(true);
