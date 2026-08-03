@@ -182,7 +182,7 @@ public void forgotPassword(String email) {
 
     String tempPassword = generateTempPassword();
 
-    // TEMPORARY — remove before production
+    // TEMPORARY
     System.out.println("=== TEMP PASSWORD FOR TESTING ===");
     System.out.println("Email: " + email);
     System.out.println("Temp Password: " + tempPassword);
