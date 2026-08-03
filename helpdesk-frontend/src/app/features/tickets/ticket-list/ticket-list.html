@@ -117,9 +117,12 @@
               style="cursor: pointer;"
               (click)="goToTicket(ticket.id)">
             <td>
-              <span class="ticket-number">
-                {{ ticket.ticketNumber }}
-              </span>
+              <button type="button"
+                      class="ticket-number btn btn-link p-0 align-baseline"
+                      (click)="$event.stopPropagation(); goToTicket(ticket.id)">
+                <span>{{ ticket.ticketNumber }}</span>
+                <i class="bi bi-eye ms-1"></i>
+              </button>
             </td>
             <td>{{ ticket.subject }}</td>
             <td>{{ ticket.categoryName }}</td>

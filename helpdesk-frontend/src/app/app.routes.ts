@@ -15,6 +15,16 @@ export const routes: Routes = [
         .then(m => m.Landing)
   },
   {
+    path: 'dash',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/dashboard',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard')
