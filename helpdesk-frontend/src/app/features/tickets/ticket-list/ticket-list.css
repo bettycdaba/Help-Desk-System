@@ -1,9 +1,38 @@
 .ticket-number {
   font-family: monospace;
   font-size: 12px;
-  background: #f0f2f5;
-  padding: 3px 8px;
+  background: #e8f0fe;
+  padding: 4px 10px;
   border-radius: 4px;
-  color: #1e3a5f;
+  color: #1a73e8;
   font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid #d2e3fc;
+}
+
+/* Make entire row feel clickable */
+.clickable-row {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clickable-row:hover {
+  background-color: #f0f7ff !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.clickable-row:hover .ticket-number {
+  background: #1a73e8;
+  color: white;
+  border-color: #1a73e8;
+  box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+}
+
+.clickable-row:active {
+  transform: translateY(0);
+}
+
+.clickable-row:focus {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
 }

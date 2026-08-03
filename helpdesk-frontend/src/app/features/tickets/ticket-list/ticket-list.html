@@ -112,33 +112,36 @@
               <td>{{ ticket.createdByName }}</td>
             </tr>
           } -->
-        @for (ticket of paginatedTickets; track ticket.id) {
-          <tr class="clickable-row"
-              style="cursor: pointer;"
-              (click)="goToTicket(ticket.id)">
-            <td>
-              <span class="ticket-number">
-                {{ ticket.ticketNumber }}
-              </span>
-            </td>
-            <td>{{ ticket.subject }}</td>
-            <td>{{ ticket.categoryName }}</td>
-            <td>
-              <span class="badge"
-                [ngClass]="getPriorityClass(ticket.priority)">
-                {{ ticket.priority }}
-              </span>
-            </td>
-            <td>
-              <span class="badge"
-                [ngClass]="getStatusClass(ticket.status)">
-                {{ ticket.status }}
-              </span>
-            </td>
-            <td>{{ ticket.assignedToName || '—' }}</td>
-            <td>{{ ticket.createdByName }}</td>
-          </tr>
-        }
+@for (ticket of paginatedTickets; track ticket.id) {
+  <tr class="clickable-row"
+      (click)="goToTicket(ticket.id)"
+      (keydown.enter)="goToTicket(ticket.id)"
+      tabindex="0"
+      role="button"
+      [attr.aria-label]="'View ticket ' + ticket.ticketNumber">
+    <td>
+      <span class="ticket-number">
+        {{ ticket.ticketNumber }}
+      </span>
+    </td>
+    <td>{{ ticket.subject }}</td>
+    <td>{{ ticket.categoryName }}</td>
+    <td>
+      <span class="badge"
+        [ngClass]="getPriorityClass(ticket.priority)">
+        {{ ticket.priority }}
+      </span>
+    </td>
+    <td>
+      <span class="badge"
+        [ngClass]="getStatusClass(ticket.status)">
+        {{ ticket.status }}
+      </span>
+    </td>
+    <td>{{ ticket.assignedToName || '—' }}</td>
+    <td>{{ ticket.createdByName }}</td>
+  </tr>
+}
         </tbody>
       </table>
 

@@ -144,11 +144,32 @@ export class TicketList implements OnInit {
   // goToTicket(id: number | undefined): void {
   //   if (id) this.router.navigate(['/tickets', id]);
   // }
-  goToTicket(id: number | undefined): void {
-    if (id !== undefined && id !== null) {
-      this.router.navigate(['/tickets', Number(id)]);
-    }
+goToTicket(id: number | undefined): void {
+  console.log('🎯 goToTicket called with ID:', id);
+  
+  if (id !== undefined && id !== null && id > 0) {
+    const url = '/tickets/' + id;
+    console.log('🚀 Navigating to:', url);
+    
+    this.router.navigate(['/tickets', id])
+      .then(success => {
+        console.log('✅ Navigation result:', success);
+        if (!success) {
+          console.error('❌ Navigation failed!');
+          this.toastService.error('Failed to open ticket');
+        }
+      })
+      .catch(err => {
+        console.error('❌ Navigation error:', err);
+        this.toastService.error('Error navigating to ticket');
+      });
+  } else {
+    console.error('❌ Invalid ticket ID:', id);
+    this.toastService.error('Cannot open ticket - Invalid ID');
   }
+}
+
+  
 
   getStatusClass(status: string | undefined): string {
     return `status-${status}`;
