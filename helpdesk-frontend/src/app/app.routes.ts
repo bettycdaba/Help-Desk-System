@@ -15,6 +15,12 @@ export const routes: Routes = [
         .then(m => m.Landing)
   },
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/dashboard')
+        .then(m => m.Dashboard)
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login')
@@ -38,20 +44,7 @@ export const routes: Routes = [
       import('./features/auth/reset-password/reset-password')
         .then(m => m.ResetPassword)
   },
-  // {
-  //   path: 'admin/dashboard',
-  //   canActivate: [authGuard, adminGuard],
-  //   loadComponent: () =>
-  //     import('./features/dashboard/admin-dashboard/admin-dashboard')
-  //       .then(m => m.AdminDashboard)
-  // },
-  // {
-  //   path: 'dashboard',
-  //   canActivate: [authGuard],
-  //   loadComponent: () =>
-  //     import('./features/dashboard/user-dashboard/user-dashboard')
-  //       .then(m => m.UserDashboard)
-  // },
+
   {
     path: 'tickets',
     canActivate: [authGuard],

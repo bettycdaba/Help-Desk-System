@@ -1,12 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } 
+import { AuthService }
   from '../../../core/services/auth.service';
-import { ToastService } 
+import { ToastService }
   from '../../../core/services/toast.service';
-
 
 @Component({
   selector: 'app-login',
@@ -26,21 +25,26 @@ export class Login {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
+    this.cdr.detectChanges();
   }
 
   onLogin(): void {
     if (!this.email || !this.password) {
-      this.errorMessage = 'Please enter your email and password.';
+      this.errorMessage =
+        'Please enter your email and password.';
+      this.cdr.detectChanges();
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
 
     this.authService.login({
       email: this.email,
@@ -48,14 +52,26 @@ export class Login {
     }).subscribe({
       next: (response) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.toastService.success(
           `Welcome back, ${response.firstName}!`);
-        this.router.navigate(['/dashboard']);
+
+        const roles = response.roles || [];
+        if (roles.includes('ADMIN')) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = 
-          'Invalid email or password. Please try again.';
+        this.errorMessage =
+          err?.status === 401 ||
+          err?.status === 403
+            ? 'Invalid email or password. Please try again.'
+            : err?.error?.message ||
+              'Login failed. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }
