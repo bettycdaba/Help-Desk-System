@@ -6,13 +6,4 @@
   border-radius: 4px;
   color: #1e3a5f;
   font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.ticket-number:hover {
-  background: #e9ecef;
-  color: #0d6efd;
 }
