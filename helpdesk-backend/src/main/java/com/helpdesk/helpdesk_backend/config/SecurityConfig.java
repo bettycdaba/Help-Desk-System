@@ -46,8 +46,9 @@ public class SecurityConfig {
                         "/api/roles",
                         "/api/categories"
                 ).permitAll()
+                .requestMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated()
-)
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

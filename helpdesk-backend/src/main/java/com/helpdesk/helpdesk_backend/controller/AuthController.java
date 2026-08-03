@@ -64,6 +64,9 @@ public class AuthController {
         .roles(user.getRoles().stream()
                 .map(Role::getName)
                 .collect(java.util.stream.Collectors.toList()))
+        .permissions(user.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(java.util.stream.Collectors.toList()))
         .build();
 
         return ResponseEntity.ok(response);

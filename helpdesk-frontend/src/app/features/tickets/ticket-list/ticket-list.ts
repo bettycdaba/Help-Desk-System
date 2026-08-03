@@ -7,6 +7,8 @@ import { TicketService }
   from '../../../core/services/ticket.service';
 import { CategoryService } 
   from '../../../core/services/category.service';
+import { AuthService } 
+  from '../../../core/services/auth.service';
 import { ToastService } 
   from '../../../core/services/toast.service';
 import { Ticket } from '../../../core/models/ticket.model';
@@ -35,13 +37,16 @@ export class TicketList implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
-  statuses = ['OPEN','ASSIGNED','IN_PROGRESS',
-              'PENDING','RESOLVED','CLOSED','REOPENED'];
-  priorities = ['LOW','MEDIUM','HIGH','CRITICAL'];
+  statuses = [
+    'OPEN', 'ASSIGNED', 'IN_PROGRESS',
+    'PENDING', 'RESOLVED', 'CLOSED', 'REOPENED'
+  ];
+  priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
   constructor(
     private ticketService: TicketService,
     private categoryService: CategoryService,
+    private authService: AuthService,
     private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -52,21 +57,48 @@ export class TicketList implements OnInit {
     this.loadCategories();
   }
 
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  getCurrentUserId(): number {
+    const user = this.authService.getCurrentUser();
+    return user?.id || 0;
+  }
+
   loadTickets(): void {
     this.isLoading = true;
-    this.ticketService.getAll().subscribe({
-      next: (tickets) => {
-        this.tickets = tickets;
-        this.applyFilters();
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.toastService.error('Failed to load tickets');
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+
+    if (this.isAdmin()) {
+      this.ticketService.getAll().subscribe({
+        next: (tickets) => {
+          this.tickets = tickets;
+          this.applyFilters();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.toastService.error('Failed to load tickets');
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      const userId = this.getCurrentUserId();
+      this.ticketService.getByCreatedBy(userId).subscribe({
+        next: (tickets) => {
+          this.tickets = tickets;
+          this.applyFilters();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.toastService.error('Failed to load tickets');
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   loadCategories(): void {
@@ -77,6 +109,33 @@ export class TicketList implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  // NEW: Delete ticket method
+  deleteTicket(ticket: Ticket, event: Event): void {
+    event.stopPropagation(); // Prevent row click navigation
+    
+    if (!ticket.id) return;
+    
+    const confirmDelete = confirm(
+      `Are you sure you want to delete ticket ${ticket.ticketNumber}?\n\n` +
+      `Subject: ${ticket.subject}\n\n` +
+      `This action cannot be undone.`
+    );
+    
+    if (confirmDelete) {
+      this.ticketService.delete(ticket.id).subscribe({
+        next: () => {
+          this.toastService.success(
+            `Ticket ${ticket.ticketNumber} deleted successfully`
+          );
+          this.loadTickets(); // Reload the list
+        },
+        error: () => {
+          this.toastService.error('Failed to delete ticket');
+        }
+      });
+    }
   }
 
   applyFilters(): void {
@@ -141,35 +200,9 @@ export class TicketList implements OnInit {
     }
   }
 
-  // goToTicket(id: number | undefined): void {
-  //   if (id) this.router.navigate(['/tickets', id]);
-  // }
-goToTicket(id: number | undefined): void {
-  console.log('🎯 goToTicket called with ID:', id);
-  
-  if (id !== undefined && id !== null && id > 0) {
-    const url = '/tickets/' + id;
-    console.log('🚀 Navigating to:', url);
-    
-    this.router.navigate(['/tickets', id])
-      .then(success => {
-        console.log('✅ Navigation result:', success);
-        if (!success) {
-          console.error('❌ Navigation failed!');
-          this.toastService.error('Failed to open ticket');
-        }
-      })
-      .catch(err => {
-        console.error('❌ Navigation error:', err);
-        this.toastService.error('Error navigating to ticket');
-      });
-  } else {
-    console.error('❌ Invalid ticket ID:', id);
-    this.toastService.error('Cannot open ticket - Invalid ID');
+  goToTicket(id: number | undefined): void {
+    if (id) this.router.navigate(['/tickets', id]);
   }
-}
-
-  
 
   getStatusClass(status: string | undefined): string {
     return `status-${status}`;

@@ -1,6 +1,7 @@
 <div class="page-header">
   <h1 class="page-title">
-    <i class="bi bi-ticket-perforated me-2"></i>Tickets
+    <i class="bi bi-ticket-perforated me-2"></i>
+    @if (isAdmin()) { All Tickets } @else { My Tickets }
   </h1>
   <a routerLink="/tickets/new" class="btn btn-primary">
     <i class="bi bi-plus-circle me-2"></i>New Ticket
@@ -58,10 +59,6 @@
 
 <div class="card">
   <div class="card-body p-0">
-    <div class="alert alert-info m-3 mb-0">
-      <i class="bi bi-info-circle me-2"></i>
-      Click the ticket number to see the ticket details.
-    </div>
     @if (isLoading) {
       <div class="text-center py-5">
         <div class="spinner-border text-primary"></div>
@@ -70,98 +67,91 @@
     } @else if (filteredTickets.length === 0) {
       <div class="empty-state">
         <i class="bi bi-inbox"></i>
-        <p>No tickets found</p>
+        <p>
+          @if (isAdmin()) {
+            No tickets found
+          } @else {
+            You have not created any tickets yet
+          }
+        </p>
         <a routerLink="/tickets/new"
            class="btn btn-primary btn-sm">
           Create New Ticket
         </a>
       </div>
     } @else {
-      <table class="table mb-0">
-        <thead>
-          <tr>
-            <th>Ticket #</th>
-            <th>Subject</th>
-            <th>Category</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Assigned To</th>
-            <th>Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- @for (ticket of paginatedTickets; track ticket.id) {
-            <tr class="clickable-row"
+<table class="table mb-0">
+  <thead>
+    <tr>
+      <th>Ticket #</th>
+      <th>Subject</th>
+      <th>Category</th>
+      <th>Priority</th>
+      <th>Status</th>
+      @if (isAdmin()) {
+        <th>Assigned To</th>
+        <th>Created By</th>
+        <th>Actions</th>   <!-- NEW COLUMN -->
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (ticket of paginatedTickets; track ticket.id) {
+      <tr class="clickable-row">
+        <td>
+          <span class="ticket-number" 
                 (click)="goToTicket(ticket.id)">
-              <td>
-                <span class="ticket-number">
-                  {{ ticket.ticketNumber }}
-                </span>
-              </td>
-              <td>{{ ticket.subject }}</td>
-              <td>{{ ticket.categoryName }}</td>
-              <td>
-                <span class="badge"
-                  [ngClass]="getPriorityClass(ticket.priority)">
-                  {{ ticket.priority }}
-                </span>
-              </td>
-              <td>
-                <span class="badge"
-                  [ngClass]="getStatusClass(ticket.status)">
-                  {{ ticket.status }}
-                </span>
-              </td>
-              <td>{{ ticket.assignedToName || '—' }}</td>
-              <td>{{ ticket.createdByName }}</td>
-            </tr>
-          } -->
-@for (ticket of paginatedTickets; track ticket.id) {
-  <tr class="clickable-row"
-      (click)="goToTicket(ticket.id)"
-      (keydown.enter)="goToTicket(ticket.id)"
-      tabindex="0"
-      role="button"
-      [attr.aria-label]="'View ticket ' + ticket.ticketNumber">
-    <td>
-      <span class="ticket-number">
-        {{ ticket.ticketNumber }}
-      </span>
-    </td>
-    <td>{{ ticket.subject }}</td>
-    <td>{{ ticket.categoryName }}</td>
-    <td>
-      <span class="badge"
-        [ngClass]="getPriorityClass(ticket.priority)">
-        {{ ticket.priority }}
-      </span>
-    </td>
-    <td>
-      <span class="badge"
-        [ngClass]="getStatusClass(ticket.status)">
-        {{ ticket.status }}
-      </span>
-    </td>
-    <td>{{ ticket.assignedToName || '—' }}</td>
-    <td>{{ ticket.createdByName }}</td>
-  </tr>
-}
-        </tbody>
-      </table>
+            {{ ticket.ticketNumber }}
+          </span>
+        </td>
+        <td (click)="goToTicket(ticket.id)">{{ ticket.subject }}</td>
+        <td (click)="goToTicket(ticket.id)">{{ ticket.categoryName }}</td>
+        <td (click)="goToTicket(ticket.id)">
+          <span class="badge"
+            [ngClass]="getPriorityClass(ticket.priority)">
+            {{ ticket.priority }}
+          </span>
+        </td>
+        <td (click)="goToTicket(ticket.id)">
+          <span class="badge"
+            [ngClass]="getStatusClass(ticket.status)">
+            {{ ticket.status }}
+          </span>
+        </td>
+        @if (isAdmin()) {
+          <td (click)="goToTicket(ticket.id)">
+            {{ ticket.assignedToName || '—' }}
+          </td>
+          <td (click)="goToTicket(ticket.id)">
+            {{ ticket.createdByName }}
+          </td>
+          <!-- DELETE BUTTON -->
+          <td>
+            <button class="btn btn-sm btn-outline-danger"
+                    (click)="deleteTicket(ticket, $event)"
+                    title="Delete Ticket">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>
 
       @if (totalPages > 1) {
-        <div class="d-flex justify-content-between 
+        <div class="d-flex justify-content-between
                     align-items-center p-3">
           <small class="text-muted">
-            Showing {{ (currentPage-1)*pageSize+1 }}–
-            {{ [currentPage*pageSize,
+            Showing {{ (currentPage-1)*pageSize+1 }}
+            – {{ [currentPage*pageSize,
                 filteredTickets.length] | slice:0:1 }}
             of {{ filteredTickets.length }} tickets
           </small>
           <nav>
             <ul class="pagination pagination-sm mb-0">
               <li class="page-item"
-                  [class.disabled]="currentPage === 1">
+                [class.disabled]="currentPage === 1">
                 <button class="page-link"
                   (click)="goToPage(currentPage - 1)">
                   &laquo;
@@ -169,7 +159,7 @@
               </li>
               @for (page of pages; track page) {
                 <li class="page-item"
-                    [class.active]="page === currentPage">
+                  [class.active]="page === currentPage">
                   <button class="page-link"
                     (click)="goToPage(page)">
                     {{ page }}
@@ -177,7 +167,8 @@
                 </li>
               }
               <li class="page-item"
-                [class.disabled]="currentPage === totalPages">
+                [class.disabled]="
+                  currentPage === totalPages">
                 <button class="page-link"
                   (click)="goToPage(currentPage + 1)">
                   &raquo;

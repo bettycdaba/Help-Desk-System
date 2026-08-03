@@ -34,44 +34,50 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    @Override
-    @Transactional
-    public UserResponseDTO createUser(UserRequestDTO request) {
+   @Override
+@Transactional
+public UserResponseDTO createUser(UserRequestDTO request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException(
-                    "A user with this email already exists: " + request.getEmail());
-        }
-
-        if (userRepository.existsByEmployeeId(request.getEmployeeId())) {
-            throw new BadRequestException(
-                    "A user with this employee ID already exists: " + request.getEmployeeId());
-        }
-
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Department not found with id: " + request.getDepartmentId()));
-
-        Set<Role> roles = resolveRoles(request.getRoleIds());
-
-        User user = User.builder()
-                .employeeId(request.getEmployeeId())
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                // .active(request.getActive())
-                .active(request.getActive() != null 
-                    ? request.getActive() : true)
-                .password(passwordEncoder.encode(request.getPassword()))
-                .department(department)
-                .roles(roles)
-                .mustChangePassword(false)
-                .build();
-
-        return mapToResponse(userRepository.save(user));
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new BadRequestException(
+                "A user with this email already exists: " + request.getEmail());
     }
 
+    if (userRepository.existsByEmployeeId(request.getEmployeeId())) {
+        throw new BadRequestException(
+                "A user with this employee ID already exists: " + request.getEmployeeId());
+    }
+
+    Department department = departmentRepository.findById(request.getDepartmentId())
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Department not found with id: " + request.getDepartmentId()));
+
+    Set<Role> roles = resolveRoles(request.getRoleIds());
+    
+    // If no roles selected, assign default EMPLOYEE role
+    if (roles.isEmpty()) {
+        Role employeeRole = roleRepository.findByName("EMPLOYEE")
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Default EMPLOYEE role not found"));
+        roles.add(employeeRole);
+    }
+
+    User user = User.builder()
+            .employeeId(request.getEmployeeId())
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .phoneNumber(request.getPhoneNumber())
+            .active(request.getActive() != null 
+                ? request.getActive() : true)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .department(department)
+            .roles(roles)
+            .mustChangePassword(false)
+            .build();
+
+    return mapToResponse(userRepository.save(user));
+}
     @Override
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
@@ -145,7 +151,8 @@ public class UserServiceImpl implements UserService {
         if (roleIds == null || roleIds.isEmpty()) {
             return new HashSet<>();
         }
-        return new HashSet<>(roleRepository.findAllById(roleIds));
+        List<Role> roles = roleRepository.findAllById(roleIds);
+    return new HashSet<>(roles);
     }
 
     private UserResponseDTO mapToResponse(User user) {

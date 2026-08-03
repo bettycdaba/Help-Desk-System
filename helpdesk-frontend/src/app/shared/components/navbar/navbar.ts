@@ -20,7 +20,7 @@ export class NavbarComponent implements OnInit {
   isCollapsed = false;
 
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     private router: Router
   ) {}
 
@@ -35,9 +35,7 @@ export class NavbarComponent implements OnInit {
   }
 
   getDashboardRoute(): string {
-    return this.isAdmin()
-      ? '/admin/dashboard'
-      : '/dashboard';
+    return '/dashboard';
   }
 
   toggleSidebar(): void {

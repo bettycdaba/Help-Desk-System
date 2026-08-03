@@ -231,56 +231,71 @@
 
     <div class="col-md-4">
 
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="bi bi-person-check me-2"></i>
-          Assign Ticket
+      @if (canManageTicket()) {
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="bi bi-person-check me-2"></i>
+            Assign Ticket
+          </div>
+          <div class="card-body">
+            <select class="form-select mb-2"
+              [(ngModel)]="selectedAssignee">
+              <option [ngValue]="null">Select agent</option>
+              @for (user of users; track user.id) {
+                <option [ngValue]="user.id">
+                  {{ user.firstName }} {{ user.lastName }}
+                </option>
+              }
+            </select>
+            <button class="btn btn-primary w-100"
+              (click)="assignTicket()"
+              [disabled]="isAssigning">
+              @if (isAssigning) {
+                <span class="spinner-border 
+                             spinner-border-sm me-2"></span>
+              }
+              Assign
+            </button>
+          </div>
         </div>
-        <div class="card-body">
-          <select class="form-select mb-2"
-            [(ngModel)]="selectedAssignee">
-            <option [ngValue]="null">Select agent</option>
-            @for (user of users; track user.id) {
-              <option [ngValue]="user.id">
-                {{ user.firstName }} {{ user.lastName }}
-              </option>
-            }
-          </select>
-          <button class="btn btn-primary w-100"
-            (click)="assignTicket()"
-            [disabled]="isAssigning">
-            @if (isAssigning) {
-              <span class="spinner-border 
-                           spinner-border-sm me-2"></span>
-            }
-            Assign
-          </button>
-        </div>
-      </div>
 
-      <div class="card">
-        <div class="card-header">
-          <i class="bi bi-arrow-repeat me-2"></i>
-          Update Status
-        </div>
-        <div class="card-body">
-          <select class="form-select mb-2"
-            [(ngModel)]="selectedStatus">
-            @for (s of statuses; track s) {
-              <option [value]="s">{{ s }}</option>
-            }
-          </select>
-          <button class="btn btn-success w-100"
-            (click)="updateStatus()"
-            [disabled]="isUpdatingStatus">
-            @if (isUpdatingStatus) {
-              <span class="spinner-border 
-                           spinner-border-sm me-2"></span>
-            }
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="bi bi-arrow-repeat me-2"></i>
             Update Status
-          </button>
+          </div>
+          <div class="card-body">
+            <select class="form-select mb-2"
+              [(ngModel)]="selectedStatus">
+              @for (s of statuses; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+            <button class="btn btn-success w-100"
+              (click)="updateStatus()"
+              [disabled]="isUpdatingStatus">
+              @if (isUpdatingStatus) {
+                <span class="spinner-border 
+                             spinner-border-sm me-2"></span>
+              }
+              Update Status
+            </button>
+          </div>
         </div>
-      </div>
+      }
+
+      @if (!canManageTicket()) {
+        <div class="card mb-3">
+          <div class="card-body text-center py-4">
+            <i class="bi bi-info-circle text-muted"
+               style="font-size: 32px;"></i>
+            <p class="text-muted mt-2 mb-0 small">
+              Only administrators can assign tickets
+              or change their status.
+            </p>
+          </div>
+        </div>
+      }
 
     </div>
   </div>

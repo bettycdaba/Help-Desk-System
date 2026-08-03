@@ -35,3 +35,18 @@
   outline: 2px solid #1a73e8;
   outline-offset: -2px;
 }
+/* Delete button styling */
+.btn-outline-danger {
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Prevent row click when clicking delete button */
+.clickable-row td:last-child {
+  cursor: default;
+}

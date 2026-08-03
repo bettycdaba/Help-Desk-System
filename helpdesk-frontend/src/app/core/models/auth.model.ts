@@ -11,4 +11,5 @@ export interface LoginResponse {
   message: string;
   id?: number;
   roles?: string[];
+  permissions?: string[];
 }

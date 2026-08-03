@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Entity
 @Table(name = "users")
@@ -62,9 +62,17 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toSet());
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        roles.forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+
+            role.getPermissions().forEach(permission -> {
+                authorities.add(new SimpleGrantedAuthority(permission.getName()));
+            });
+        });
+
+        return authorities;
     }
 
     @Override
@@ -100,4 +108,8 @@ public class User implements UserDetails {
     @Column(name = "must_change_password", nullable = false)
     @Builder.Default
     private Boolean mustChangePassword = false;
-}
+
+        @Column(name = "password_change_required", nullable = false)
+    @Builder.Default
+    private Boolean passwordChangeRequired = false;
+    }

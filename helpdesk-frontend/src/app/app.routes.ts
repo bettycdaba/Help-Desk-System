@@ -54,7 +54,6 @@ export const routes: Routes = [
       import('./features/auth/reset-password/reset-password')
         .then(m => m.ResetPassword)
   },
-
   {
     path: 'tickets',
     canActivate: [authGuard],

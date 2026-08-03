@@ -207,46 +207,58 @@ public class TicketServiceImpl implements TicketService {
         return mapToResponse(saved);
     }
 
-    @Override
-    @Transactional
-    public TicketResponseDTO updateStatus(Long id, TicketStatusUpdateRequestDTO request) {
-        Ticket ticket = findTicketById(id);
+@Override
+@Transactional
+public TicketResponseDTO updateStatus(Long id, TicketStatusUpdateRequestDTO request) {
+    Ticket ticket = findTicketById(id);
 
-        User changedBy = userRepository.findById(request.getChangedById())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with id: " + request.getChangedById()));
+    User changedBy = userRepository.findById(request.getChangedById())
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "User not found with id: " + request.getChangedById()));
 
-        String oldStatus = ticket.getStatus().name();
+    String oldStatus = ticket.getStatus().name();
 
-        ticket.setStatus(request.getNewStatus());
-        ticket.setUpdatedAt(LocalDateTime.now());
+    ticket.setStatus(request.getNewStatus());
+    ticket.setUpdatedAt(LocalDateTime.now());
 
-        if (request.getNewStatus() == TicketStatus.RESOLVED
-                || request.getNewStatus() == TicketStatus.CLOSED) {
-            ticket.setResolvedAt(LocalDateTime.now());
-        }
+    if (request.getNewStatus() == TicketStatus.RESOLVED
+            || request.getNewStatus() == TicketStatus.CLOSED) {
+        ticket.setResolvedAt(LocalDateTime.now());
+    }
 
-        Ticket saved = ticketRepository.save(ticket);
+    Ticket saved = ticketRepository.save(ticket);
 
-        TicketStatusHistory history = TicketStatusHistory.builder()
-                .ticket(saved)
-                .oldStatus(oldStatus)
-                .newStatus(request.getNewStatus().name())
-                .changedBy(changedBy)
-                .changedAt(LocalDateTime.now())
-                .build();
+    TicketStatusHistory history = TicketStatusHistory.builder()
+            .ticket(saved)
+            .oldStatus(oldStatus)
+            .newStatus(request.getNewStatus().name())
+            .changedBy(changedBy)
+            .changedAt(LocalDateTime.now())
+            .build();
 
-        statusHistoryRepository.save(history);
+    statusHistoryRepository.save(history);
 
-        webSocketNotificationService.notifyTicketUpdate(
+    webSocketNotificationService.notifyTicketUpdate(
         "STATUS_CHANGED", mapToResponse(saved));
 
-        if (request.getNewStatus() == TicketStatus.RESOLVED
-            || request.getNewStatus() == TicketStatus.CLOSED) {
+    // Send email for ALL status changes (not just resolved/closed)
+    emailService.sendStatusChangedEmail(
+            saved.getCreatedBy().getEmail(),
+            saved.getCreatedBy().getFirstName()
+                    + " " + saved.getCreatedBy().getLastName(),
+            saved.getTicketNumber(),
+            saved.getSubject(),
+            oldStatus,
+            request.getNewStatus().name()
+    );
+
+    // Also notify assignee if different from creator
+    if (saved.getAssignedTo() != null 
+        && !saved.getAssignedTo().getId().equals(saved.getCreatedBy().getId())) {
         emailService.sendStatusChangedEmail(
-                saved.getCreatedBy().getEmail(),
-                saved.getCreatedBy().getFirstName()
-                        + " " + saved.getCreatedBy().getLastName(),
+                saved.getAssignedTo().getEmail(),
+                saved.getAssignedTo().getFirstName()
+                        + " " + saved.getAssignedTo().getLastName(),
                 saved.getTicketNumber(),
                 saved.getSubject(),
                 oldStatus,
@@ -254,9 +266,8 @@ public class TicketServiceImpl implements TicketService {
         );
     }
 
-
-        return mapToResponse(saved);
-    }
+    return mapToResponse(saved);
+}
 
     @Override
     @Transactional

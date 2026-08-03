@@ -65,6 +65,25 @@ export class AuthService {
     return user.roles || [];
   }
 
+  getUserPermissions(): string[] {
+    const user = this.getCurrentUser();
+    if (!user) return [];
+    return user.permissions || [];
+  }
+
+  hasPermission(permission: string): boolean {
+    const permissions = this.getUserPermissions();
+    return permissions.includes(permission);
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    return permissions.some(p => this.hasPermission(p));
+  }
+
+  hasAllPermissions(permissions: string[]): boolean {
+    return permissions.every(p => this.hasPermission(p));
+  }
+
   isAdmin(): boolean {
     const roles = this.getUserRoles();
     return roles.includes('ADMIN');
@@ -104,5 +123,6 @@ export class AuthService {
       `${this.baseUrl}/auth/must-change-password`,
       { params: { email } }
     );
+  
   }  
 }

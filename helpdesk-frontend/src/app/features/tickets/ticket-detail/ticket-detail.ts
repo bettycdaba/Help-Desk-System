@@ -16,6 +16,8 @@ import {
 } from '../../../core/models/ticket.model';
 import { User } from '../../../core/models/user.model';
 import { Subscription } from 'rxjs';
+import { AuthService }
+  from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -44,6 +46,19 @@ export class TicketDetail implements OnInit, OnDestroy {
   activeTab = 'comments';
   ticketId = 0;
 
+  isAdmin(): boolean {
+  return this.authService.isAdmin();
+}
+
+isOwner(): boolean {
+  const userId = this.getCurrentUserId();
+  return this.ticket?.createdById === userId;
+}
+
+canManageTicket(): boolean {
+  return this.isAdmin();
+}
+
   private subscriptions: Subscription[] = [];
 
   statuses = [
@@ -55,6 +70,7 @@ export class TicketDetail implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private ticketService: TicketService,
     private userService: UserService,
+    private authService: AuthService,
     private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -310,3 +326,4 @@ export class TicketDetail implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 }
+
