@@ -7,6 +7,7 @@
   </button>
 </div>
 
+<!-- Add/Edit Role Form -->
 @if (showForm) {
   <div class="card mb-3">
     <div class="card-header">
@@ -37,8 +38,7 @@
         (click)="onSubmit()"
         [disabled]="isSubmitting">
         @if (isSubmitting) {
-          <span class="spinner-border 
-                       spinner-border-sm me-2"></span>
+          <span class="spinner-border spinner-border-sm me-2"></span>
         }
         {{ isEditing ? 'Update' : 'Create' }}
       </button>
@@ -50,9 +50,66 @@
   </div>
 }
 
+<!-- Permissions Panel -->
+@if (showPermissions && selectedRolePermissions) {
+  <div class="card mb-3 border-primary">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <span>
+        <i class="bi bi-shield-lock me-2"></i>
+        Permissions for: <strong>{{ selectedRolePermissions.roleName }}</strong>
+      </span>
+      <button class="btn btn-sm btn-outline-light" (click)="closePermissions()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <div class="card-body">
+      @for (group of getPermissionGroups(); track group.category) {
+        <div class="mb-3">
+          <h6 class="text-muted mb-2">
+            @if (group.category === 'Users') { <i class="bi bi-people me-1"></i> }
+            @if (group.category === 'Tickets') { <i class="bi bi-ticket-perforated me-1"></i> }
+            @if (group.category === 'Departments') { <i class="bi bi-building me-1"></i> }
+            @if (group.category === 'Roles') { <i class="bi bi-shield-check me-1"></i> }
+            @if (group.category === 'Categories') { <i class="bi bi-tag me-1"></i> }
+            @if (group.category === 'System') { <i class="bi bi-gear me-1"></i> }
+            {{ group.category }}
+          </h6>
+          <div class="d-flex flex-wrap gap-2">
+            @for (perm of group.permissions; track perm.id) {
+              <div class="form-check">
+                <input type="checkbox"
+                  class="form-check-input"
+                  [id]="'perm-' + perm.id"
+                  [checked]="isPermissionSelected(perm.id!)"
+                  (change)="togglePermission(perm.id!)">
+                <label class="form-check-label" [for]="'perm-' + perm.id">
+                  {{ formatPermissionName(perm.name) }}
+                </label>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    <div class="card-footer d-flex gap-2">
+      <button class="btn btn-primary"
+        (click)="savePermissions()"
+        [disabled]="isSavingPermissions">
+        @if (isSavingPermissions) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        <i class="bi bi-save me-2"></i>Save Changes
+      </button>
+      <button class="btn btn-outline-secondary" (click)="closePermissions()">
+        Cancel
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Roles Table -->
 <div class="card">
-  <div class="card-header d-flex justify-content-between
-              align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <span>All Roles ({{ roles.length }})</span>
     <input type="text" class="form-control form-control-sm"
       style="width: 250px"
@@ -76,6 +133,7 @@
             <th>#</th>
             <th>Name</th>
             <th>Description</th>
+            <th>Permissions</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -84,12 +142,17 @@
             <tr>
               <td>{{ role.id }}</td>
               <td>
-                <span class="badge bg-primary">
-                  {{ role.name }}
-                </span>
+                <span class="badge bg-primary">{{ role.name }}</span>
               </td>
               <td class="text-muted">
                 {{ role.description || '—' }}
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-info"
+                  (click)="openPermissions(role)">
+                  <i class="bi bi-shield-lock me-1"></i>
+                  Permissions
+                </button>
               </td>
               <td>
                 <div class="d-flex gap-2">

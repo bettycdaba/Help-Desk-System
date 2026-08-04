@@ -39,14 +39,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(
-                        HttpMethod.GET,
-                        "/api/departments",
-                        "/api/roles",
-                        "/api/categories"
-                ).permitAll()
-                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/departments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/roles").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                
+                // ADD THIS LINE - Allow permissions endpoint for authenticated users
+                .requestMatchers("/api/permissions/**").authenticated()
+                
+                // Everything else requires authentication
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
