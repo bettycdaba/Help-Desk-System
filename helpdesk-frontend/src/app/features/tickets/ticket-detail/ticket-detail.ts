@@ -8,12 +8,15 @@ import { TicketService }
   from '../../../core/services/ticket.service';
 import { UserService } 
   from '../../../core/services/user.service';
+import { CategoryService } 
+  from '../../../core/services/category.service';
 import { ToastService } 
   from '../../../core/services/toast.service';
 import {
   Ticket, TicketComment,
   TicketAssignmentHistory, TicketStatusHistory
 } from '../../../core/models/ticket.model';
+import { TicketCategory } from '../../../core/models/category.model';
 import { User } from '../../../core/models/user.model';
 import { Subscription } from 'rxjs';
 import { AuthService }
@@ -33,6 +36,7 @@ export class TicketDetail implements OnInit, OnDestroy {
   assignmentHistory: TicketAssignmentHistory[] = [];
   statusHistory: TicketStatusHistory[] = [];
   users: User[] = [];
+  categories: TicketCategory[] = [];
 
   isLoading = true;
   newComment = '';
@@ -43,21 +47,18 @@ export class TicketDetail implements OnInit, OnDestroy {
   isAssigning = false;
   isUpdatingStatus = false;
 
+  // Edit ticket form
+  isEditingTicket = false;
+  isSavingTicket = false;
+  editForm = {
+    subject: '',
+    description: '',
+    categoryId: null as number | null,
+    priority: ''
+  };
+
   activeTab = 'comments';
   ticketId = 0;
-
-  isAdmin(): boolean {
-  return this.authService.isAdmin();
-}
-
-isOwner(): boolean {
-  const userId = this.getCurrentUserId();
-  return this.ticket?.createdById === userId;
-}
-
-canManageTicket(): boolean {
-  return this.isAdmin();
-}
 
   private subscriptions: Subscription[] = [];
 
@@ -66,10 +67,13 @@ canManageTicket(): boolean {
     'PENDING','RESOLVED','CLOSED','REOPENED'
   ];
 
+  priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+
   constructor(
     private route: ActivatedRoute,
     private ticketService: TicketService,
     private userService: UserService,
+    private categoryService: CategoryService,
     private authService: AuthService,
     private toastService: ToastService,
     private router: Router,
@@ -77,56 +81,59 @@ canManageTicket(): boolean {
   ) {}
 
   ngOnInit(): void {
-    console.log('🟢 TicketDetail ngOnInit called');
-    
     const sub = this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
-      console.log('📌 Route param id:', id);
-      
       if (id && id > 0) {
         this.ticketId = id;
         this.isLoading = true;
-        console.log('✅ Loading ticket with ID:', this.ticketId);
         this.loadTicket(this.ticketId);
         this.loadUsers();
+        this.loadCategories();
         this.loadComments(this.ticketId);
         this.loadHistory(this.ticketId);
       } else {
-        console.error('❌ Invalid ticket ID:', id);
         this.toastService.error('Invalid ticket ID');
         this.router.navigate(['/tickets']);
       }
     });
-    
     this.subscriptions.push(sub);
   }
 
   ngOnDestroy(): void {
-    // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  isOwner(): boolean {
+    const userId = this.getCurrentUserId();
+    return this.ticket?.createdById === userId;
+  }
+
+  canManageTicket(): boolean {
+    return this.isAdmin() || this.isOwner();
+  }
+
+  // Only admin can assign and change status
+  canAssignOrChangeStatus(): boolean {
+    return this.isAdmin();
+  }
+
   loadTicket(id: number): void {
-    console.log('🔄 Loading ticket:', id);
-    
     this.ticketService.getById(id).subscribe({
       next: (ticket) => {
-        console.log('✅ Ticket loaded:', ticket);
         this.ticket = ticket;
         this.selectedStatus = ticket.status || '';
         this.selectedAssignee = ticket.assignedToId || null;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('❌ Failed to load ticket:', err);
+      error: () => {
         this.toastService.error('Ticket not found or failed to load');
         this.isLoading = false;
-        this.cdr.detectChanges();
-        // Don't navigate away immediately, let user see the error
-        setTimeout(() => {
-          this.router.navigate(['/tickets']);
-        }, 2000);
+        this.router.navigate(['/tickets']);
       }
     });
   }
@@ -134,53 +141,47 @@ canManageTicket(): boolean {
   loadUsers(): void {
     this.userService.getAll().subscribe({
       next: (users) => {
-        console.log('👥 Users loaded:', users?.length);
         this.users = users;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('❌ Failed to load users:', err);
-      }
+      error: () => {}
+    });
+  }
+
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (cats) => {
+        this.categories = cats;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
     });
   }
 
   loadComments(id: number): void {
-    console.log('💬 Loading comments for ticket:', id);
     this.ticketService.getComments(id).subscribe({
       next: (comments) => {
-        console.log('✅ Comments loaded:', comments?.length);
         this.comments = comments;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('❌ Failed to load comments:', err);
-      }
+      error: () => {}
     });
   }
 
   loadHistory(id: number): void {
-    console.log('📜 Loading history for ticket:', id);
-    
     this.ticketService.getAssignmentHistory(id).subscribe({
       next: (h) => {
-        console.log('✅ Assignment history loaded:', h?.length);
         this.assignmentHistory = h;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('❌ Failed to load assignment history:', err);
-      }
+      error: () => {}
     });
-    
     this.ticketService.getStatusHistory(id).subscribe({
       next: (h) => {
-        console.log('✅ Status history loaded:', h?.length);
         this.statusHistory = h;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('❌ Failed to load status history:', err);
-      }
+      error: () => {}
     });
   }
 
@@ -190,11 +191,62 @@ canManageTicket(): boolean {
       try {
         const user = JSON.parse(stored);
         return user.id || 1;
-      } catch (e) {
-        console.error('Error parsing user from localStorage:', e);
-      }
+      } catch (e) {}
     }
     return 1;
+  }
+
+  // Open edit form
+  openEditForm(): void {
+    if (!this.ticket) return;
+    this.editForm = {
+      subject: this.ticket.subject || '',
+      description: this.ticket.description || '',
+      categoryId: this.ticket.categoryId || null,
+      priority: this.ticket.priority || 'MEDIUM'
+    };
+    this.isEditingTicket = true;
+    this.cdr.detectChanges();
+  }
+
+  // Cancel edit
+  cancelEdit(): void {
+    this.isEditingTicket = false;
+    this.cdr.detectChanges();
+  }
+
+  // Save edited ticket
+  saveTicket(): void {
+    if (!this.ticket?.id) return;
+    if (!this.editForm.subject.trim()) {
+      this.toastService.error('Subject is required');
+      return;
+    }
+
+    this.isSavingTicket = true;
+    
+    const updatedTicket: Ticket = {
+      ...this.ticket,
+      subject: this.editForm.subject,
+      description: this.editForm.description,
+categoryId: this.editForm.categoryId ?? undefined,
+      priority: this.editForm.priority
+    };
+
+    this.ticketService.update(this.ticket.id, updatedTicket).subscribe({
+      next: (updated) => {
+        this.ticket = updated;
+        this.isSavingTicket = false;
+        this.isEditingTicket = false;
+        this.toastService.success('Ticket updated successfully');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isSavingTicket = false;
+        this.toastService.error('Failed to update ticket');
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   addComment(): void {
@@ -202,11 +254,7 @@ canManageTicket(): boolean {
       this.toastService.error('Comment cannot be empty');
       return;
     }
-
-    if (!this.ticket?.id) {
-      this.toastService.error('No ticket selected');
-      return;
-    }
+    if (!this.ticket?.id) return;
 
     this.isSubmittingComment = true;
     const comment: TicketComment = {
@@ -235,11 +283,7 @@ canManageTicket(): boolean {
       this.toastService.error('Please select a user');
       return;
     }
-
-    if (!this.ticket?.id) {
-      this.toastService.error('No ticket selected');
-      return;
-    }
+    if (!this.ticket?.id) return;
 
     this.isAssigning = true;
     this.ticketService.assign(this.ticket.id, {
@@ -253,8 +297,7 @@ canManageTicket(): boolean {
         this.loadHistory(this.ticket!.id!);
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Assign error:', err);
+      error: () => {
         this.isAssigning = false;
         this.toastService.error('Failed to assign ticket');
         this.cdr.detectChanges();
@@ -267,11 +310,7 @@ canManageTicket(): boolean {
       this.toastService.error('Please select a status');
       return;
     }
-
-    if (!this.ticket?.id) {
-      this.toastService.error('No ticket selected');
-      return;
-    }
+    if (!this.ticket?.id) return;
 
     this.isUpdatingStatus = true;
     this.ticketService.updateStatus(this.ticket.id, {
@@ -285,8 +324,7 @@ canManageTicket(): boolean {
         this.loadHistory(this.ticket!.id!);
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Update status error:', err);
+      error: () => {
         this.isUpdatingStatus = false;
         this.toastService.error('Failed to update status');
         this.cdr.detectChanges();
@@ -297,7 +335,6 @@ canManageTicket(): boolean {
   deleteComment(commentId: number | undefined): void {
     if (!commentId) return;
     if (!confirm('Delete this comment?')) return;
-    
     if (!this.ticket?.id) return;
 
     this.ticketService.deleteComment(this.ticket.id, commentId).subscribe({
@@ -306,10 +343,7 @@ canManageTicket(): boolean {
         this.toastService.success('Comment deleted');
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Delete comment error:', err);
-        this.toastService.error('Failed to delete comment');
-      }
+      error: () => this.toastService.error('Failed to delete comment')
     });
   }
 
@@ -326,4 +360,3 @@ canManageTicket(): boolean {
     this.cdr.detectChanges();
   }
 }
-

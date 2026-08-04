@@ -30,47 +30,99 @@
 
     <div class="col-md-8">
 
+      <!-- Ticket Details Card -->
       <div class="card mb-3">
-        <div class="card-header">{{ ticket.subject }}</div>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>{{ ticket.subject }}</span>
+          @if (canManageTicket()) {
+            <button class="btn btn-sm btn-outline-primary"
+                    (click)="openEditForm()">
+              <i class="bi bi-pencil me-1"></i>Edit
+            </button>
+          }
+        </div>
         <div class="card-body">
-          <p class="text-muted mb-3">
-            {{ ticket.description || 'No description provided.' }}
-          </p>
-          <div class="row g-2">
-            <div class="col-md-6">
-              <small class="text-muted d-block">Category</small>
-              <strong>{{ ticket.categoryName }}</strong>
-            </div>
-            <div class="col-md-6">
-              <small class="text-muted d-block">Created By</small>
-              <strong>{{ ticket.createdByName }}</strong>
-            </div>
-            <div class="col-md-6">
-              <small class="text-muted d-block">Assigned To</small>
-              <strong>
-                {{ ticket.assignedToName || 'Unassigned' }}
-              </strong>
-            </div>
-            <div class="col-md-6">
-              <small class="text-muted d-block">Created At</small>
-              <strong>
-                {{ ticket.createdAt | date:'medium' }}
-              </strong>
-            </div>
-            @if (ticket.resolvedAt) {
-              <div class="col-md-6">
-                <small class="text-muted d-block">
-                  Resolved At
-                </small>
-                <strong>
-                  {{ ticket.resolvedAt | date:'medium' }}
-                </strong>
+          
+          <!-- EDIT FORM -->
+          @if (isEditingTicket) {
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Subject</label>
+                <input type="text" class="form-control"
+                  [(ngModel)]="editForm.subject">
               </div>
-            }
-          </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="4"
+                  [(ngModel)]="editForm.description"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select class="form-select"
+                  [(ngModel)]="editForm.categoryId">
+                  @for (cat of categories; track cat.id) {
+                    <option [ngValue]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Priority</label>
+                <select class="form-select"
+                  [(ngModel)]="editForm.priority">
+                  @for (p of priorities; track p) {
+                    <option [value]="p">{{ p }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary"
+                  (click)="saveTicket()"
+                  [disabled]="isSavingTicket">
+                  @if (isSavingTicket) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  }
+                  <i class="bi bi-save me-1"></i>Save Changes
+                </button>
+                <button class="btn btn-outline-secondary"
+                  (click)="cancelEdit()">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          } @else {
+            <!-- DISPLAY MODE -->
+            <p class="text-muted mb-3">
+              {{ ticket.description || 'No description provided.' }}
+            </p>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <small class="text-muted d-block">Category</small>
+                <strong>{{ ticket.categoryName }}</strong>
+              </div>
+              <div class="col-md-6">
+                <small class="text-muted d-block">Created By</small>
+                <strong>{{ ticket.createdByName }}</strong>
+              </div>
+              <div class="col-md-6">
+                <small class="text-muted d-block">Assigned To</small>
+                <strong>{{ ticket.assignedToName || 'Unassigned' }}</strong>
+              </div>
+              <div class="col-md-6">
+                <small class="text-muted d-block">Created At</small>
+                <strong>{{ ticket.createdAt | date:'medium' }}</strong>
+              </div>
+              @if (ticket.resolvedAt) {
+                <div class="col-md-6">
+                  <small class="text-muted d-block">Resolved At</small>
+                  <strong>{{ ticket.resolvedAt | date:'medium' }}</strong>
+                </div>
+              }
+            </div>
+          }
         </div>
       </div>
 
+      <!-- Tabs Card -->
       <div class="card">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
@@ -120,12 +172,10 @@
                       <div class="comment-header">
                         <strong>{{ comment.userName }}</strong>
                         <small class="text-muted ms-2">
-                          {{ comment.commentedAt 
-                             | date:'medium' }}
+                          {{ comment.commentedAt | date:'medium' }}
                         </small>
                         <button
-                          class="btn btn-sm btn-link 
-                                 text-danger ms-auto p-0"
+                          class="btn btn-sm btn-link text-danger ms-auto p-0"
                           (click)="deleteComment(comment.id)">
                           <i class="bi bi-trash"></i>
                         </button>
@@ -140,9 +190,7 @@
             }
 
             <div class="add-comment">
-              <label class="form-label fw-semibold">
-                Add Comment
-              </label>
+              <label class="form-label fw-semibold">Add Comment</label>
               <textarea class="form-control mb-2" rows="3"
                 placeholder="Write your comment..."
                 [(ngModel)]="newComment"
@@ -152,9 +200,7 @@
                 (click)="addComment()"
                 [disabled]="isSubmittingComment">
                 @if (isSubmittingComment) {
-                  <span class="spinner-border 
-                               spinner-border-sm me-2">
-                  </span>
+                  <span class="spinner-border spinner-border-sm me-2"></span>
                 } @else {
                   <i class="bi bi-send me-2"></i>
                 }
@@ -175,8 +221,7 @@
                   <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                      <div class="d-flex align-items-center 
-                                  gap-2 mb-1">
+                      <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge"
                           [ngClass]="getStatusClass(h.oldStatus)">
                           {{ h.oldStatus || 'START' }}
@@ -229,9 +274,10 @@
       </div>
     </div>
 
+    <!-- Right Sidebar -->
     <div class="col-md-4">
 
-      @if (canManageTicket()) {
+      @if (canAssignOrChangeStatus()) {
         <div class="card mb-3">
           <div class="card-header">
             <i class="bi bi-person-check me-2"></i>
@@ -251,8 +297,7 @@
               (click)="assignTicket()"
               [disabled]="isAssigning">
               @if (isAssigning) {
-                <span class="spinner-border 
-                             spinner-border-sm me-2"></span>
+                <span class="spinner-border spinner-border-sm me-2"></span>
               }
               Assign
             </button>
@@ -275,8 +320,7 @@
               (click)="updateStatus()"
               [disabled]="isUpdatingStatus">
               @if (isUpdatingStatus) {
-                <span class="spinner-border 
-                             spinner-border-sm me-2"></span>
+                <span class="spinner-border spinner-border-sm me-2"></span>
               }
               Update Status
             </button>
@@ -284,14 +328,12 @@
         </div>
       }
 
-      @if (!canManageTicket()) {
+      @if (!canAssignOrChangeStatus()) {
         <div class="card mb-3">
           <div class="card-body text-center py-4">
-            <i class="bi bi-info-circle text-muted"
-               style="font-size: 32px;"></i>
+            <i class="bi bi-info-circle text-muted" style="font-size: 32px;"></i>
             <p class="text-muted mt-2 mb-0 small">
-              Only administrators can assign tickets
-              or change their status.
+              Only administrators can assign tickets or change status.
             </p>
           </div>
         </div>
