@@ -41,6 +41,9 @@ export class TicketList implements OnInit {
   sortColumn = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  // Tabs for non-admin
+  ticketView: 'all' | 'created' | 'assigned' = 'all';
+
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
     'PENDING', 'RESOLVED', 'CLOSED', 'REOPENED'
@@ -72,6 +75,7 @@ export class TicketList implements OnInit {
 
   loadTickets(): void {
     this.isLoading = true;
+    const userId = this.getCurrentUserId();
 
     if (this.isAdmin()) {
       this.ticketService.getAll().subscribe({
@@ -88,21 +92,45 @@ export class TicketList implements OnInit {
         }
       });
     } else {
-      const userId = this.getCurrentUserId();
-      this.ticketService.getByCreatedBy(userId).subscribe({
-        next: (tickets) => {
-          this.tickets = tickets;
-          this.applyFiltersAndSort();
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.toastService.error('Failed to load tickets');
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        }
-      });
+      this.loadUserTickets(userId);
     }
+  }
+
+  loadUserTickets(userId: number): void {
+    let createdTickets: Ticket[] = [];
+    let assignedTickets: Ticket[] = [];
+    let completed = 0;
+
+    const checkDone = () => {
+      completed++;
+      if (completed === 2) {
+        // Merge and remove duplicates
+        const allIds = new Set<number>();
+        const merged: Ticket[] = [];
+        
+        [...createdTickets, ...assignedTickets].forEach(t => {
+          if (t.id && !allIds.has(t.id)) {
+            allIds.add(t.id);
+            merged.push(t);
+          }
+        });
+        
+        this.tickets = merged;
+        this.applyFiltersAndSort();
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    };
+
+    this.ticketService.getByCreatedBy(userId).subscribe({
+      next: (tickets) => { createdTickets = tickets; checkDone(); },
+      error: () => { checkDone(); }
+    });
+
+    this.ticketService.getByAssignedTo(userId).subscribe({
+      next: (tickets) => { assignedTickets = tickets; checkDone(); },
+      error: () => { checkDone(); }
+    });
   }
 
   loadCategories(): void {
@@ -115,7 +143,21 @@ export class TicketList implements OnInit {
     });
   }
 
-  // Sort column click handler
+  // Get tickets based on selected tab
+  get displayTickets(): Ticket[] {
+    if (this.isAdmin()) return this.filteredTickets;
+    
+    const userId = this.getCurrentUserId();
+    switch (this.ticketView) {
+      case 'created':
+        return this.filteredTickets.filter(t => t.createdById === userId);
+      case 'assigned':
+        return this.filteredTickets.filter(t => t.assignedToId === userId);
+      default:
+        return this.filteredTickets;
+    }
+  }
+
   sortBy(column: string): void {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -126,7 +168,6 @@ export class TicketList implements OnInit {
     this.applyFiltersAndSort();
   }
 
-  // Get sort icon
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) return 'bi-arrow-down-up text-muted';
     return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
@@ -142,7 +183,7 @@ export class TicketList implements OnInit {
     if (confirmDelete) {
       this.ticketService.delete(ticket.id).subscribe({
         next: () => {
-          this.toastService.success(`Ticket ${ticket.ticketNumber} deleted successfully`);
+          this.toastService.success(`Ticket ${ticket.ticketNumber} deleted`);
           this.loadTickets();
         },
         error: () => this.toastService.error('Failed to delete ticket')
@@ -178,44 +219,26 @@ export class TicketList implements OnInit {
     // Sort
     result.sort((a, b) => {
       let valA: any, valB: any;
-      
       switch (this.sortColumn) {
         case 'ticketNumber':
-          valA = a.ticketNumber || '';
-          valB = b.ticketNumber || '';
-          break;
+          valA = a.ticketNumber || ''; valB = b.ticketNumber || ''; break;
         case 'subject':
-          valA = (a.subject || '').toLowerCase();
-          valB = (b.subject || '').toLowerCase();
-          break;
+          valA = (a.subject || '').toLowerCase(); valB = (b.subject || '').toLowerCase(); break;
         case 'categoryName':
-          valA = (a.categoryName || '').toLowerCase();
-          valB = (b.categoryName || '').toLowerCase();
-          break;
+          valA = (a.categoryName || '').toLowerCase(); valB = (b.categoryName || '').toLowerCase(); break;
         case 'priority':
-          const priorityOrder: any = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
-          valA = priorityOrder[a.priority || 'MEDIUM'] || 0;
-          valB = priorityOrder[b.priority || 'MEDIUM'] || 0;
-          break;
+          const order: any = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+          valA = order[a.priority || 'MEDIUM'] || 0; valB = order[b.priority || 'MEDIUM'] || 0; break;
         case 'status':
-          valA = (a.status || '').toLowerCase();
-          valB = (b.status || '').toLowerCase();
-          break;
+          valA = (a.status || '').toLowerCase(); valB = (b.status || '').toLowerCase(); break;
         case 'assignedToName':
-          valA = (a.assignedToName || '').toLowerCase();
-          valB = (b.assignedToName || '').toLowerCase();
-          break;
+          valA = (a.assignedToName || '').toLowerCase(); valB = (b.assignedToName || '').toLowerCase(); break;
         case 'createdByName':
-          valA = (a.createdByName || '').toLowerCase();
-          valB = (b.createdByName || '').toLowerCase();
-          break;
+          valA = (a.createdByName || '').toLowerCase(); valB = (b.createdByName || '').toLowerCase(); break;
         case 'createdAt':
         default:
-          valA = new Date(a.createdAt || '').getTime();
-          valB = new Date(b.createdAt || '').getTime();
-          break;
+          valA = new Date(a.createdAt || '').getTime(); valB = new Date(b.createdAt || '').getTime(); break;
       }
-
       if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
       if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
       return 0;
@@ -233,16 +256,18 @@ export class TicketList implements OnInit {
     this.selectedCategory = '';
     this.sortColumn = 'createdAt';
     this.sortDirection = 'desc';
+    this.ticketView = 'all';
     this.applyFiltersAndSort();
   }
 
   get paginatedTickets(): Ticket[] {
+    const display = this.displayTickets;
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredTickets.slice(start, start + this.pageSize);
+    return display.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.filteredTickets.length / this.pageSize);
+    return Math.ceil(this.displayTickets.length / this.pageSize);
   }
 
   get pages(): number[] {

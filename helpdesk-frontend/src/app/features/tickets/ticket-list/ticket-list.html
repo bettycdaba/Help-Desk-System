@@ -8,6 +8,7 @@
   </a>
 </div>
 
+<!-- FILTER CARD -->
 <div class="card mb-3">
   <div class="card-body">
     <div class="row g-2 align-items-end">
@@ -58,6 +59,31 @@
   </div>
 </div>
 
+<!-- TABS FOR NON-ADMIN USERS -->
+@if (!isAdmin()) {
+  <div class="btn-group mb-3">
+    <button class="btn btn-sm" 
+            [class.btn-primary]="ticketView === 'all'" 
+            [class.btn-outline-primary]="ticketView !== 'all'"
+            (click)="ticketView = 'all'; currentPage = 1">
+      <i class="bi bi-collection me-1"></i> All My Tickets
+    </button>
+    <button class="btn btn-sm" 
+            [class.btn-primary]="ticketView === 'created'" 
+            [class.btn-outline-primary]="ticketView !== 'created'"
+            (click)="ticketView = 'created'; currentPage = 1">
+      <i class="bi bi-pencil me-1"></i> Created By Me
+    </button>
+    <button class="btn btn-sm" 
+            [class.btn-primary]="ticketView === 'assigned'" 
+            [class.btn-outline-primary]="ticketView !== 'assigned'"
+            (click)="ticketView = 'assigned'; currentPage = 1">
+      <i class="bi bi-person-check me-1"></i> Assigned To Me
+    </button>
+  </div>
+}
+
+<!-- TABLE CARD -->
 <div class="card">
   <div class="card-body p-0">
     @if (isLoading) {
