@@ -36,6 +36,13 @@
       <span *ngIf="!isCollapsed">New Ticket</span>
     </a>
 
+    <a routerLink="/profile"
+   routerLinkActive="active"
+   class="nav-item">
+  <i class="bi bi-person-circle"></i>
+  <span *ngIf="!isCollapsed">My Profile</span>
+</a>
+
     <!-- ADMIN SECTION - Use *ngIf for safety -->
     <ng-container *ngIf="isAdmin()">
       <div class="nav-section" *ngIf="!isCollapsed">

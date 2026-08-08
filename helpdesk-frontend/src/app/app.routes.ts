@@ -103,6 +103,15 @@ export const routes: Routes = [
       import('./features/categories/categories')
         .then(m => m.Categories)
   },
+
+  {
+  path: 'profile',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/profile/profile')
+      .then(m => m.Profile)
+},
+
   {
     path: '**',
     loadComponent: () =>
