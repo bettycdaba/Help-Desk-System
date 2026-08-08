@@ -14,13 +14,14 @@ import { ToastService }
   from '../../../core/services/toast.service';
 import {
   Ticket, TicketComment,
-  TicketAssignmentHistory, TicketStatusHistory
+  TicketAssignmentHistory, TicketStatusHistory, TicketAttachment
 } from '../../../core/models/ticket.model';
 import { TicketCategory } from '../../../core/models/category.model';
 import { User } from '../../../core/models/user.model';
 import { Subscription } from 'rxjs';
 import { AuthService }
   from '../../../core/services/auth.service';
+
 
 @Component({
   selector: 'app-ticket-detail',
@@ -58,6 +59,11 @@ export class TicketDetail implements OnInit, OnDestroy {
   };
 
   activeTab = 'comments';
+
+  attachments: any[] = [];
+isUploadingFile = false;
+isDraggingOnDetail = false;
+
   ticketId = 0;
 
   private subscriptions: Subscription[] = [];
@@ -91,6 +97,7 @@ export class TicketDetail implements OnInit, OnDestroy {
         this.loadCategories();
         this.loadComments(this.ticketId);
         this.loadHistory(this.ticketId);
+        this.loadAttachments(this.ticketId);
       } else {
         this.toastService.error('Invalid ticket ID');
         this.router.navigate(['/tickets']);
@@ -98,6 +105,135 @@ export class TicketDetail implements OnInit, OnDestroy {
     });
     this.subscriptions.push(sub);
   }
+
+  loadAttachments(ticketId: number): void {
+  this.ticketService.getAttachments(ticketId).subscribe({
+    next: (attachments) => {
+      this.attachments = attachments;
+      this.cdr.detectChanges();
+    },
+    error: () => {}
+  });
+}
+
+onDetailFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    this.uploadFile(input.files[0]);
+    input.value = '';
+  }
+}
+
+onDetailDragOver(event: DragEvent): void {
+  event.preventDefault();
+  this.isDraggingOnDetail = true;
+}
+
+onDetailDragLeave(event: DragEvent): void {
+  event.preventDefault();
+  this.isDraggingOnDetail = false;
+}
+
+onDetailDrop(event: DragEvent): void {
+  event.preventDefault();
+  this.isDraggingOnDetail = false;
+  if (event.dataTransfer?.files?.length) {
+    this.uploadFile(event.dataTransfer.files[0]);
+  }
+}
+
+uploadFile(file: File): void {
+  const maxSize = 10 * 1024 * 1024;
+  if (file.size > maxSize) {
+    this.toastService.error('File too large. Max 10MB.');
+    return;
+  }
+
+  this.isUploadingFile = true;
+  this.cdr.detectChanges();
+
+  this.ticketService.uploadAttachment(
+    this.ticketId,
+    file,
+    this.getCurrentUserId()
+  ).subscribe({
+    next: (attachment) => {
+      this.attachments = [...this.attachments, attachment];
+      this.isUploadingFile = false;
+      this.toastService.success('File uploaded successfully');
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.isUploadingFile = false;
+      this.toastService.error('Failed to upload file');
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+downloadFile(attachment: any): void {
+  this.ticketService.downloadAttachment(
+    this.ticketId, attachment.id).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = attachment.fileName;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: () =>
+      this.toastService.error('Failed to download file')
+  });
+}
+
+deleteAttachment(attachmentId: number): void {
+  if (!confirm('Delete this attachment?')) return;
+
+  this.ticketService.deleteAttachment(
+    this.ticketId, attachmentId).subscribe({
+    next: () => {
+      this.attachments = this.attachments.filter(
+        a => a.id !== attachmentId);
+      this.toastService.success('Attachment deleted');
+      this.cdr.detectChanges();
+    },
+    error: () =>
+      this.toastService.error('Failed to delete attachment')
+  });
+}
+
+getFileIcon(fileType: string): string {
+  switch (fileType?.toLowerCase()) {
+    case 'jpg': case 'jpeg':
+    case 'png': case 'gif':
+    case 'webp':
+      return 'bi-file-image text-success';
+    case 'pdf':
+      return 'bi-file-pdf text-danger';
+    case 'doc': case 'docx':
+      return 'bi-file-word text-primary';
+    case 'zip': case 'rar':
+      return 'bi-file-zip text-warning';
+    default:
+      return 'bi-file-text text-secondary';
+  }
+}
+
+formatFileSize(bytes: number): string {
+  if (!bytes) return '0 B';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) {
+    return (bytes / 1024).toFixed(1) + ' KB';
+  }
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+isImageFile(fileType: string): boolean {
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp']
+    .includes(fileType?.toLowerCase());
+}
+
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());

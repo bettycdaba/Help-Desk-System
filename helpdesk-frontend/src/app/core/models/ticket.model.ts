@@ -56,3 +56,16 @@ export interface TicketStatusUpdateRequest {
   newStatus: string;
   changedById: number;
 }
+
+export interface TicketAttachment {
+  id?: number;
+  fileName: string;
+  filePath?: string;
+  fileSize?: number;
+  fileType?: string;
+  uploadedAt?: string;
+  ticketId?: number;
+  uploadedById?: number;
+  uploadedByName?: string;
+  downloadUrl?: string;
+}

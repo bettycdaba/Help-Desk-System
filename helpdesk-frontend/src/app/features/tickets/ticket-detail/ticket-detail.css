@@ -89,3 +89,111 @@
   color: #1e3a5f;
   font-weight: 600;
 }
+
+.upload-area {
+  border: 2px dashed #c0cce0;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8f9ff;
+}
+
+.upload-area:hover {
+  border-color: #2d5986;
+  background: #eef3ff;
+}
+
+.upload-area.drag-over {
+  border-color: #1e3a5f;
+  background: #dce8ff;
+}
+
+.upload-icon {
+  font-size: 28px;
+  color: #2d5986;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.attachments-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attachment-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9ff;
+  border: 1px solid #e0e6f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: all 0.2s;
+}
+
+.attachment-card:hover {
+  border-color: #2d5986;
+  background: #eef3ff;
+}
+
+.attachment-preview {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: white;
+  border: 1px solid #e0e6f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.attachment-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attachment-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.attachment-big-icon {
+  font-size: 22px;
+}
+
+.attachment-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.attachment-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e3a5f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachment-meta {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.attachment-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}

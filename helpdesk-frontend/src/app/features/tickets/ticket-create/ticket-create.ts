@@ -34,6 +34,9 @@ export class TicketCreate implements OnInit {
   users: User[] = [];
   isSubmitting = false;
 
+  selectedFiles: File[] = [];
+  isDragging = false;
+
   priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
   constructor(
@@ -81,6 +84,96 @@ export class TicketCreate implements OnInit {
     return 1;
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.addFiles(Array.from(input.files));
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+    if (event.dataTransfer?.files) {
+      this.addFiles(Array.from(event.dataTransfer.files));
+    }
+  }
+
+  addFiles(files: File[]): void {
+    const maxSize = 10 * 1024 * 1024;
+    const allowed = [
+      'image/jpeg', 'image/png', 'image/gif',
+      'image/webp', 'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain', 'application/zip'
+    ];
+
+    for (const file of files) {
+      if (file.size > maxSize) {
+        this.toastService.error(
+          `${file.name} is too large. Max 10MB.`);
+        continue;
+      }
+      if (!allowed.includes(file.type)) {
+        this.toastService.error(
+          `${file.name} — file type not allowed.`);
+        continue;
+      }
+      if (this.selectedFiles.length >= 5) {
+        this.toastService.error(
+          'Maximum 5 files allowed per ticket.');
+        break;
+      }
+      const exists = this.selectedFiles.some(
+        f => f.name === file.name && 
+             f.size === file.size);
+      if (!exists) {
+        this.selectedFiles.push(file);
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  getFileIcon(file: File): string {
+    if (file.type.startsWith('image/')) {
+      return 'bi-file-image text-success';
+    }
+    if (file.type === 'application/pdf') {
+      return 'bi-file-pdf text-danger';
+    }
+    if (file.type.includes('word')) {
+      return 'bi-file-word text-primary';
+    }
+    if (file.type === 'application/zip') {
+      return 'bi-file-zip text-warning';
+    }
+    return 'bi-file-text text-secondary';
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) {
+      return (bytes / 1024).toFixed(1) + ' KB';
+    }
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
   onSubmit(): void {
     if (!this.subject.trim()) {
       this.toastService.error('Subject is required');
@@ -108,13 +201,18 @@ export class TicketCreate implements OnInit {
 
     this.ticketService.create(payload).subscribe({
       next: (created) => {
-        this.isSubmitting = false;
-        this.cdr.detectChanges();
-        this.toastService.success(
-          `Ticket ${created.ticketNumber} created!`);
-        setTimeout(() => {
-          this.router.navigate(['/tickets', created.id]);
-        }, 500);
+        if (this.selectedFiles.length > 0) {
+          this.uploadFilesForTicket(
+            created.id!, created.ticketNumber || '');
+        } else {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+          this.toastService.success(
+            `Ticket ${created.ticketNumber} created!`);
+          setTimeout(() => {
+            this.router.navigate(['/tickets', created.id]);
+          }, 500);
+        }
       },
       error: (err) => {
         this.isSubmitting = false;
@@ -123,6 +221,36 @@ export class TicketCreate implements OnInit {
           err?.error?.message ||
           'Failed to create ticket. Please try again.');
       }
+    });
+  }
+
+  private uploadFilesForTicket(
+    ticketId: number,
+    ticketNumber: string): void {
+
+    const userId = this.getCurrentUserId();
+    const uploadPromises = this.selectedFiles.map(file =>
+      new Promise<void>((resolve) => {
+        this.ticketService.uploadAttachment(
+          ticketId, file, userId).subscribe({
+          next: () => resolve(),
+          error: () => {
+            this.toastService.error(
+              `Failed to upload: ${file.name}`);
+            resolve();
+          }
+        });
+      })
+    );
+
+    Promise.all(uploadPromises).then(() => {
+      this.isSubmitting = false;
+      this.cdr.detectChanges();
+      this.toastService.success(
+        `Ticket ${ticketNumber} created with attachments!`);
+      setTimeout(() => {
+        this.router.navigate(['/tickets', ticketId]);
+      }, 500);
     });
   }
 }

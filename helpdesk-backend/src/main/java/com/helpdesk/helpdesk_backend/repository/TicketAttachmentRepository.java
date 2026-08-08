@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface TicketAttachmentRepository extends JpaRepository<TicketAttachment, Long> {
+public interface TicketAttachmentRepository 
+    extends JpaRepository<TicketAttachment, Long> {
 
     List<TicketAttachment> findByTicketId(Long ticketId);
 }

@@ -150,10 +150,103 @@
                 Assignment History
               </button>
             </li>
+            <li class="nav-item">
+  <button class="nav-link"
+    [class.active]="activeTab === 'attachments'"
+    (click)="setTab('attachments')">
+    <i class="bi bi-paperclip me-1"></i>
+    Attachments ({{ attachments.length }})
+  </button>
+</li>
           </ul>
         </div>
 
         <div class="card-body">
+
+          @if (activeTab === 'attachments') {
+
+  <div class="upload-area mb-4"
+       [class.drag-over]="isDraggingOnDetail"
+       (dragover)="onDetailDragOver($event)"
+       (dragleave)="onDetailDragLeave($event)"
+       (drop)="onDetailDrop($event)"
+       (click)="detailFileInput.click()">
+    <input #detailFileInput
+      type="file"
+      style="display: none"
+      accept="image/*,.pdf,.doc,.docx,.txt,.zip"
+      (change)="onDetailFileSelected($event)">
+    @if (isUploadingFile) {
+      <div class="spinner-border 
+                  spinner-border-sm text-primary me-2">
+      </div>
+      <span class="text-muted">Uploading...</span>
+    } @else {
+      <i class="bi bi-cloud-upload upload-icon"></i>
+      <p class="mb-1">
+        Drop a file here or
+        <span class="text-primary">browse</span>
+      </p>
+      <small class="text-muted">
+        Max 10MB — Images, PDF, Word, Text, ZIP
+      </small>
+    }
+  </div>
+
+  @if (attachments.length === 0) {
+    <div class="empty-state py-3">
+      <i class="bi bi-paperclip"></i>
+      <p>No attachments yet</p>
+    </div>
+  } @else {
+    <div class="attachments-grid">
+      @for (att of attachments; track att.id) {
+        <div class="attachment-card">
+
+          <div class="attachment-preview">
+            @if (isImageFile(att.fileType)) {
+              <img
+                [src]="'http://localhost:8080' + att.downloadUrl"
+                [alt]="att.fileName"
+                class="attachment-image"
+                (error)="$event.target.style.display='none'">
+            } @else {
+              <div class="attachment-icon-wrap">
+                <i class="bi {{ getFileIcon(att.fileType) }}
+                           attachment-big-icon"></i>
+              </div>
+            }
+          </div>
+
+          <div class="attachment-info">
+            <span class="attachment-name"
+                  [title]="att.fileName">
+              {{ att.fileName }}
+            </span>
+            <span class="attachment-meta">
+              {{ formatFileSize(att.fileSize) }}
+              • {{ att.uploadedByName }}
+            </span>
+          </div>
+
+          <div class="attachment-actions">
+            <button class="btn btn-sm btn-outline-primary"
+              (click)="downloadFile(att)"
+              title="Download">
+              <i class="bi bi-download"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger"
+              (click)="deleteAttachment(att.id)"
+              title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+}
 
           @if (activeTab === 'comments') {
             @if (comments.length === 0) {

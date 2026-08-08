@@ -105,4 +105,38 @@ export class TicketService {
     return this.http.get<TicketStatusHistory[]>(
       `${this.baseUrl}/${ticketId}/history/status`);
   }
+
+  getAttachments(ticketId: number): Observable<any[]> {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/${ticketId}/attachments`);
 }
+
+uploadAttachment(
+  ticketId: number,
+  file: File,
+  uploadedById: number): Observable<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('uploadedById', 
+    uploadedById.toString());
+  return this.http.post<any>(
+    `${this.baseUrl}/${ticketId}/attachments`,
+    formData);
+}
+
+downloadAttachment(
+  ticketId: number,
+  attachmentId: number): Observable<Blob> {
+  return this.http.get(
+    `${this.baseUrl}/${ticketId}/attachments/${attachmentId}/download`,
+    { responseType: 'blob' });
+}
+
+deleteAttachment(
+  ticketId: number,
+  attachmentId: number): Observable<void> {
+  return this.http.delete<void>(
+    `${this.baseUrl}/${ticketId}/attachments/${attachmentId}`);
+}
+}
+
