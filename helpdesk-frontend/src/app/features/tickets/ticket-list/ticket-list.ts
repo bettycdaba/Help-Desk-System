@@ -42,7 +42,7 @@ export class TicketList implements OnInit {
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Tabs for non-admin
-  ticketView: 'all' | 'created' | 'assigned' = 'all';
+ ticketView: 'all' | 'created' | 'assigned' | 'unassigned' = 'all';
 
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
@@ -144,19 +144,20 @@ export class TicketList implements OnInit {
   }
 
   // Get tickets based on selected tab
-  get displayTickets(): Ticket[] {
-    if (this.isAdmin()) return this.filteredTickets;
-    
-    const userId = this.getCurrentUserId();
-    switch (this.ticketView) {
-      case 'created':
-        return this.filteredTickets.filter(t => t.createdById === userId);
-      case 'assigned':
-        return this.filteredTickets.filter(t => t.assignedToId === userId);
-      default:
-        return this.filteredTickets;
-    }
+get displayTickets(): Ticket[] {
+  const userId = this.getCurrentUserId();
+  
+  switch (this.ticketView) {
+    case 'created':
+      return this.filteredTickets.filter(t => t.createdById === userId);
+    case 'assigned':
+      return this.filteredTickets.filter(t => t.assignedToId === userId);
+    case 'unassigned':
+      return this.filteredTickets.filter(t => !t.assignedToId);
+    default:
+      return this.filteredTickets;
   }
+}
 
   sortBy(column: string): void {
     if (this.sortColumn === column) {

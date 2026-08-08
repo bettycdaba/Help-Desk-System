@@ -59,29 +59,26 @@
   </div>
 </div>
 
-<!-- TABS FOR NON-ADMIN USERS -->
-@if (!isAdmin()) {
-  <div class="btn-group mb-3">
-    <button class="btn btn-sm" 
-            [class.btn-primary]="ticketView === 'all'" 
-            [class.btn-outline-primary]="ticketView !== 'all'"
-            (click)="ticketView = 'all'; currentPage = 1">
-      <i class="bi bi-collection me-1"></i> All My Tickets
-    </button>
-    <button class="btn btn-sm" 
-            [class.btn-primary]="ticketView === 'created'" 
-            [class.btn-outline-primary]="ticketView !== 'created'"
-            (click)="ticketView = 'created'; currentPage = 1">
-      <i class="bi bi-pencil me-1"></i> Created By Me
-    </button>
-    <button class="btn btn-sm" 
-            [class.btn-primary]="ticketView === 'assigned'" 
+<!-- TABS -->
+<div class="btn-group mb-3">
+  <button class="btn btn-sm" [class.btn-primary]="ticketView === 'all'" 
+          [class.btn-outline-primary]="ticketView !== 'all'"
+          (click)="ticketView = 'all'; currentPage = 1">
+    <i class="bi bi-collection me-1"></i> All
+  </button>
+  @if (!isAdmin()) {
+    <button class="btn btn-sm" [class.btn-primary]="ticketView === 'assigned'" 
             [class.btn-outline-primary]="ticketView !== 'assigned'"
             (click)="ticketView = 'assigned'; currentPage = 1">
-      <i class="bi bi-person-check me-1"></i> Assigned To Me
+      <i class="bi bi-person-check me-1"></i> Assigned
     </button>
-  </div>
-}
+  }
+  <button class="btn btn-sm" [class.btn-primary]="ticketView === 'unassigned'" 
+          [class.btn-outline-primary]="ticketView !== 'unassigned'"
+          (click)="ticketView = 'unassigned'; currentPage = 1">
+    <i class="bi bi-inbox me-1"></i> Unassigned
+  </button>
+</div>
 
 <!-- TABLE CARD -->
 <div class="card">
@@ -91,10 +88,22 @@
         <div class="spinner-border text-primary"></div>
         <p class="text-muted mt-2">Loading tickets...</p>
       </div>
-    } @else if (filteredTickets.length === 0) {
+    } @else if (displayTickets.length === 0) {
       <div class="empty-state">
         <i class="bi bi-inbox"></i>
-        <p>@if (isAdmin()) { No tickets found } @else { You have not created any tickets yet }</p>
+        <p>
+          @if (ticketView === 'unassigned') {
+            No unassigned tickets found
+          } @else if (ticketView === 'assigned') {
+            No tickets assigned to you
+          } @else if (ticketView === 'created') {
+            You haven't created any tickets yet
+          } @else if (isAdmin()) {
+            No tickets found
+          } @else {
+            No tickets found
+          }
+        </p>
         <a routerLink="/tickets/new" class="btn btn-primary btn-sm">Create New Ticket</a>
       </div>
     } @else {
@@ -152,8 +161,8 @@
       @if (totalPages > 1) {
         <div class="d-flex justify-content-between align-items-center p-3">
           <small class="text-muted">
-            Showing {{ (currentPage-1)*pageSize+1 }}–{{ currentPage * pageSize > filteredTickets.length ? filteredTickets.length : currentPage * pageSize }}
-            of {{ filteredTickets.length }} tickets
+            Showing {{ (currentPage-1)*pageSize+1 }}–{{ currentPage * pageSize > displayTickets.length ? displayTickets.length : currentPage * pageSize }}
+            of {{ displayTickets.length }} tickets
           </small>
           <nav>
             <ul class="pagination pagination-sm mb-0">
