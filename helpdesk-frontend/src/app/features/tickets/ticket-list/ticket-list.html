@@ -10,47 +10,48 @@
 
 <div class="card mb-3">
   <div class="card-body">
-    <div class="row g-2">
-      <div class="col-md-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small text-muted">Search</label>
         <input type="text" class="form-control"
-          placeholder="Search by subject or ticket number..."
+          placeholder="Search tickets..."
           [(ngModel)]="searchText"
           (ngModelChange)="applyFilters()">
       </div>
       <div class="col-md-2">
-        <select class="form-select"
-          [(ngModel)]="selectedStatus"
-          (ngModelChange)="applyFilters()">
+        <label class="form-label small text-muted">Status</label>
+        <select class="form-select" [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()">
           <option value="">All Statuses</option>
-          @for (s of statuses; track s) {
-            <option [value]="s">{{ s }}</option>
-          }
+          @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
         </select>
       </div>
       <div class="col-md-2">
-        <select class="form-select"
-          [(ngModel)]="selectedPriority"
-          (ngModelChange)="applyFilters()">
+        <label class="form-label small text-muted">Priority</label>
+        <select class="form-select" [(ngModel)]="selectedPriority" (ngModelChange)="applyFilters()">
           <option value="">All Priorities</option>
-          @for (p of priorities; track p) {
-            <option [value]="p">{{ p }}</option>
-          }
+          @for (p of priorities; track p) { <option [value]="p">{{ p }}</option> }
         </select>
       </div>
       <div class="col-md-2">
-        <select class="form-select"
-          [(ngModel)]="selectedCategory"
-          (ngModelChange)="applyFilters()">
+        <label class="form-label small text-muted">Category</label>
+        <select class="form-select" [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()">
           <option value="">All Categories</option>
-          @for (c of categories; track c.id) {
-            <option [value]="c.name">{{ c.name }}</option>
-          }
+          @for (c of categories; track c.id) { <option [value]="c.name">{{ c.name }}</option> }
         </select>
       </div>
       <div class="col-md-2">
-        <button class="btn btn-outline-secondary w-100"
-          (click)="clearFilters()">
-          <i class="bi bi-x-circle me-1"></i>Clear
+        <label class="form-label small text-muted">Sort By</label>
+        <select class="form-select" [(ngModel)]="sortColumn" (ngModelChange)="sortBy(sortColumn)">
+          <option value="createdAt">Date Created</option>
+          <option value="priority">Priority</option>
+          <option value="status">Status</option>
+          <option value="subject">Subject</option>
+          <option value="ticketNumber">Ticket #</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <button class="btn btn-outline-secondary w-100" (click)="clearFilters()" title="Clear all">
+          <i class="bi bi-x-circle"></i>
         </button>
       </div>
     </div>
@@ -67,112 +68,79 @@
     } @else if (filteredTickets.length === 0) {
       <div class="empty-state">
         <i class="bi bi-inbox"></i>
-        <p>
-          @if (isAdmin()) {
-            No tickets found
-          } @else {
-            You have not created any tickets yet
-          }
-        </p>
-        <a routerLink="/tickets/new"
-           class="btn btn-primary btn-sm">
-          Create New Ticket
-        </a>
+        <p>@if (isAdmin()) { No tickets found } @else { You have not created any tickets yet }</p>
+        <a routerLink="/tickets/new" class="btn btn-primary btn-sm">Create New Ticket</a>
       </div>
     } @else {
-<table class="table mb-0">
-  <thead>
-    <tr>
-      <th>Ticket #</th>
-      <th>Subject</th>
-      <th>Category</th>
-      <th>Priority</th>
-      <th>Status</th>
-      @if (isAdmin()) {
-        <th>Assigned To</th>
-        <th>Created By</th>
-        <th>Actions</th>   <!-- NEW COLUMN -->
-      }
-    </tr>
-  </thead>
-  <tbody>
-    @for (ticket of paginatedTickets; track ticket.id) {
-      <tr class="clickable-row">
-        <td>
-          <span class="ticket-number" 
-                (click)="goToTicket(ticket.id)">
-            {{ ticket.ticketNumber }}
-          </span>
-        </td>
-        <td (click)="goToTicket(ticket.id)">{{ ticket.subject }}</td>
-        <td (click)="goToTicket(ticket.id)">{{ ticket.categoryName }}</td>
-        <td (click)="goToTicket(ticket.id)">
-          <span class="badge"
-            [ngClass]="getPriorityClass(ticket.priority)">
-            {{ ticket.priority }}
-          </span>
-        </td>
-        <td (click)="goToTicket(ticket.id)">
-          <span class="badge"
-            [ngClass]="getStatusClass(ticket.status)">
-            {{ ticket.status }}
-          </span>
-        </td>
-        @if (isAdmin()) {
-          <td (click)="goToTicket(ticket.id)">
-            {{ ticket.assignedToName || '—' }}
-          </td>
-          <td (click)="goToTicket(ticket.id)">
-            {{ ticket.createdByName }}
-          </td>
-          <!-- DELETE BUTTON -->
-          <td>
-            <button class="btn btn-sm btn-outline-danger"
-                    (click)="deleteTicket(ticket, $event)"
-                    title="Delete Ticket">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        }
-      </tr>
-    }
-  </tbody>
-</table>
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('ticketNumber')">
+              Ticket # <i [class]="'bi ' + getSortIcon('ticketNumber')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('subject')">
+              Subject <i [class]="'bi ' + getSortIcon('subject')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('categoryName')">
+              Category <i [class]="'bi ' + getSortIcon('categoryName')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('priority')">
+              Priority <i [class]="'bi ' + getSortIcon('priority')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('status')">
+              Status <i [class]="'bi ' + getSortIcon('status')"></i>
+            </th>
+            @if (isAdmin()) {
+              <th class="sortable" (click)="sortBy('assignedToName')">
+                Assigned To <i [class]="'bi ' + getSortIcon('assignedToName')"></i>
+              </th>
+              <th class="sortable" (click)="sortBy('createdByName')">
+                Created By <i [class]="'bi ' + getSortIcon('createdByName')"></i>
+              </th>
+              <th>Actions</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (ticket of paginatedTickets; track ticket.id) {
+            <tr class="clickable-row" (click)="goToTicket(ticket.id)">
+              <td><span class="ticket-number">{{ ticket.ticketNumber }}</span></td>
+              <td>{{ ticket.subject }}</td>
+              <td>{{ ticket.categoryName }}</td>
+              <td><span class="badge" [ngClass]="getPriorityClass(ticket.priority)">{{ ticket.priority }}</span></td>
+              <td><span class="badge" [ngClass]="getStatusClass(ticket.status)">{{ ticket.status }}</span></td>
+              @if (isAdmin()) {
+                <td>{{ ticket.assignedToName || '—' }}</td>
+                <td>{{ ticket.createdByName }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteTicket(ticket, $event)" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
 
       @if (totalPages > 1) {
-        <div class="d-flex justify-content-between
-                    align-items-center p-3">
+        <div class="d-flex justify-content-between align-items-center p-3">
           <small class="text-muted">
-            Showing {{ (currentPage-1)*pageSize+1 }}
-            – {{ [currentPage*pageSize,
-                filteredTickets.length] | slice:0:1 }}
+            Showing {{ (currentPage-1)*pageSize+1 }}–{{ currentPage * pageSize > filteredTickets.length ? filteredTickets.length : currentPage * pageSize }}
             of {{ filteredTickets.length }} tickets
           </small>
           <nav>
             <ul class="pagination pagination-sm mb-0">
-              <li class="page-item"
-                [class.disabled]="currentPage === 1">
-                <button class="page-link"
-                  (click)="goToPage(currentPage - 1)">
-                  &laquo;
-                </button>
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <button class="page-link" (click)="goToPage(currentPage - 1)">&laquo;</button>
               </li>
               @for (page of pages; track page) {
-                <li class="page-item"
-                  [class.active]="page === currentPage">
-                  <button class="page-link"
-                    (click)="goToPage(page)">
-                    {{ page }}
-                  </button>
+                <li class="page-item" [class.active]="page === currentPage">
+                  <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
                 </li>
               }
-              <li class="page-item"
-                [class.disabled]="
-                  currentPage === totalPages">
-                <button class="page-link"
-                  (click)="goToPage(currentPage + 1)">
-                  &raquo;
-                </button>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <button class="page-link" (click)="goToPage(currentPage + 1)">&raquo;</button>
               </li>
             </ul>
           </nav>

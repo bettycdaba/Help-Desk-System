@@ -37,6 +37,10 @@ export class TicketList implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
+  // Sorting
+  sortColumn = 'createdAt';
+  sortDirection: 'asc' | 'desc' = 'desc';
+
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
     'PENDING', 'RESOLVED', 'CLOSED', 'REOPENED'
@@ -73,7 +77,7 @@ export class TicketList implements OnInit {
       this.ticketService.getAll().subscribe({
         next: (tickets) => {
           this.tickets = tickets;
-          this.applyFilters();
+          this.applyFiltersAndSort();
           this.isLoading = false;
           this.cdr.detectChanges();
         },
@@ -88,7 +92,7 @@ export class TicketList implements OnInit {
       this.ticketService.getByCreatedBy(userId).subscribe({
         next: (tickets) => {
           this.tickets = tickets;
-          this.applyFilters();
+          this.applyFiltersAndSort();
           this.isLoading = false;
           this.cdr.detectChanges();
         },
@@ -111,36 +115,49 @@ export class TicketList implements OnInit {
     });
   }
 
-  // NEW: Delete ticket method
+  // Sort column click handler
+  sortBy(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applyFiltersAndSort();
+  }
+
+  // Get sort icon
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return 'bi-arrow-down-up text-muted';
+    return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
+  }
+
   deleteTicket(ticket: Ticket, event: Event): void {
-    event.stopPropagation(); // Prevent row click navigation
-    
+    event.stopPropagation();
     if (!ticket.id) return;
-    
     const confirmDelete = confirm(
       `Are you sure you want to delete ticket ${ticket.ticketNumber}?\n\n` +
-      `Subject: ${ticket.subject}\n\n` +
-      `This action cannot be undone.`
+      `Subject: ${ticket.subject}\n\nThis action cannot be undone.`
     );
-    
     if (confirmDelete) {
       this.ticketService.delete(ticket.id).subscribe({
         next: () => {
-          this.toastService.success(
-            `Ticket ${ticket.ticketNumber} deleted successfully`
-          );
-          this.loadTickets(); // Reload the list
+          this.toastService.success(`Ticket ${ticket.ticketNumber} deleted successfully`);
+          this.loadTickets();
         },
-        error: () => {
-          this.toastService.error('Failed to delete ticket');
-        }
+        error: () => this.toastService.error('Failed to delete ticket')
       });
     }
   }
 
   applyFilters(): void {
+    this.applyFiltersAndSort();
+  }
+
+  applyFiltersAndSort(): void {
     let result = [...this.tickets];
 
+    // Filter
     if (this.searchText.trim()) {
       const search = this.searchText.toLowerCase();
       result = result.filter(t =>
@@ -148,21 +165,61 @@ export class TicketList implements OnInit {
         t.ticketNumber?.toLowerCase().includes(search)
       );
     }
-
     if (this.selectedStatus) {
-      result = result.filter(
-        t => t.status === this.selectedStatus);
+      result = result.filter(t => t.status === this.selectedStatus);
     }
-
     if (this.selectedPriority) {
-      result = result.filter(
-        t => t.priority === this.selectedPriority);
+      result = result.filter(t => t.priority === this.selectedPriority);
+    }
+    if (this.selectedCategory) {
+      result = result.filter(t => t.categoryName === this.selectedCategory);
     }
 
-    if (this.selectedCategory) {
-      result = result.filter(
-        t => t.categoryName === this.selectedCategory);
-    }
+    // Sort
+    result.sort((a, b) => {
+      let valA: any, valB: any;
+      
+      switch (this.sortColumn) {
+        case 'ticketNumber':
+          valA = a.ticketNumber || '';
+          valB = b.ticketNumber || '';
+          break;
+        case 'subject':
+          valA = (a.subject || '').toLowerCase();
+          valB = (b.subject || '').toLowerCase();
+          break;
+        case 'categoryName':
+          valA = (a.categoryName || '').toLowerCase();
+          valB = (b.categoryName || '').toLowerCase();
+          break;
+        case 'priority':
+          const priorityOrder: any = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+          valA = priorityOrder[a.priority || 'MEDIUM'] || 0;
+          valB = priorityOrder[b.priority || 'MEDIUM'] || 0;
+          break;
+        case 'status':
+          valA = (a.status || '').toLowerCase();
+          valB = (b.status || '').toLowerCase();
+          break;
+        case 'assignedToName':
+          valA = (a.assignedToName || '').toLowerCase();
+          valB = (b.assignedToName || '').toLowerCase();
+          break;
+        case 'createdByName':
+          valA = (a.createdByName || '').toLowerCase();
+          valB = (b.createdByName || '').toLowerCase();
+          break;
+        case 'createdAt':
+        default:
+          valA = new Date(a.createdAt || '').getTime();
+          valB = new Date(b.createdAt || '').getTime();
+          break;
+      }
+
+      if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
 
     this.filteredTickets = result;
     this.currentPage = 1;
@@ -174,23 +231,22 @@ export class TicketList implements OnInit {
     this.selectedStatus = '';
     this.selectedPriority = '';
     this.selectedCategory = '';
-    this.applyFilters();
+    this.sortColumn = 'createdAt';
+    this.sortDirection = 'desc';
+    this.applyFiltersAndSort();
   }
 
   get paginatedTickets(): Ticket[] {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredTickets.slice(
-      start, start + this.pageSize);
+    return this.filteredTickets.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    return Math.ceil(
-      this.filteredTickets.length / this.pageSize);
+    return Math.ceil(this.filteredTickets.length / this.pageSize);
   }
 
   get pages(): number[] {
-    return Array.from(
-      { length: this.totalPages }, (_, i) => i + 1);
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   goToPage(page: number): void {

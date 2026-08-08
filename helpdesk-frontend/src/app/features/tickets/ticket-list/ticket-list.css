@@ -50,3 +50,44 @@
 .clickable-row td:last-child {
   cursor: default;
 }
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sortable:hover {
+  background-color: #f0f0f0;
+}
+
+.sortable i {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.ticket-number {
+  font-family: monospace;
+  font-size: 12px;
+  background: #e8f0fe;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: #1a73e8;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ticket-number:hover {
+  background: #1a73e8;
+  color: white;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.clickable-row:hover {
+  background-color: #f8f9fa;
+}
