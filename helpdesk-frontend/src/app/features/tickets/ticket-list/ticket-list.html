@@ -96,8 +96,6 @@
             No unassigned tickets found
           } @else if (ticketView === 'assigned') {
             No tickets assigned to you
-          } @else if (ticketView === 'created') {
-            You haven't created any tickets yet
           } @else if (isAdmin()) {
             No tickets found
           } @else {
@@ -125,13 +123,13 @@
             <th class="sortable" (click)="sortBy('status')">
               Status <i [class]="'bi ' + getSortIcon('status')"></i>
             </th>
+            <th class="sortable" (click)="sortBy('assignedToName')">
+              Assigned To <i [class]="'bi ' + getSortIcon('assignedToName')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('createdByName')">
+              Created By <i [class]="'bi ' + getSortIcon('createdByName')"></i>
+            </th>
             @if (isAdmin()) {
-              <th class="sortable" (click)="sortBy('assignedToName')">
-                Assigned To <i [class]="'bi ' + getSortIcon('assignedToName')"></i>
-              </th>
-              <th class="sortable" (click)="sortBy('createdByName')">
-                Created By <i [class]="'bi ' + getSortIcon('createdByName')"></i>
-              </th>
               <th>Actions</th>
             }
           </tr>
@@ -144,9 +142,9 @@
               <td>{{ ticket.categoryName }}</td>
               <td><span class="badge" [ngClass]="getPriorityClass(ticket.priority)">{{ ticket.priority }}</span></td>
               <td><span class="badge" [ngClass]="getStatusClass(ticket.status)">{{ ticket.status }}</span></td>
+              <td>{{ ticket.assignedToName || '—' }}</td>
+              <td>{{ ticket.createdByName }}</td>
               @if (isAdmin()) {
-                <td>{{ ticket.assignedToName || '—' }}</td>
-                <td>{{ ticket.createdByName }}</td>
                 <td>
                   <button class="btn btn-sm btn-outline-danger" (click)="deleteTicket(ticket, $event)" title="Delete">
                     <i class="bi bi-trash"></i>
