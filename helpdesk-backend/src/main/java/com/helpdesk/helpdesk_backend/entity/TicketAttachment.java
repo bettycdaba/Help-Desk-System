@@ -37,6 +37,6 @@ public class TicketAttachment {
     private Ticket ticket;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by", nullable = false)
+    @JoinColumn(name = "uploaded_by", nullable = true)
     private User uploadedBy;
 }

@@ -26,6 +26,8 @@ public interface TicketService {
 
     TicketResponseDTO updateTicket(Long id, TicketRequestDTO request);
 
+     TicketResponseDTO updateTicketDetails(Long id, TicketUpdateDTO request); 
+
     TicketResponseDTO assignTicket(Long id, TicketAssignRequestDTO request);
 
     TicketResponseDTO updateStatus(Long id, TicketStatusUpdateRequestDTO request);
