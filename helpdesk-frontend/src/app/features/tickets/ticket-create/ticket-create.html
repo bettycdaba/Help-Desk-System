@@ -64,7 +64,7 @@
           </div>
         </div>
 
-        <div class="mb-3">
+        <!-- <div class="mb-3">
           <label class="form-label">
             Assign To (Optional)
           </label>
@@ -81,7 +81,7 @@
               </option>
             }
           </select>
-        </div>
+        </div> -->
 
         <div class="mb-3">
           <label class="form-label">
@@ -193,26 +193,19 @@
     </div>
 
     @if (selectedFiles.length > 0) {
-      <div class="card mt-3">
-        <div class="card-header">
-          <i class="bi bi-paperclip me-2"></i>
-          Files to Upload ({{ selectedFiles.length }})
-        </div>
-        <div class="card-body p-2">
-          @for (file of selectedFiles; track file.name) {
-            <div class="d-flex align-items-center
-                        gap-2 p-2 border-bottom">
-              <i class="bi {{ getFileIcon(file) }}"></i>
-              <small class="flex-grow-1 text-truncate">
-                {{ file.name }}
-              </small>
-              <small class="text-muted">
-                {{ formatFileSize(file.size) }}
-              </small>
-            </div>
-          }
-        </div>
-      </div>
+@if (isAdmin()) {
+  <div class="mt-3">
+    <label class="form-label">Assign To (Optional)</label>
+    <select class="form-select" [(ngModel)]="assignedToId" [disabled]="isSubmitting">
+      <option [ngValue]="null">Leave unassigned</option>
+      @for (user of users; track user.id) {
+        <option [ngValue]="user.id">{{ user.firstName }} {{ user.lastName }} — {{ user.departmentName }}</option>
+      }
+    </select>
+  </div>
+}
     }
+
+    
   </div>
 </div>

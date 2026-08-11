@@ -14,6 +14,7 @@ import { ToastService }
 import { TicketCategory }
   from '../../../core/models/category.model';
 import { User } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-ticket-create',
@@ -43,6 +44,7 @@ export class TicketCreate implements OnInit {
     private ticketService: TicketService,
     private categoryService: CategoryService,
     private userService: UserService,
+     private authService: AuthService,
     private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -253,4 +255,8 @@ export class TicketCreate implements OnInit {
       }, 500);
     });
   }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+}
 }
