@@ -43,4 +43,8 @@ export class UserService {
   delete payload.password;
   return this.http.put<User>(`${this.baseUrl}/${id}`, payload);
 }
+// Enable the admin to get a list of all active users in the system
+getActiveUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/active`);
+  }
 }

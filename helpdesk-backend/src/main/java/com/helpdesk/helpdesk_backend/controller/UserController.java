@@ -60,4 +60,9 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/active")
+public ResponseEntity<List<UserResponseDTO>> getActiveUsers() {
+    return ResponseEntity.ok(userService.getActiveUsers());
+}
 }

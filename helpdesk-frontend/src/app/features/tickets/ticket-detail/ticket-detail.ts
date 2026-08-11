@@ -275,7 +275,7 @@ isImageFile(fileType: string): boolean {
   }
 
   loadUsers(): void {
-    this.userService.getAll().subscribe({
+    this.userService.getActiveUsers().subscribe({ //this.userService.getAll().subscribe({
       next: (users) => {
         this.users = users;
         this.cdr.detectChanges();

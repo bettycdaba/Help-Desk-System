@@ -24,4 +24,6 @@ public interface UserService {
                    String temporaryPassword, 
                    String newPassword);
     boolean mustChangePassword(String email);
+
+    List<UserResponseDTO> getActiveUsers();
 }

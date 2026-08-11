@@ -245,4 +245,12 @@ private String generateTempPassword() {
     }
     return sb.toString();
 }
+
+@Override
+public List<UserResponseDTO> getActiveUsers() {
+    return userRepository.findByActiveTrue()
+            .stream()
+            .map(this::mapToResponse)
+            .collect(Collectors.toList());
+}
 }
