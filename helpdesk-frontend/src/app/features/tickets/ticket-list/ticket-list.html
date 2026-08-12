@@ -59,18 +59,20 @@
   </div>
 </div>
 
+
 <!-- TABS -->
 <div class="btn-group mb-3">
   <button class="btn btn-sm" [class.btn-primary]="ticketView === 'all'" 
           [class.btn-outline-primary]="ticketView !== 'all'"
           (click)="ticketView = 'all'; currentPage = 1">
-    <i class="bi bi-collection me-1"></i> All
+    <i class="bi bi-collection me-1"></i> 
+    @if (isAdmin()) { All Tickets } @else { My Tickets }
   </button>
   @if (!isAdmin()) {
     <button class="btn btn-sm" [class.btn-primary]="ticketView === 'assigned'" 
             [class.btn-outline-primary]="ticketView !== 'assigned'"
             (click)="ticketView = 'assigned'; currentPage = 1">
-      <i class="bi bi-person-check me-1"></i> Assigned
+      <i class="bi bi-person-check me-1"></i> Assigned to Me
     </button>
   }
   <button class="btn btn-sm" [class.btn-primary]="ticketView === 'unassigned'" 

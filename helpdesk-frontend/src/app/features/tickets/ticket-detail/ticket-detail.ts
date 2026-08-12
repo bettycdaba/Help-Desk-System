@@ -248,14 +248,18 @@ isImageFile(fileType: string): boolean {
     return this.ticket?.createdById === userId;
   }
 
-  canManageTicket(): boolean {
-    return this.isAdmin() || this.isOwner();
-  }
-
+canManageTicket(): boolean {
+    return this.isAdmin() || this.isOwner() || this.isAssignedToMe();
+}
   // Only admin can assign and change status
-  canAssignOrChangeStatus(): boolean {
-    return this.isAdmin();
-  }
+canAssignOrChangeStatus(): boolean {
+    return this.isAdmin() || this.isAssignedToMe();
+}
+
+isAssignedToMe(): boolean {
+    const userId = this.getCurrentUserId();
+    return this.ticket?.assignedToId === userId;
+}
 
   loadTicket(id: number): void {
     this.ticketService.getById(id).subscribe({

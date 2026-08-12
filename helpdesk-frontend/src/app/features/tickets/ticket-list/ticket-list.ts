@@ -42,7 +42,7 @@ export class TicketList implements OnInit {
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Tabs for non-admin
- ticketView: 'all' | 'created' | 'assigned' | 'unassigned' = 'all';
+ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
 
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
@@ -147,15 +147,22 @@ export class TicketList implements OnInit {
 get displayTickets(): Ticket[] {
   const userId = this.getCurrentUserId();
   
-  switch (this.ticketView) {
-    case 'created':
-      return this.filteredTickets.filter(t => t.createdById === userId);
-    case 'assigned':
-      return this.filteredTickets.filter(t => t.assignedToId === userId);
-    case 'unassigned':
-      return this.filteredTickets.filter(t => !t.assignedToId);
-    default:
-      return this.filteredTickets;
+  if (this.isAdmin()) {
+    // Admin sees everything
+    switch (this.ticketView) {
+      case 'assigned': return this.filteredTickets.filter(t => t.assignedToId === userId);
+      case 'unassigned': return this.filteredTickets.filter(t => !t.assignedToId);
+      default: return this.filteredTickets;
+    }
+  } else {
+    // Non-admin sees only their tickets
+    switch (this.ticketView) {
+      case 'assigned': return this.filteredTickets.filter(t => t.assignedToId === userId);
+      case 'unassigned': return this.filteredTickets.filter(t => !t.assignedToId);
+      default: return this.filteredTickets.filter(t => 
+        t.createdById === userId || t.assignedToId === userId
+      );
+    }
   }
 }
 
