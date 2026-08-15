@@ -69,3 +69,4 @@ export interface TicketAttachment {
   uploadedByName?: string;
   downloadUrl?: string;
 }
+

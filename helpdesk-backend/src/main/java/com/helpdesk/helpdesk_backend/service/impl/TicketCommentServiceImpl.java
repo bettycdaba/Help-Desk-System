@@ -10,6 +10,7 @@ import com.helpdesk.helpdesk_backend.repository.TicketCommentRepository;
 import com.helpdesk.helpdesk_backend.repository.TicketRepository;
 import com.helpdesk.helpdesk_backend.repository.UserRepository;
 import com.helpdesk.helpdesk_backend.service.EmailService;
+import com.helpdesk.helpdesk_backend.service.NotificationService;
 import com.helpdesk.helpdesk_backend.service.TicketCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class TicketCommentServiceImpl implements TicketCommentService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -80,9 +82,57 @@ public class TicketCommentServiceImpl implements TicketCommentService {
 
         return mapToResponse(saved);
         }
+        // Notify ticket creator (if not the commenter)
+if (ticket.getCreatedBy() != null
+    && !ticket.getCreatedBy().getId()
+        .equals(request.getUserId())) {
+    notificationService.createNotification(
+        ticket.getCreatedBy().getId(),
+        ticket.getId(),
+        user.getFirstName() + " " + user.getLastName()
+            + " commented on ticket "
+            + ticket.getTicketNumber() + ".",
+        "comment"
+    );
+}
 
+// Notify assignee (if exists, not commenter,
+// and not the creator already notified)
+if (ticket.getAssignedTo() != null
+    && !ticket.getAssignedTo().getId()
+        .equals(request.getUserId())
+    && (ticket.getCreatedBy() == null
+        || !ticket.getAssignedTo().getId()
+            .equals(ticket.getCreatedBy().getId()))) {
+    notificationService.createNotification(
+        ticket.getAssignedTo().getId(),
+        ticket.getId(),
+        user.getFirstName() + " " + user.getLastName()
+            + " commented on ticket "
+            + ticket.getTicketNumber() + ".",
+        "comment"
+    );
+}
         return mapToResponse(commentRepository.save(comment));
-    }
+    
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     @Transactional(readOnly = true)

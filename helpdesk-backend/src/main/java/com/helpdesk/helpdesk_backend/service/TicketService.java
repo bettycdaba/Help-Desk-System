@@ -33,4 +33,5 @@ public interface TicketService {
     TicketResponseDTO updateStatus(Long id, TicketStatusUpdateRequestDTO request);
 
     void deleteTicket(Long id);
+
 }

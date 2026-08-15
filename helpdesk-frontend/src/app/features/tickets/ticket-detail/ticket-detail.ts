@@ -61,8 +61,8 @@ export class TicketDetail implements OnInit, OnDestroy {
   activeTab = 'comments';
 
   attachments: any[] = [];
-isUploadingFile = false;
-isDraggingOnDetail = false;
+  isUploadingFile = false;
+  isDraggingOnDetail = false;
 
   ticketId = 0;
 
@@ -107,133 +107,132 @@ isDraggingOnDetail = false;
   }
 
   loadAttachments(ticketId: number): void {
-  this.ticketService.getAttachments(ticketId).subscribe({
-    next: (attachments) => {
-      this.attachments = attachments;
-      this.cdr.detectChanges();
-    },
-    error: () => {}
-  });
-}
-
-onDetailFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    this.uploadFile(input.files[0]);
-    input.value = '';
-  }
-}
-
-onDetailDragOver(event: DragEvent): void {
-  event.preventDefault();
-  this.isDraggingOnDetail = true;
-}
-
-onDetailDragLeave(event: DragEvent): void {
-  event.preventDefault();
-  this.isDraggingOnDetail = false;
-}
-
-onDetailDrop(event: DragEvent): void {
-  event.preventDefault();
-  this.isDraggingOnDetail = false;
-  if (event.dataTransfer?.files?.length) {
-    this.uploadFile(event.dataTransfer.files[0]);
-  }
-}
-
-uploadFile(file: File): void {
-  const maxSize = 10 * 1024 * 1024;
-  if (file.size > maxSize) {
-    this.toastService.error('File too large. Max 10MB.');
-    return;
+    this.ticketService.getAttachments(ticketId).subscribe({
+      next: (attachments) => {
+        this.attachments = attachments;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
   }
 
-  this.isUploadingFile = true;
-  this.cdr.detectChanges();
-
-  this.ticketService.uploadAttachment(
-    this.ticketId,
-    file,
-    this.getCurrentUserId()
-  ).subscribe({
-    next: (attachment) => {
-      this.attachments = [...this.attachments, attachment];
-      this.isUploadingFile = false;
-      this.toastService.success('File uploaded successfully');
-      this.cdr.detectChanges();
-    },
-    error: () => {
-      this.isUploadingFile = false;
-      this.toastService.error('Failed to upload file');
-      this.cdr.detectChanges();
+  onDetailFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.uploadFile(input.files[0]);
+      input.value = '';
     }
-  });
-}
-
-downloadFile(attachment: any): void {
-  this.ticketService.downloadAttachment(
-    this.ticketId, attachment.id).subscribe({
-    next: (blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = attachment.fileName;
-      link.click();
-      window.URL.revokeObjectURL(url);
-    },
-    error: () =>
-      this.toastService.error('Failed to download file')
-  });
-}
-
-deleteAttachment(attachmentId: number): void {
-  if (!confirm('Delete this attachment?')) return;
-
-  this.ticketService.deleteAttachment(
-    this.ticketId, attachmentId).subscribe({
-    next: () => {
-      this.attachments = this.attachments.filter(
-        a => a.id !== attachmentId);
-      this.toastService.success('Attachment deleted');
-      this.cdr.detectChanges();
-    },
-    error: () =>
-      this.toastService.error('Failed to delete attachment')
-  });
-}
-
-getFileIcon(fileType: string): string {
-  switch (fileType?.toLowerCase()) {
-    case 'jpg': case 'jpeg':
-    case 'png': case 'gif':
-    case 'webp':
-      return 'bi-file-image text-success';
-    case 'pdf':
-      return 'bi-file-pdf text-danger';
-    case 'doc': case 'docx':
-      return 'bi-file-word text-primary';
-    case 'zip': case 'rar':
-      return 'bi-file-zip text-warning';
-    default:
-      return 'bi-file-text text-secondary';
   }
-}
 
-formatFileSize(bytes: number): string {
-  if (!bytes) return '0 B';
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) {
-    return (bytes / 1024).toFixed(1) + ' KB';
+  onDetailDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingOnDetail = true;
   }
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
 
-isImageFile(fileType: string): boolean {
-  return ['jpg', 'jpeg', 'png', 'gif', 'webp']
-    .includes(fileType?.toLowerCase());
-}
+  onDetailDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingOnDetail = false;
+  }
 
+  onDetailDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingOnDetail = false;
+    if (event.dataTransfer?.files?.length) {
+      this.uploadFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  uploadFile(file: File): void {
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.toastService.error('File too large. Max 10MB.');
+      return;
+    }
+
+    this.isUploadingFile = true;
+    this.cdr.detectChanges();
+
+    this.ticketService.uploadAttachment(
+      this.ticketId,
+      file,
+      this.getCurrentUserId()
+    ).subscribe({
+      next: (attachment) => {
+        this.attachments = [...this.attachments, attachment];
+        this.isUploadingFile = false;
+        this.toastService.success('File uploaded successfully');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isUploadingFile = false;
+        this.toastService.error('Failed to upload file');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  downloadFile(attachment: any): void {
+    this.ticketService.downloadAttachment(
+      this.ticketId, attachment.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = attachment.fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () =>
+        this.toastService.error('Failed to download file')
+    });
+  }
+
+  deleteAttachment(attachmentId: number): void {
+    if (!confirm('Delete this attachment?')) return;
+
+    this.ticketService.deleteAttachment(
+      this.ticketId, attachmentId).subscribe({
+      next: () => {
+        this.attachments = this.attachments.filter(
+          a => a.id !== attachmentId);
+        this.toastService.success('Attachment deleted');
+        this.cdr.detectChanges();
+      },
+      error: () =>
+        this.toastService.error('Failed to delete attachment')
+    });
+  }
+
+  getFileIcon(fileType: string): string {
+    switch (fileType?.toLowerCase()) {
+      case 'jpg': case 'jpeg':
+      case 'png': case 'gif':
+      case 'webp':
+        return 'bi-file-image text-success';
+      case 'pdf':
+        return 'bi-file-pdf text-danger';
+      case 'doc': case 'docx':
+        return 'bi-file-word text-primary';
+      case 'zip': case 'rar':
+        return 'bi-file-zip text-warning';
+      default:
+        return 'bi-file-text text-secondary';
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (!bytes) return '0 B';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) {
+      return (bytes / 1024).toFixed(1) + ' KB';
+    }
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  isImageFile(fileType: string): boolean {
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp']
+      .includes(fileType?.toLowerCase());
+  }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
@@ -248,18 +247,13 @@ isImageFile(fileType: string): boolean {
     return this.ticket?.createdById === userId;
   }
 
-canManageTicket(): boolean {
-    return this.isAdmin() || this.isOwner() || this.isAssignedToMe();
-}
-  // Only admin can assign and change status
-canAssignOrChangeStatus(): boolean {
-    return this.isAdmin() || this.isAssignedToMe();
-}
+  canManageTicket(): boolean {
+    return this.isAdmin() || this.isOwner();
+  }
 
-isAssignedToMe(): boolean {
-    const userId = this.getCurrentUserId();
-    return this.ticket?.assignedToId === userId;
-}
+  canAssignOrChangeStatus(): boolean {
+    return this.isAdmin();
+  }
 
   loadTicket(id: number): void {
     this.ticketService.getById(id).subscribe({
@@ -279,7 +273,7 @@ isAssignedToMe(): boolean {
   }
 
   loadUsers(): void {
-    this.userService.getActiveUsers().subscribe({ //this.userService.getAll().subscribe({
+    this.userService.getActiveUsers().subscribe({
       next: (users) => {
         this.users = users;
         this.cdr.detectChanges();
@@ -326,17 +320,17 @@ isAssignedToMe(): boolean {
   }
 
   getCurrentUserId(): number {
+    const user = this.authService.getCurrentUser();
+    if (user?.id) return user.id;
+
     const stored = localStorage.getItem('currentUser');
     if (stored) {
-      try {
-        const user = JSON.parse(stored);
-        return user.id || 1;
-      } catch (e) {}
+      const parsed = JSON.parse(stored);
+      return parsed.id || parsed.userId || 0;
     }
-    return 1;
+    return 0;
   }
 
-  // Open edit form
   openEditForm(): void {
     if (!this.ticket) return;
     this.editForm = {
@@ -349,13 +343,11 @@ isAssignedToMe(): boolean {
     this.cdr.detectChanges();
   }
 
-  // Cancel edit
   cancelEdit(): void {
     this.isEditingTicket = false;
     this.cdr.detectChanges();
   }
 
-  // Save edited ticket
   saveTicket(): void {
     if (!this.ticket?.id) return;
     if (!this.editForm.subject.trim()) {
@@ -369,7 +361,7 @@ isAssignedToMe(): boolean {
       ...this.ticket,
       subject: this.editForm.subject,
       description: this.editForm.description,
-categoryId: this.editForm.categoryId ?? undefined,
+      categoryId: this.editForm.categoryId ?? undefined,
       priority: this.editForm.priority
     };
 

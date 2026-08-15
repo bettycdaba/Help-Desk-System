@@ -1,0 +1,204 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <i class="bi bi-bell page-icon"></i>
+    <h1 class="page-title">All Notifications</h1>
+  </div>
+  <a routerLink="/tickets"
+     class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-2"></i>
+    Back to Tickets
+  </a>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <span class="fw-semibold">All Notifications</span>
+          @if (unreadCount > 0) {
+            <span class="unread-chip">{{ unreadCount }} unread</span>
+          }
+        </div>
+        
+        <div class="d-flex gap-2">
+          @if (unreadCount > 0) {
+            <button class="btn btn-sm btn-outline-primary" (click)="markAllRead()">
+              <i class="bi bi-check-all me-1"></i> Mark all as read
+            </button>
+          }
+          @if (notifications.length > 0) {
+            <button class="btn btn-sm btn-outline-danger" (click)="requestClear()">
+              <i class="bi bi-trash me-1"></i> Clear All
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+
+        @if (isLoading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="text-muted mt-2">Loading notifications...</p>
+          </div>
+        } @else if (notifications.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon-wrap">
+              <i class="bi bi-bell-slash"></i>
+            </div>
+            <p class="empty-title">No notifications yet</p>
+            <p class="empty-sub">
+              You will be notified when tickets are assigned, updated, or commented on.
+            </p>
+          </div>
+        } @else {
+          <table class="table notif-table mb-0">
+            <thead>
+              <tr>
+                <th style="width: 60px">Type</th>
+                <th>Message</th>
+                <th style="width: 140px">Ticket</th>
+                <th style="width: 120px">Time</th>
+                <th style="width: 80px">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (n of paginated; track n.id) {
+                <tr class="notif-row"
+                    [class.row-unread]="!n.isRead"
+                    (click)="goToTicket(n)">
+
+                  <td>
+                    <div class="type-icon-wrap" [ngClass]="getIconClass(n.type)">
+                      <i class="bi {{ getIcon(n.type) }}"></i>
+                    </div>
+                  </td>
+
+                  <td>
+                    <div class="msg-cell">
+                      <span class="msg-text">{{ n.message }}</span>
+                      @if (!n.isRead) {
+                        <span class="new-dot"></span>
+                      }
+                    </div>
+                  </td>
+
+                  <td>
+                    @if (n.ticketId && n.ticketNumber) {
+                      <span class="ticket-chip">
+                        <i class="bi bi-ticket-perforated me-1"></i>
+                        {{ n.ticketNumber }}
+                      </span>
+                    } @else {
+                      <span class="text-muted small">—</span>
+                    }
+                  </td>
+
+                  <td>
+                    <span class="time-text">{{ timeAgo(n.createdAt) }}</span>
+                  </td>
+
+                  <td>
+                    <button
+                      class="action-btn"
+                      [class.action-btn-read]="n.isRead"
+                      [title]="n.isRead ? 'Already read' : 'Mark as read'"
+                      (click)="markAsRead($event, n)">
+                      @if (n.isRead) {
+                        <i class="bi bi-check2-all text-success"></i>
+                      } @else {
+                        <i class="bi bi-check2"></i>
+                      }
+                    </button>
+                  </td>
+
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          @if (notifications.length > pageSize) {
+            <div class="pagination-bar">
+              <span class="pagination-info">
+                {{ startIndex }}–{{ endIndex }} of {{ notifications.length }}
+              </span>
+              <div class="pagination-controls">
+                <button class="page-arrow"
+                  [disabled]="currentPage === 1"
+                  (click)="goToPage(currentPage - 1)">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="page-arrow"
+                  [disabled]="currentPage === totalPages"
+                  (click)="goToPage(currentPage + 1)">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          }
+        }
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips sidebar -->
+  <div class="col-md-4">
+    <div class="card tips-card">
+      <div class="card-header">
+        <i class="bi bi-lightbulb me-2 text-warning"></i> Tips
+      </div>
+      <div class="card-body">
+        <ul class="tips-list">
+          <li>
+            <i class="bi bi-circle-fill tip-dot tip-dot-assign"></i>
+            <span><strong>Blue</strong> — ticket assigned to you</span>
+          </li>
+          <li>
+            <i class="bi bi-circle-fill tip-dot tip-dot-status"></i>
+            <span><strong>Purple</strong> — status changed</span>
+          </li>
+          <li>
+            <i class="bi bi-circle-fill tip-dot tip-dot-comment"></i>
+            <span><strong>Orange</strong> — new comment added</span>
+          </li>
+          <li>
+            <i class="bi bi-circle-fill tip-dot tip-dot-resolved"></i>
+            <span><strong>Green</strong> — ticket resolved</span>
+          </li>
+          <li>
+            <i class="bi bi-lightbulb text-warning"></i>
+            <span>Click any row to open the ticket</span>
+          </li>
+          <li>
+            <i class="bi bi-check2-all text-success"></i>
+            <span>Click the action icon to mark a single notification as read</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal fade" id="clearNotificationsModal" tabindex="-1" [class.show]="showClearModal" [style.display]="showClearModal ? 'block' : 'none'">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Clear All Notifications</h5>
+        <button type="button" class="btn-close" (click)="onClearCancelled()"></button>
+      </div>
+      <div class="modal-body">
+        <p>This action cannot be undone. All your notifications will be permanently removed.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="onClearCancelled()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="onClearConfirmed()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+@if (showClearModal) {
+  <div class="modal-backdrop fade show"></div>
+}

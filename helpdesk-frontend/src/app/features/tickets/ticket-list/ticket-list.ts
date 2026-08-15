@@ -73,6 +73,12 @@ ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
     return user?.id || 0;
   }
 
+  canDeleteTicket(ticket: Ticket): boolean {
+  if (this.isAdmin()) return true;
+  const userId = this.getCurrentUserId();
+  return ticket.createdById === userId && ticket.assignedToId !== userId;
+}
+
   loadTickets(): void {
     this.isLoading = true;
     const userId = this.getCurrentUserId();
@@ -300,4 +306,6 @@ get displayTickets(): Ticket[] {
   getPriorityClass(priority: string | undefined): string {
     return `priority-${priority}`;
   }
+
+
 }

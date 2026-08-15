@@ -73,5 +73,6 @@ public class RoleServiceImpl implements RoleService {
                 .name(role.getName())
                 .description(role.getDescription())
                 .build();
-    }
+    } 
 }
+

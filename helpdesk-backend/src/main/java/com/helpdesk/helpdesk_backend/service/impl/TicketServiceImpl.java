@@ -8,6 +8,7 @@ import com.helpdesk.helpdesk_backend.exception.BadRequestException;
 import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.*;
 import com.helpdesk.helpdesk_backend.service.EmailService;
+import com.helpdesk.helpdesk_backend.service.NotificationService;
 import com.helpdesk.helpdesk_backend.service.TicketService;
 import com.helpdesk.helpdesk_backend.service.WebSocketNotificationService;
 
@@ -31,6 +32,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketStatusHistoryRepository statusHistoryRepository;
     private final EmailService emailService;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -157,10 +159,25 @@ public class TicketServiceImpl implements TicketService {
                 .ticket(saved).oldAssignee(oldAssignee).newAssignee(newAssignee)
                 .assignedBy(assignedBy).assignedAt(LocalDateTime.now()).build();
         assignmentHistoryRepository.save(history);
+
+// Notify the assigned user
+notificationService.createNotification(
+    newAssignee.getId(),
+    saved.getId(),
+    "Ticket " + saved.getTicketNumber()
+        + " has been assigned to you by "
+        + assignedBy.getFirstName() + " "
+        + assignedBy.getLastName() + ".",
+    "assign"
+);
+
         emailService.sendTicketAssignedEmail(newAssignee.getEmail(),
                 newAssignee.getFirstName() + " " + newAssignee.getLastName(),
                 saved.getTicketNumber(), saved.getSubject(),
                 assignedBy.getFirstName() + " " + assignedBy.getLastName());
+
+
+
         return mapToResponse(saved);
     }
 
@@ -181,10 +198,52 @@ public class TicketServiceImpl implements TicketService {
                 .ticket(saved).oldStatus(oldStatus).newStatus(request.getNewStatus().name())
                 .changedBy(changedBy).changedAt(LocalDateTime.now()).build();
         statusHistoryRepository.save(history);
+
+// Notify ticket creator about status change
+if (saved.getCreatedBy() != null) {
+
+    // Check if resolved
+    if (request.getNewStatus() == TicketStatus.RESOLVED) {
+        notificationService.createNotification(
+            saved.getCreatedBy().getId(),
+            saved.getId(),
+            "Your ticket " + saved.getTicketNumber()
+                + " has been resolved.",
+            "resolved"
+        );
+    } else if (request.getNewStatus() == 
+               TicketStatus.REOPENED) {
+        // Notify assignee if ticket reopened
+        if (saved.getAssignedTo() != null) {
+            notificationService.createNotification(
+                saved.getAssignedTo().getId(),
+                saved.getId(),
+                "Ticket " + saved.getTicketNumber()
+                    + " has been reopened.",
+                "status"
+            );
+        }
+    } else {
+        // General status change — notify creator
+        notificationService.createNotification(
+            saved.getCreatedBy().getId(),
+            saved.getId(),
+            "Ticket " + saved.getTicketNumber()
+                + " status changed: "
+                + oldStatus + " → "
+                + request.getNewStatus().name() + ".",
+            "status"
+        );
+    }
+}
+
         webSocketNotificationService.notifyTicketUpdate("STATUS_CHANGED", mapToResponse(saved));
         emailService.sendStatusChangedEmail(saved.getCreatedBy() != null ? saved.getCreatedBy().getEmail() : "",
                 saved.getCreatedBy() != null ? saved.getCreatedBy().getFirstName() + " " + saved.getCreatedBy().getLastName() : "Unknown",
                 saved.getTicketNumber(), saved.getSubject(), oldStatus, request.getNewStatus().name());
+
+
+
         return mapToResponse(saved);
     }
 
@@ -224,4 +283,5 @@ public class TicketServiceImpl implements TicketService {
                 .categoryName(ticket.getCategory().getName())
                 .build();
     }
+
 }

@@ -1,27 +1,47 @@
 @if (isVisible) {
-  <div class="modal-overlay" (click)="onCancel()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-box" 
+         role="dialog"
+         aria-modal="true"
+         [attr.aria-labelledby]="'modal-title'"
+         [attr.aria-describedby]="'modal-desc'"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Close button -->
+      <button class="modal-close" (click)="onCancel()" aria-label="Close dialog">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <!-- Icon -->
       <div class="modal-icon" [class.danger]="isDanger">
         @if (isDanger) {
-          <i class="bi bi-exclamation-triangle"></i>
+          <i class="bi bi-exclamation-triangle-fill"></i>
         } @else {
-          <i class="bi bi-question-circle"></i>
+          <i class="bi bi-question-circle-fill"></i>
         }
       </div>
-      <h3 class="modal-title">{{ title }}</h3>
-      <p class="modal-message">{{ message }}</p>
+
+      <!-- Title -->
+      <h3 class="modal-title" id="modal-title">{{ title }}</h3>
+
+      <!-- Message -->
+      <p class="modal-message" id="modal-desc">{{ message }}</p>
+
+      <!-- Actions -->
       <div class="modal-actions">
-        <button class="btn btn-outline-secondary"
-          (click)="onCancel()">
-          {{ cancelText }}
+        <button class="btn-cancel" (click)="onCancel()">
+          <i class="bi bi-x-circle me-1"></i> {{ cancelText }}
         </button>
-        <button class="btn"
-          [class.btn-danger]="isDanger"
-          [class.btn-primary]="!isDanger"
-          (click)="onConfirm()">
+        <button class="btn-confirm" [class.btn-danger]="isDanger" (click)="onConfirm()">
+          @if (isDanger) {
+            <i class="bi bi-trash me-1"></i>
+          } @else {
+            <i class="bi bi-check-lg me-1"></i>
+          }
           {{ confirmText }}
         </button>
       </div>
+
     </div>
   </div>
 }

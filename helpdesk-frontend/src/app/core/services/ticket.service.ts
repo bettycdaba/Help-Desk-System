@@ -7,7 +7,7 @@ import {
   TicketAssignmentHistory,
   TicketStatusHistory,
   TicketAssignRequest,
-  TicketStatusUpdateRequest
+  TicketStatusUpdateRequest,
 } from '../models/ticket.model';
 
 @Injectable({
@@ -138,5 +138,7 @@ deleteAttachment(
   return this.http.delete<void>(
     `${this.baseUrl}/${ticketId}/attachments/${attachmentId}`);
 }
+
+
 }
 

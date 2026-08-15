@@ -59,7 +59,6 @@
   </div>
 </div>
 
-
 <!-- TABS -->
 <div class="btn-group mb-3">
   <button class="btn btn-sm" [class.btn-primary]="ticketView === 'all'" 
@@ -131,9 +130,7 @@
             <th class="sortable" (click)="sortBy('createdByName')">
               Created By <i [class]="'bi ' + getSortIcon('createdByName')"></i>
             </th>
-            @if (isAdmin()) {
-              <th>Actions</th>
-            }
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -146,13 +143,13 @@
               <td><span class="badge" [ngClass]="getStatusClass(ticket.status)">{{ ticket.status }}</span></td>
               <td>{{ ticket.assignedToName || '—' }}</td>
               <td>{{ ticket.createdByName }}</td>
-              @if (isAdmin()) {
-                <td>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteTicket(ticket, $event)" title="Delete">
+              <td>
+                @if (canDeleteTicket(ticket)) {
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteTicket(ticket, $event)" title="Delete Ticket">
                     <i class="bi bi-trash"></i>
                   </button>
-                </td>
-              }
+                }
+              </td>
             </tr>
           }
         </tbody>
