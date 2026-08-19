@@ -34,4 +34,10 @@ public interface TicketService {
 
     void deleteTicket(Long id);
 
+    TicketResponseDTO rejectTicket(
+        Long id,
+        TicketRejectionRequestDTO request);
+
+
+
 }

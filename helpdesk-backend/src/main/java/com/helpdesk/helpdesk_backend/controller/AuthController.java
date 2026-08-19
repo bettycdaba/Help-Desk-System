@@ -33,12 +33,12 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(
-            @Valid @RequestBody UserRequestDTO request) {
-        return new ResponseEntity<>(
-                userService.createUser(request), HttpStatus.CREATED);
-    }
+@PostMapping("/register")
+public ResponseEntity<UserResponseDTO> register(
+        @Valid @RequestBody UserRequestDTO request) {
+    return new ResponseEntity<>(
+            userService.registerUser(request), HttpStatus.CREATED);
+}
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(

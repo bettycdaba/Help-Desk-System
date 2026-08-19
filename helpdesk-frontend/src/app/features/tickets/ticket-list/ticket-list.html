@@ -3,9 +3,14 @@
     <i class="bi bi-ticket-perforated me-2"></i>
     @if (isAdmin()) { All Tickets } @else { My Tickets }
   </h1>
-  <a routerLink="/tickets/new" class="btn btn-primary">
-    <i class="bi bi-plus-circle me-2"></i>New Ticket
-  </a>
+  <div class="d-flex gap-2">
+   <button class="btn btn-outline-danger" (click)="openExportModal()">
+      <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+    </button>
+    <a routerLink="/tickets/new" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>New Ticket
+    </a>
+  </div>
 </div>
 
 <!-- FILTER CARD -->
@@ -181,3 +186,34 @@
     }
   </div>
 </div>
+
+@if (showExportModal) {
+  <div class="export-modal-backdrop" (click)="closeExportModal()">
+    <div class="export-modal" (click)="$event.stopPropagation()">
+      <div class="export-modal-header">
+        <div class="export-modal-icon">
+          <i class="bi bi-file-earmark-pdf"></i>
+        </div>
+        <h4>Export Tickets to PDF</h4>
+        <button class="export-modal-close" (click)="closeExportModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="export-modal-body">
+        <label class="form-label fw-semibold">Filename</label>
+        <input type="text" class="form-control" 
+               [(ngModel)]="exportFileName"
+               placeholder="Enter filename...">
+        <small class="text-muted">
+          {{ displayTickets.length }} tickets will be exported
+        </small>
+      </div>
+      <div class="export-modal-footer">
+        <button class="btn btn-outline-secondary" (click)="closeExportModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="exportToPDF()">
+          <i class="bi bi-download me-2"></i>Export
+        </button>
+      </div>
+    </div>
+  </div>
+}

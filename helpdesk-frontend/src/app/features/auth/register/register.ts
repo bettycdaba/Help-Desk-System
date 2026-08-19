@@ -7,13 +7,11 @@ import { AuthService }
   from '../../../core/services/auth.service';
 import { DepartmentService } 
   from '../../../core/services/department.service';
-import { RoleService } 
-  from '../../../core/services/role.service';
 import { ToastService } 
   from '../../../core/services/toast.service';
 import { Department } 
   from '../../../core/models/department.model';
-import { Role } from '../../../core/models/role.model';
+
 
 @Component({
   selector: 'app-register',
@@ -32,10 +30,8 @@ export class Register implements OnInit {
   password = '';
   confirmPassword = '';
   departmentId: number | null = null;
-  selectedRoleIds: number[] = [];
-
-  departments: Department[] = [];
-  roles: Role[] = [];
+    departments: Department[] = [];
+  
 
   isLoading = false;
   showPassword = false;
@@ -44,7 +40,6 @@ export class Register implements OnInit {
   constructor(
     private authService: AuthService,
     private departmentService: DepartmentService,
-    private roleService: RoleService,
     private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -58,30 +53,11 @@ export class Register implements OnInit {
       },
       error: () => {}
     });
-    this.roleService.getAll().subscribe({
-      next: (r) => {
-        this.roles = r.filter(
-          role => role.name !== 'ADMIN' && 
-                  role.name !== 'SUPERVISOR');
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-  }
-  toggleRole(id: number | undefined): void {
-    if (!id) return;
-    const idx = this.selectedRoleIds.indexOf(id);
-    if (idx === -1) {
-      this.selectedRoleIds.push(id);
-    } else {
-      this.selectedRoleIds.splice(idx, 1);
-    }
+
   }
 
-  isRoleSelected(id: number | undefined): boolean {
-    if (!id) return false;
-    return this.selectedRoleIds.includes(id);
-  }
+
+
 
   onRegister(): void {
     this.errorMessage = '';
@@ -110,17 +86,16 @@ export class Register implements OnInit {
 
     this.isLoading = true;
 
-    const user = {
-      employeeId: this.employeeId,
-      firstName: this.firstName,
-      lastName: this.lastName,
-      email: this.email,
-      phoneNumber: this.phoneNumber,
-      password: this.password,
-      active: true,
-      departmentId: this.departmentId,
-      roleIds: this.selectedRoleIds
-    };
+const user = {
+  employeeId: this.employeeId,
+  firstName: this.firstName,
+  lastName: this.lastName,
+  email: this.email,
+  phoneNumber: this.phoneNumber,
+  password: this.password,
+  active: true,
+  departmentId: this.departmentId
+};
 
     this.authService.register(user as any).subscribe({
       next: () => {

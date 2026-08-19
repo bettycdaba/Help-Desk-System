@@ -2,6 +2,7 @@ package com.helpdesk.helpdesk_backend.repository;
 
 import com.helpdesk.helpdesk_backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmployeeId(String employeeId);
 
     List<User> findByActiveTrue();
+
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'SUPPORT_OFFICER' AND u.active = true")
+List<User> findActiveSupportOfficers();
 }

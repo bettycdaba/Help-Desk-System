@@ -48,6 +48,11 @@ export class TicketDetail implements OnInit, OnDestroy {
   isAssigning = false;
   isUpdatingStatus = false;
 
+  // Reject ticket
+  isRejecting = false;
+  showRejectModal = false;
+  rejectionReason = '';
+
   // Edit ticket form
   isEditingTicket = false;
   isSavingTicket = false;
@@ -80,7 +85,7 @@ export class TicketDetail implements OnInit, OnDestroy {
     private ticketService: TicketService,
     private userService: UserService,
     private categoryService: CategoryService,
-    private authService: AuthService,
+    public authService: AuthService,
     private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -242,17 +247,74 @@ export class TicketDetail implements OnInit, OnDestroy {
     return this.authService.isAdmin();
   }
 
+  isSupervisor(): boolean {
+    return this.authService.isSupervisor();
+  }
+
+  isSupportOfficer(): boolean {
+    return this.authService.isSupportOfficer();
+  }
+
+  isEmployee(): boolean {
+    return this.authService.isEmployee();
+  }
+
   isOwner(): boolean {
     const userId = this.getCurrentUserId();
     return this.ticket?.createdById === userId;
   }
 
-  canManageTicket(): boolean {
-    return this.isAdmin() || this.isOwner();
+  isAssignedToMe(): boolean {
+    const userId = this.getCurrentUserId();
+    return this.ticket?.assignedToId === userId;
   }
 
-  canAssignOrChangeStatus(): boolean {
-    return this.isAdmin();
+  canRejectTicket(): boolean {
+    if (!this.isSupportOfficer()) {
+      return false;
+    }
+
+    if (!this.isAssignedToMe()) {
+      return false;
+    }
+
+    return this.ticket?.status === 'ASSIGNED'
+        || this.ticket?.status === 'REOPENED';
+  }
+
+  canManageTicket(): boolean {
+    return this.isOwner();
+  }
+
+  canAssignTicket(): boolean {
+    return this.isAdmin() || this.isSupervisor();
+  }
+
+  canUpdateStatus(): boolean {
+    if (this.isSupervisor()) {
+      return true;
+    }
+    return this.isSupportOfficer() && this.isAssignedToMe();
+  }
+
+  canConfirmResolution(): boolean {
+    return this.isEmployee()
+        && this.isOwner()
+        && this.ticket?.status === 'RESOLVED';
+  }
+
+  canReopenTicket(): boolean {
+    return this.isEmployee()
+        && this.isOwner()
+        && this.ticket?.status === 'CLOSED';
+  }
+
+  showActionPanel(): boolean {
+    return this.canAssignTicket()
+        || this.canUpdateStatus()
+        || this.canRejectTicket()
+        || this.canConfirmResolution()
+        || this.canReopenTicket();
   }
 
   loadTicket(id: number): void {
@@ -273,7 +335,7 @@ export class TicketDetail implements OnInit, OnDestroy {
   }
 
   loadUsers(): void {
-    this.userService.getActiveUsers().subscribe({
+    this.userService.getSupportOfficers().subscribe({
       next: (users) => {
         this.users = users;
         this.cdr.detectChanges();
@@ -437,29 +499,192 @@ export class TicketDetail implements OnInit, OnDestroy {
     });
   }
 
-  updateStatus(): void {
-    if (!this.selectedStatus) {
-      this.toastService.error('Please select a status');
+  openRejectModal(): void {
+    if (!this.canRejectTicket()) {
+      this.toastService.error('You are not allowed to reject this ticket.');
       return;
     }
-    if (!this.ticket?.id) return;
+
+    this.rejectionReason = '';
+    this.showRejectModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeRejectModal(): void {
+    if (this.isRejecting) {
+      return;
+    }
+
+    this.showRejectModal = false;
+    this.rejectionReason = '';
+    this.cdr.detectChanges();
+  }
+
+  rejectTicket(): void {
+    if (!this.ticket?.id) {
+      return;
+    }
+
+    const reason = this.rejectionReason.trim();
+
+    if (!reason) {
+      this.toastService.error('Please provide a reason for rejecting this ticket.');
+      return;
+    }
+
+    if (!this.canRejectTicket()) {
+      this.toastService.error('You are not allowed to reject this ticket.');
+      return;
+    }
+
+    this.isRejecting = true;
+
+    this.ticketService.reject(this.ticket.id, {
+      rejectedById: this.getCurrentUserId(),
+      reason: reason
+    }).subscribe({
+      next: (updated) => {
+        this.ticket = updated;
+        this.selectedAssignee = null;
+        this.selectedStatus = updated.status || '';
+
+        this.isRejecting = false;
+        this.showRejectModal = false;
+        this.rejectionReason = '';
+
+        this.toastService.success('Ticket rejected and returned to the supervisor.');
+
+        this.loadHistory(this.ticket.id!);
+        this.cdr.detectChanges();
+      },
+
+      error: () => {
+        this.isRejecting = false;
+        this.toastService.error('Failed to reject ticket.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getAvailableStatuses(): string[] {
+    if (!this.ticket) {
+      return [];
+    }
+
+    const current = this.ticket.status;
+
+    // SUPERVISOR
+    if (this.isSupervisor()) {
+      switch (current) {
+        case 'ASSIGNED':
+          return ['IN_PROGRESS'];
+        case 'IN_PROGRESS':
+          return ['PENDING', 'RESOLVED'];
+        case 'PENDING':
+          return ['IN_PROGRESS'];
+        case 'RESOLVED':
+          return ['CLOSED'];
+        case 'CLOSED':
+          return ['REOPENED'];
+        case 'REOPENED':
+          return ['IN_PROGRESS'];
+        default:
+          return [];
+      }
+    }
+
+    // SUPPORT OFFICER
+    if (this.isSupportOfficer() && this.isAssignedToMe()) {
+      switch (current) {
+        case 'ASSIGNED':
+          return ['IN_PROGRESS'];
+        case 'IN_PROGRESS':
+          return ['PENDING', 'RESOLVED'];
+        case 'PENDING':
+          return ['IN_PROGRESS'];
+        case 'REOPENED':
+          return ['IN_PROGRESS'];
+        default:
+          return [];
+      }
+    }
+
+    return [];
+  }
+
+  updateStatusTo(status: string): void {
+    if (!this.ticket?.id) {
+      return;
+    }
+
+    if (!this.canUpdateStatus()) {
+      this.toastService.error('You do not have permission to change this ticket status.');
+      return;
+    }
 
     this.isUpdatingStatus = true;
+
     this.ticketService.updateStatus(this.ticket.id, {
-      newStatus: this.selectedStatus,
+      newStatus: status,
       changedById: this.getCurrentUserId()
     }).subscribe({
       next: (updated) => {
         this.ticket = updated;
+        this.selectedStatus = updated.status || '';
         this.isUpdatingStatus = false;
-        this.toastService.success('Status updated successfully');
-        this.loadHistory(this.ticket!.id!);
+
+        this.toastService.success(`Ticket status changed to ${status}`);
+
+        this.loadHistory(this.ticket.id!);
         this.cdr.detectChanges();
       },
+
       error: () => {
         this.isUpdatingStatus = false;
-        this.toastService.error('Failed to update status');
+        this.toastService.error('Failed to update ticket status');
+      }
+    });
+  }
+
+  confirmResolution(): void {
+    if (!this.ticket?.id) return;
+    if (!this.canConfirmResolution()) return;
+    this.updateStatusToEmployee('CLOSED');
+  }
+
+  reopenTicket(): void {
+    if (!this.ticket?.id) return;
+    if (!this.canReopenTicket()) return;
+    this.updateStatusToEmployee('REOPENED');
+  }
+
+  private updateStatusToEmployee(status: string): void {
+    if (!this.ticket?.id) return;
+
+    this.isUpdatingStatus = true;
+
+    this.ticketService.updateStatus(this.ticket.id, {
+      newStatus: status,
+      changedById: this.getCurrentUserId()
+    }).subscribe({
+      next: (updated) => {
+        this.ticket = updated;
+        this.selectedStatus = updated.status || '';
+        this.isUpdatingStatus = false;
+
+        if (status === 'CLOSED') {
+          this.toastService.success('Ticket closed successfully.');
+        } else {
+          this.toastService.success('Ticket reopened successfully.');
+        }
+
+        this.loadHistory(this.ticket.id!);
         this.cdr.detectChanges();
+      },
+
+      error: () => {
+        this.isUpdatingStatus = false;
+        this.toastService.error(`Failed to change ticket to ${status}.`);
       }
     });
   }
@@ -490,5 +715,19 @@ export class TicketDetail implements OnInit, OnDestroy {
   setTab(tab: string): void {
     this.activeTab = tab;
     this.cdr.detectChanges();
+  }
+
+  canEditSubject(): boolean {
+    if (!this.authService.isEmployee()) {
+      return true;
+    }
+    return this.ticket?.status !== 'REOPENED';
+  }
+
+  canEditCategory(): boolean {
+    if (!this.authService.isEmployee()) {
+      return true;
+    }
+    return this.ticket?.status !== 'REOPENED';
   }
 }

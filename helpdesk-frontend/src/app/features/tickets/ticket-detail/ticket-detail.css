@@ -283,3 +283,119 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* ============================= */
+/* ROLE ACTION CARDS              */
+/* ============================= */
+
+.employee-action-card {
+  border-left: 4px solid #198754;
+}
+
+.employee-action-card .card-header {
+  color: #198754;
+}
+
+
+/* ============================= */
+/* TICKET ACTIONS                 */
+/* ============================= */
+
+.card-header i {
+  font-size: 15px;
+}
+
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+
+/* ============================= */
+/* STATUS ACTION AREA             */
+/* ============================= */
+
+.status-action-card {
+  border-left: 4px solid #0d6efd;
+}
+
+
+/* ============================= */
+/* ACTION BUTTONS                 */
+/* ============================= */
+
+.btn-warning {
+  color: #212529;
+}
+
+.btn-dark {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+.btn-dark:hover:not(:disabled) {
+  background-color: #23272b;
+  border-color: #23272b;
+}
+
+
+/* ============================= */
+/* RESPONSIVE                     */
+/* ============================= */
+
+@media (max-width: 767px) {
+
+  .card-body {
+    padding: 16px;
+  }
+
+}
+
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 20px;
+}
+
+.reject-modal {
+  width: 100%;
+  max-width: 550px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.reject-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.reject-modal-body {
+  padding: 20px;
+}
+
+.reject-modal-body textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.reject-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #dee2e6;
+}

@@ -29,8 +29,11 @@ public class TicketAssignmentHistory {
     private User oldAssignee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "new_assignee_id", nullable = false)
+    @JoinColumn(name = "new_assignee_id")
     private User newAssignee;
+
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_by", nullable = false)

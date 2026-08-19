@@ -79,6 +79,15 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.assignTicket(id, request));
     }
 
+    @PatchMapping("/{id}/reject")
+public ResponseEntity<TicketResponseDTO> rejectTicket(
+        @PathVariable Long id,
+        @Valid @RequestBody TicketRejectionRequestDTO request) {
+
+    return ResponseEntity.ok(
+            ticketService.rejectTicket(id, request));
+}
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<TicketResponseDTO> updateStatus(
             @PathVariable Long id,

@@ -27,7 +27,10 @@
   </div>
 
   <div class="row g-3">
-    <div class="{{ isAdmin() ? 'col-md-8' : 'col-md-12' }}">
+
+    <div
+      [class.col-md-8]="showActionPanel()"
+      [class.col-md-12]="!showActionPanel()">
 
       <!-- Ticket Details Card -->
       <div class="card mb-3">
@@ -43,9 +46,18 @@
           
           @if (isEditingTicket) {
             <div class="row g-3">
+              @if (isEmployee() && ticket.status === 'REOPENED') {
+                <div class="col-12">
+                  <div class="alert alert-info mb-0" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Subject and category cannot be changed after a ticket is reopened.
+                  </div>
+                </div>
+              }
               <div class="col-12">
                 <label class="form-label">Subject</label>
-                <input type="text" class="form-control" [(ngModel)]="editForm.subject">
+                <input type="text" class="form-control" [(ngModel)]="editForm.subject"
+                  [disabled]="!canEditSubject()">
               </div>
               <div class="col-12">
                 <label class="form-label">Description</label>
@@ -53,7 +65,8 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label">Category</label>
-                <select class="form-select" [(ngModel)]="editForm.categoryId">
+                <select class="form-select" [(ngModel)]="editForm.categoryId"
+                  [disabled]="!canEditCategory()">
                   @for (cat of categories; track cat.id) {
                     <option [ngValue]="cat.id">{{ cat.name }}</option>
                   }
@@ -286,48 +299,174 @@
       </div>
     </div>
 
-    <!-- Right Sidebar - Admin Only -->
-    @if (isAdmin()) {
-      <div class="col-md-4">
-        <div class="card mb-3">
-          <div class="card-header">
-            <i class="bi bi-person-check me-2"></i> Assign Ticket
-          </div>
-          <div class="card-body">
-            <select class="form-select mb-2" [(ngModel)]="selectedAssignee">
-              <option [ngValue]="null">Select agent</option>
-              @for (user of users; track user.id) {
-                <option [ngValue]="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-              }
-            </select>
-            <button class="btn btn-primary w-100" (click)="assignTicket()" [disabled]="isAssigning">
-              @if (isAssigning) {
-                <span class="spinner-border spinner-border-sm me-2"></span>
-              }
-              Assign
-            </button>
-          </div>
-        </div>
+    <!-- RIGHT ACTION SIDEBAR -->
+    @if (showActionPanel()) {
 
-        <div class="card mb-3">
-          <div class="card-header">
-            <i class="bi bi-arrow-repeat me-2"></i> Update Status
+      <div class="col-md-4">
+
+        <!-- ASSIGN TICKET - ADMIN + SUPERVISOR -->
+        @if (canAssignTicket()) {
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="bi bi-person-check me-2"></i> Assign Ticket
+            </div>
+            <div class="card-body">
+              <label class="form-label">Assign to</label>
+              <select class="form-select mb-3" [(ngModel)]="selectedAssignee">
+                <option [ngValue]="null">Select support officer</option>
+                @for (user of users; track user.id) {
+                  <option [ngValue]="user.id">
+                    {{ user.firstName }} {{ user.lastName }}
+                  </option>
+                }
+              </select>
+              <button class="btn btn-primary w-100" (click)="assignTicket()"
+                [disabled]="isAssigning || !selectedAssignee">
+                @if (isAssigning) {
+                  <span class="spinner-border spinner-border-sm me-2"></span> Assigning...
+                } @else {
+                  <i class="bi bi-person-check me-2"></i> Assign Ticket
+                }
+              </button>
+            </div>
           </div>
-          <div class="card-body">
-            <select class="form-select mb-2" [(ngModel)]="selectedStatus">
-              @for (s of statuses; track s) {
-                <option [value]="s">{{ s }}</option>
-              }
-            </select>
-            <button class="btn btn-success w-100" (click)="updateStatus()" [disabled]="isUpdatingStatus">
-              @if (isUpdatingStatus) {
-                <span class="spinner-border spinner-border-sm me-2"></span>
-              }
-              Update Status
-            </button>
+        }
+
+        <!-- REJECT TICKET - SUPPORT OFFICER ONLY -->
+        @if (canRejectTicket()) {
+          <div class="card mb-3 border-danger">
+            <div class="card-header text-danger">
+              <i class="bi bi-x-circle me-2"></i> Reject Ticket
+            </div>
+            <div class="card-body">
+              <p class="text-muted small mb-3">
+                Unable to handle this ticket? Return it to the supervisor as unassigned.
+              </p>
+              <button type="button" class="btn btn-outline-danger w-100"
+                (click)="openRejectModal()" [disabled]="isRejecting">
+                <i class="bi bi-x-circle me-1"></i> Reject Ticket
+              </button>
+            </div>
           </div>
-        </div>
+        }
+
+        <!-- STATUS ACTIONS - SUPPORT OFFICER / SUPERVISOR -->
+        @if (canUpdateStatus()) {
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="bi bi-arrow-repeat me-2"></i> Ticket Actions
+            </div>
+            <div class="card-body">
+              <div class="small text-muted mb-3">
+                Current status: <strong>{{ ticket.status }}</strong>
+              </div>
+
+              @if (getAvailableStatuses().length > 0) {
+                <div class="d-grid gap-2">
+                  @for (status of getAvailableStatuses(); track status) {
+                    @if (status === 'IN_PROGRESS') {
+                      <button class="btn btn-primary" (click)="updateStatusTo(status)" [disabled]="isUpdatingStatus">
+                        <i class="bi bi-play-circle me-2"></i> Start / Resume Work
+                      </button>
+                    } @else if (status === 'PENDING') {
+                      <button class="btn btn-warning" (click)="updateStatusTo(status)" [disabled]="isUpdatingStatus">
+                        <i class="bi bi-pause-circle me-2"></i> Put on Hold
+                      </button>
+                    } @else if (status === 'RESOLVED') {
+                      <button class="btn btn-success" (click)="updateStatusTo(status)" [disabled]="isUpdatingStatus">
+                        <i class="bi bi-check-circle me-2"></i> Mark as Resolved
+                      </button>
+                    } @else if (status === 'CLOSED') {
+                      <button class="btn btn-dark" (click)="updateStatusTo(status)" [disabled]="isUpdatingStatus">
+                        <i class="bi bi-check2-all me-2"></i> Close Ticket
+                      </button>
+                    } @else if (status === 'REOPENED') {
+                      <button class="btn btn-outline-danger" (click)="updateStatusTo(status)" [disabled]="isUpdatingStatus">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i> Reopen Ticket
+                      </button>
+                    }
+                  }
+                </div>
+              } @else {
+                <div class="text-muted small">No actions available.</div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- EMPLOYEE CONFIRM RESOLUTION -->
+        @if (canConfirmResolution()) {
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="bi bi-check-circle me-2"></i> Resolution
+            </div>
+            <div class="card-body">
+              <p class="small text-muted mb-3">
+                The support officer has marked this ticket as resolved.
+              </p>
+              <button class="btn btn-success w-100" (click)="confirmResolution()" [disabled]="isUpdatingStatus">
+                <i class="bi bi-check-circle me-2"></i> Confirm Resolution
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- EMPLOYEE REOPEN -->
+        @if (canReopenTicket()) {
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="bi bi-arrow-counterclockwise me-2"></i> Need More Help?
+            </div>
+            <div class="card-body">
+              <p class="small text-muted mb-3">
+                If the problem is still happening, you can reopen this ticket.
+              </p>
+              <button class="btn btn-outline-danger w-100" (click)="reopenTicket()" [disabled]="isUpdatingStatus">
+                <i class="bi bi-arrow-counterclockwise me-2"></i> Reopen Ticket
+              </button>
+            </div>
+          </div>
+        }
+
       </div>
     }
+  </div>
+}
+
+<!-- REJECT MODAL -->
+@if (showRejectModal) {
+  <div class="modal-backdrop-custom" (click)="closeRejectModal()">
+    <div class="reject-modal" (click)="$event.stopPropagation()">
+      <div class="reject-modal-header">
+        <h5 class="mb-0">Reject Ticket</h5>
+        <button type="button" class="btn-close" (click)="closeRejectModal()" [disabled]="isRejecting"></button>
+      </div>
+      <div class="reject-modal-body">
+        <p class="text-muted">
+          You are rejecting <strong>{{ ticket?.ticketNumber }}</strong>.
+        </p>
+        <p>
+          The ticket will be returned to the Supervisor as <strong>UNASSIGNED</strong> for reassignment.
+        </p>
+        <label for="rejectionReason" class="form-label">
+          Reason for rejection <span class="text-danger">*</span>
+        </label>
+        <textarea id="rejectionReason" class="form-control" rows="5"
+          [(ngModel)]="rejectionReason"
+          placeholder="Explain why you cannot handle this ticket..."
+          [disabled]="isRejecting"></textarea>
+      </div>
+      <div class="reject-modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="isRejecting">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="rejectTicket()"
+          [disabled]="isRejecting || !rejectionReason.trim()">
+          @if (isRejecting) {
+            <span class="spinner-border spinner-border-sm me-1"></span> Rejecting...
+          } @else {
+            Confirm Rejection
+          }
+        </button>
+      </div>
+    </div>
   </div>
 }

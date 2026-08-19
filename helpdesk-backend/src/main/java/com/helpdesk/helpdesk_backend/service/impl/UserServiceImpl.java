@@ -253,4 +253,62 @@ public List<UserResponseDTO> getActiveUsers() {
             .map(this::mapToResponse)
             .collect(Collectors.toList());
 }
+
+@Override
+@Transactional
+public UserResponseDTO registerUser(UserRequestDTO request) {
+
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new BadRequestException(
+                "A user with this email already exists: "
+                        + request.getEmail());
+    }
+
+    if (userRepository.existsByEmployeeId(request.getEmployeeId())) {
+        throw new BadRequestException(
+                "A user with this employee ID already exists: "
+                        + request.getEmployeeId());
+    }
+
+    Department department = departmentRepository
+            .findById(request.getDepartmentId())
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Department not found with id: "
+                            + request.getDepartmentId()));
+
+    // ALWAYS assign EMPLOYEE during public registration.
+    // Ignore any roleIds sent by the client.
+    Role employeeRole = roleRepository
+            .findByName("EMPLOYEE")
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Default EMPLOYEE role not found"));
+
+    Set<Role> roles = new HashSet<>();
+    roles.add(employeeRole);
+
+    User user = User.builder()
+            .employeeId(request.getEmployeeId())
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .phoneNumber(request.getPhoneNumber())
+            .active(true)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .department(department)
+            .roles(roles)
+            .mustChangePassword(false)
+            .build();
+
+    return mapToResponse(userRepository.save(user));
 }
+
+@Override
+@Transactional(readOnly = true)
+public List<UserResponseDTO> getActiveSupportOfficers() {
+    return userRepository.findActiveSupportOfficers()
+            .stream()
+            .map(this::mapToResponse)
+            .collect(Collectors.toList());
+}
+}
+

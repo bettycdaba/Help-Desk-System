@@ -12,5 +12,4 @@ public class HelpdeskBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HelpdeskBackendApplication.class, args);
 	}
-
 }

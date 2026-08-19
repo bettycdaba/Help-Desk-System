@@ -1,147 +1,699 @@
 <div class="dashboard">
 
-  <div class="page-header">
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <div class="dashboard-header">
+
     <div>
-      <h1 class="page-title">
-        @if (isAdmin()) {
-          Admin Dashboard
-        } @else {
-          My Dashboard
-        }
+
+      <div class="eyebrow">
+        HELP DESK
+      </div>
+
+      <h1>
+        {{ dashboardTitle }}
       </h1>
-      @if (currentUser) {
-        <p class="text-muted mb-0">
-          Welcome back,
-          <strong>
-            {{ currentUser.firstName }}
-            {{ currentUser.lastName }}
-          </strong>!
-          @if (isAdmin()) {
-            You have full system access.
-          } @else {
-            Here are your tickets.
-          }
-        </p>
-      }
-    </div>
-    <a routerLink="/tickets/new"
-      class="btn btn-primary">
-      <i class="bi bi-plus-circle me-2"></i>
-      New Ticket
-    </a>
-  </div>
 
-  <div class="row g-3 mb-4">
+      <p>
+        {{ getGreeting() }},
+        <strong>
+          {{ currentUser?.firstName }}
+        </strong>
+        👋
+        {{ dashboardSubtitle }}
+      </p>
 
-    <div class="col-md-3">
-      <div class="stat-card" 
-           style="background: linear-gradient(135deg, #1e3a5f, #2d5986)">
-        <div class="stat-number">{{ totalTickets }}</div>
-        <div class="stat-label">Total Tickets</div>
-        <i class="bi bi-ticket-perforated stat-icon"></i>
-      </div>
     </div>
 
-    <div class="col-md-3">
-      <div class="stat-card"
-           style="background: linear-gradient(135deg, #1565c0, #1976d2)">
-        <div class="stat-number">{{ openTickets }}</div>
-        <div class="stat-label">Open Tickets</div>
-        <i class="bi bi-folder2-open stat-icon"></i>
-      </div>
-    </div>
+    <div class="header-actions">
 
-    <div class="col-md-3">
-      <div class="stat-card"
-           style="background: linear-gradient(135deg, #6a1b9a, #7b1fa2)">
-        <div class="stat-number">{{ inProgressTickets }}</div>
-        <div class="stat-label">In Progress</div>
-        <i class="bi bi-arrow-repeat stat-icon"></i>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="stat-card"
-           style="background: linear-gradient(135deg, #2e7d32, #388e3c)">
-        <div class="stat-number">{{ resolvedTickets }}</div>
-        <div class="stat-label">Resolved</div>
-        <i class="bi bi-check-circle stat-icon"></i>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="card">
-    <div class="card-header d-flex justify-content-between 
-                align-items-center">
-      <span>
-        <i class="bi bi-clock-history me-2"></i>
-        Recent Tickets
+      <span class="last-updated">
+        Updated {{ lastUpdated }}
       </span>
-      <a routerLink="/tickets" class="btn btn-sm btn-outline-primary">
-        View All
-      </a>
-    </div>
-    <div class="card-body p-0">
 
-      @if (isLoading) {
-        <div class="text-center py-5">
-          <div class="spinner-border text-primary"></div>
-          <p class="text-muted mt-2">Loading tickets...</p>
+      <button
+        class="action-btn"
+        (click)="loadTickets()"
+        [disabled]="isLoading">
+
+        <i class="bi bi-arrow-clockwise"></i>
+
+        Refresh
+
+      </button>
+
+      <button
+        class="action-btn primary"
+        (click)="exportToPDF()">
+
+        <i class="bi bi-file-earmark-pdf"></i>
+
+        Export
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       LOADING
+       ===================================================== -->
+
+  @if (isLoading) {
+
+    <div class="loading-container">
+
+      <div class="spinner-border text-primary"></div>
+
+      <p>
+        Loading dashboard...
+      </p>
+
+    </div>
+
+  } @else {
+
+    <!-- =====================================================
+         STAT CARDS
+         ===================================================== -->
+
+    <div class="stats-grid">
+
+      <div class="stat-card">
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            {{ isAdmin() ? 'Total Tickets' : 'My Tickets' }}
+          </span>
+
+          <strong class="stat-value">
+            {{ totalTickets }}
+          </strong>
+
+          <span class="stat-description">
+            All visible tickets
+          </span>
+
         </div>
-      } @else if (getRecentTickets().length === 0) {
+
+        <div class="stat-icon blue">
+
+          <i class="bi bi-ticket-perforated"></i>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Open
+          </span>
+
+          <strong class="stat-value">
+            {{ openTickets }}
+          </strong>
+
+          <span class="stat-description">
+            Waiting for assignment
+          </span>
+
+        </div>
+
+        <div class="stat-icon orange">
+
+          <i class="bi bi-folder2-open"></i>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Assigned
+          </span>
+
+          <strong class="stat-value">
+            {{ assignedTickets }}
+          </strong>
+
+          <span class="stat-description">
+            Waiting for action
+          </span>
+
+        </div>
+
+        <div class="stat-icon purple">
+
+          <i class="bi bi-person-check"></i>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            In Progress
+          </span>
+
+          <strong class="stat-value">
+            {{ inProgressTickets }}
+          </strong>
+
+          <span class="stat-description">
+            Currently being handled
+          </span>
+
+        </div>
+
+        <div class="stat-icon cyan">
+
+          <i class="bi bi-arrow-repeat"></i>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Resolved
+          </span>
+
+          <strong class="stat-value">
+            {{ resolvedTickets }}
+          </strong>
+
+          <span class="stat-description">
+            Successfully completed
+          </span>
+
+        </div>
+
+        <div class="stat-icon green">
+
+          <i class="bi bi-check-circle"></i>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <div class="dashboard-grid">
+
+
+      <!-- =================================================
+           STATUS CHART
+           ================================================= -->
+
+      <div class="dashboard-card status-card">
+
+        <div class="card-heading">
+
+          <div>
+
+            <h2>
+              Ticket Status
+            </h2>
+
+            <p>
+              Current distribution of your tickets
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="chart-container">
+
+          <canvas id="statusChart"></canvas>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           PRIORITY
+           ================================================= -->
+
+      <div class="dashboard-card">
+
+        <div class="card-heading">
+
+          <div>
+
+            <h2>
+              Priority Overview
+            </h2>
+
+            <p>
+              Tickets grouped by priority
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="chart-container">
+
+          <canvas id="priorityChart"></canvas>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SECOND ROW
+         ===================================================== -->
+
+    <div class="dashboard-grid secondary">
+
+
+      <!-- PRIORITY SUMMARY -->
+
+      <div class="dashboard-card">
+
+        <div class="card-heading">
+
+          <div>
+
+            <h2>
+              Priority Summary
+            </h2>
+
+            <p>
+              Current workload by priority
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="priority-list">
+
+
+          <div class="priority-item">
+
+            <div class="priority-name">
+
+              <span class="priority-dot critical"></span>
+
+              Critical
+
+            </div>
+
+            <strong>
+              {{ criticalCount }}
+            </strong>
+
+          </div>
+
+
+          <div class="priority-item">
+
+            <div class="priority-name">
+
+              <span class="priority-dot high"></span>
+
+              High
+
+            </div>
+
+            <strong>
+              {{ highCount }}
+            </strong>
+
+          </div>
+
+
+          <div class="priority-item">
+
+            <div class="priority-name">
+
+              <span class="priority-dot medium"></span>
+
+              Medium
+
+            </div>
+
+            <strong>
+              {{ mediumCount }}
+            </strong>
+
+          </div>
+
+
+          <div class="priority-item">
+
+            <div class="priority-name">
+
+              <span class="priority-dot low"></span>
+
+              Low
+
+            </div>
+
+            <strong>
+              {{ lowCount }}
+            </strong>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+
+      <!-- NEEDS ATTENTION -->
+
+      <div class="dashboard-card attention-card">
+
+        <div class="card-heading">
+
+          <div>
+
+            <h2>
+              Needs Attention
+            </h2>
+
+            <p>
+              Tickets requiring action
+            </p>
+
+          </div>
+
+          <i class="bi bi-exclamation-circle"></i>
+
+        </div>
+
+
+        <div class="attention-number">
+
+          {{ needsAttention }}
+
+        </div>
+
+
+        <div class="attention-items">
+
+
+          <div>
+
+            <span>
+              <i class="bi bi-circle-fill"></i>
+              Unassigned
+            </span>
+
+            <strong>
+              {{ unassignedCount }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              <i class="bi bi-clock"></i>
+              Pending
+            </span>
+
+            <strong>
+              {{ pendingTickets }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              <i class="bi bi-arrow-right-circle"></i>
+              In progress
+            </span>
+
+            <strong>
+              {{ inProgressTickets }}
+            </strong>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RECENT TICKETS
+         ===================================================== -->
+
+    <div class="dashboard-card recent-card">
+
+      <div class="card-heading">
+
+        <div>
+
+          <h2>
+            Recent Tickets
+          </h2>
+
+          <p>
+            Latest activity in your help desk
+          </p>
+
+        </div>
+
+        <a
+          routerLink="/tickets"
+          class="view-all">
+
+          View all
+
+          <i class="bi bi-arrow-right"></i>
+
+        </a>
+
+      </div>
+
+
+      @if (getRecentTickets().length === 0) {
+
         <div class="empty-state">
-          <i class="bi bi-inbox"></i>
-          <p>No tickets found</p>
-          <a routerLink="/tickets/new" 
-             class="btn btn-primary btn-sm">
-            Create First Ticket
-          </a>
+
+          <i class="bi bi-ticket-perforated"></i>
+
+          <h3>
+            No tickets yet
+          </h3>
+
+          <p>
+            There are no tickets available to display.
+          </p>
+
         </div>
+
       } @else {
-        <table class="table mb-0">
-          <thead>
-            <tr>
-              <th>Ticket #</th>
-              <th>Subject</th>
-              <th>Category</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Created By</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (ticket of getRecentTickets(); 
-                  track ticket.id) {
-              <tr class="clickable-row"
-                  (click)="goToTicket(ticket.id)">
-                <td>
-                  <span class="ticket-number">
-                    {{ ticket.ticketNumber }}
-                  </span>
-                </td>
-                <td>{{ ticket.subject }}</td>
-                <td>{{ ticket.categoryName }}</td>
-                <td>
-                  <span class="badge"
-                    [ngClass]="getPriorityClass(ticket.priority)">
-                    {{ ticket.priority }}
-                  </span>
-                </td>
-                <td>
-                  <span class="badge"
-                    [ngClass]="getStatusClass(ticket.status)">
-                    {{ ticket.status }}
-                  </span>
-                </td>
-                <td>{{ ticket.createdByName }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+
+        <div class="ticket-list">
+
+          @for (
+            ticket of getRecentTickets();
+            track ticket.id
+          ) {
+
+            <div
+              class="ticket-row"
+              (click)="goToTicket(ticket.id)">
+
+              <div class="ticket-main">
+
+                <span class="ticket-number">
+                  {{ ticket.ticketNumber }}
+                </span>
+
+                <strong>
+                  {{ ticket.subject }}
+                </strong>
+
+                <span class="ticket-category">
+                  {{ ticket.categoryName || 'General' }}
+                </span>
+
+              </div>
+
+
+              <div class="ticket-meta">
+
+                <span
+                  class="badge"
+                  [ngClass]="
+                    getPriorityClass(ticket.priority)
+                  ">
+
+                  {{ ticket.priority }}
+
+                </span>
+
+
+                <span
+                  class="badge"
+                  [ngClass]="
+                    getStatusClass(ticket.status)
+                  ">
+
+                  {{ ticket.status }}
+
+                </span>
+
+
+                <span class="ticket-time">
+
+                  {{ timeAgo(ticket.createdAt) }}
+
+                </span>
+
+
+                <i class="bi bi-chevron-right"></i>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
       }
 
     </div>
-  </div>
+
+
+    <!-- =====================================================
+         QUICK ACTIONS
+         ===================================================== -->
+
+    <div class="quick-actions">
+
+      <a
+        routerLink="/tickets/new"
+        class="quick-action">
+
+        <div class="quick-icon blue">
+
+          <i class="bi bi-plus-lg"></i>
+
+        </div>
+
+        <div>
+
+          <strong>
+            Create Ticket
+          </strong>
+
+          <span>
+            Submit a new support request
+          </span>
+
+        </div>
+
+        <i class="bi bi-arrow-right"></i>
+
+      </a>
+
+
+      <a
+        routerLink="/tickets"
+        class="quick-action">
+
+        <div class="quick-icon purple">
+
+          <i class="bi bi-ticket-perforated"></i>
+
+        </div>
+
+        <div>
+
+          <strong>
+            View Tickets
+          </strong>
+
+          <span>
+            Browse and manage your tickets
+          </span>
+
+        </div>
+
+        <i class="bi bi-arrow-right"></i>
+
+      </a>
+
+
+      @if (isAdmin()) {
+
+        <a
+          routerLink="/users"
+          class="quick-action">
+
+          <div class="quick-icon green">
+
+            <i class="bi bi-people"></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Manage Users
+            </strong>
+
+            <span>
+              Manage help desk users
+            </span>
+
+          </div>
+
+          <i class="bi bi-arrow-right"></i>
+
+        </a>
+
+      }
+
+    </div>
+
+  }
 
 </div>

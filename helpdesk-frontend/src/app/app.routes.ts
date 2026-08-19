@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 
 export const routes: Routes = [
   {
@@ -56,68 +57,67 @@ export const routes: Routes = [
   },
   {
     path: 'tickets',
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard('VIEW_TICKETS')],
     loadComponent: () =>
       import('./features/tickets/ticket-list/ticket-list')
         .then(m => m.TicketList)
   },
   {
     path: 'tickets/new',
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard('CREATE_TICKET')],
     loadComponent: () =>
       import('./features/tickets/ticket-create/ticket-create')
         .then(m => m.TicketCreate)
   },
   {
     path: 'tickets/:id',
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard('VIEW_TICKETS')],
     loadComponent: () =>
       import('./features/tickets/ticket-detail/ticket-detail')
         .then(m => m.TicketDetail)
   },
   {
     path: 'users',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, permissionGuard('VIEW_USERS')],
     loadComponent: () =>
       import('./features/users/users')
         .then(m => m.Users)
   },
   {
     path: 'departments',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, permissionGuard('VIEW_DEPARTMENTS')],
     loadComponent: () =>
       import('./features/departments/departments')
         .then(m => m.Departments)
   },
   {
     path: 'roles',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, permissionGuard('VIEW_ROLES')],
     loadComponent: () =>
       import('./features/roles/roles')
         .then(m => m.Roles)
   },
   {
     path: 'categories',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, permissionGuard('VIEW_CATEGORIES')],
     loadComponent: () =>
       import('./features/categories/categories')
         .then(m => m.Categories)
   },
-
   {
-  path: 'profile',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/profile/profile')
-      .then(m => m.Profile)
-},
-{
-  path: 'notifications',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/notifications/notifications')
-      .then(m => m.Notifications)
-},
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/profile/profile')
+        .then(m => m.Profile)
+  },
+  {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/notifications/notifications')
+        .then(m => m.Notifications)
+  },
   {
     path: '**',
     loadComponent: () =>

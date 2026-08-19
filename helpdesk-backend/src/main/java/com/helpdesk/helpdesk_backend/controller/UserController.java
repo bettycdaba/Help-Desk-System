@@ -65,4 +65,9 @@ public class UserController {
 public ResponseEntity<List<UserResponseDTO>> getActiveUsers() {
     return ResponseEntity.ok(userService.getActiveUsers());
 }
+
+@GetMapping("/support-officers")
+public ResponseEntity<List<UserResponseDTO>> getSupportOfficers() {
+    return ResponseEntity.ok(userService.getActiveSupportOfficers());
+}
 }

@@ -66,6 +66,19 @@ export class TicketService {
     return this.http.patch<Ticket>(
       `${this.baseUrl}/${id}/assign`, request);
   }
+  
+  reject(
+  id: number,
+  request: {
+    rejectedById: number;
+    reason: string;
+  }
+) {
+  return this.http.patch<Ticket>(
+    `${this.baseUrl}/${id}/reject`,
+    request
+  );
+}
 
   updateStatus(id: number,
     request: TicketStatusUpdateRequest): Observable<Ticket> {

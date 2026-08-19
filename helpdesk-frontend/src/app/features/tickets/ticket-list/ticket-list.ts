@@ -14,6 +14,8 @@ import { ToastService }
 import { Ticket } from '../../../core/models/ticket.model';
 import { TicketCategory } 
   from '../../../core/models/category.model';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-ticket-list',
@@ -37,16 +39,14 @@ export class TicketList implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
-  // Sorting
   sortColumn = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  // Tabs for non-admin
-ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
+  ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
 
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
-    'PENDING', 'RESOLVED', 'CLOSED', 'REOPENED'
+    'PENDING', 'RESOLVED', 'CLOSED', 'REOPENED', 'UNASSIGNED'
   ];
   priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
@@ -67,6 +67,9 @@ ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }
+  isSupervisor(): boolean {
+  return this.authService.isSupervisor();
+}
 
   getCurrentUserId(): number {
     const user = this.authService.getCurrentUser();
@@ -74,16 +77,82 @@ ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
   }
 
   canDeleteTicket(ticket: Ticket): boolean {
-  if (this.isAdmin()) return true;
-  const userId = this.getCurrentUserId();
-  return ticket.createdById === userId && ticket.assignedToId !== userId;
+    if (this.isAdmin()) return true;
+    const userId = this.getCurrentUserId();
+    return ticket.createdById === userId && ticket.assignedToId !== userId;
+  }
+
+
+  showExportModal = false;
+exportFileName = '';
+
+openExportModal(): void {
+    this.exportFileName = `tickets-report-${new Date().toISOString().slice(0, 10)}`;
+    this.showExportModal = true;
+    this.cdr.detectChanges();
+}
+
+closeExportModal(): void {
+    this.showExportModal = false;
+    this.cdr.detectChanges();
+}
+
+exportToPDF(): void {
+    const data = this.displayTickets;
+    
+    if (data.length === 0) {
+      this.toastService.error('No tickets to export');
+      return;
+    }
+
+    // Ask user for filename
+    const defaultName = `tickets-report-${new Date().toISOString().slice(0, 10)}`;
+    const customName = prompt('Enter filename for PDF export:', defaultName);
+    
+    if (customName === null) return; // User cancelled
+    
+    const finalName = customName.trim() || defaultName;
+    const fileName = finalName.endsWith('.pdf') ? finalName : finalName + '.pdf';
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.setTextColor(30, 58, 95);
+    doc.text('Help Desk - Ticket Report', 14, 20);
+
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(
+      `Generated: ${new Date().toLocaleString()}  |  Total: ${data.length} tickets`,
+      14, 28
+    );
+
+    autoTable(doc, {
+      startY: 35,
+      head: [['Ticket #', 'Subject', 'Category', 'Priority', 'Status', 'Assigned To', 'Created By']],
+      body: data.map(t => [
+        t.ticketNumber || '—',
+        t.subject || '—',
+        t.categoryName || '—',
+        t.priority || '—',
+        t.status || '—',
+        t.assignedToName || 'Unassigned',
+        t.createdByName || '—'
+      ]),
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [240, 247, 255] }
+    });
+
+    doc.save(fileName);
+    this.toastService.success(`PDF exported as "${fileName}"`);
 }
 
   loadTickets(): void {
     this.isLoading = true;
     const userId = this.getCurrentUserId();
 
-    if (this.isAdmin()) {
+    if (this.isAdmin() || this.isSupervisor()) {
       this.ticketService.getAll().subscribe({
         next: (tickets) => {
           this.tickets = tickets;
@@ -110,7 +179,6 @@ ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
     const checkDone = () => {
       completed++;
       if (completed === 2) {
-        // Merge and remove duplicates
         const allIds = new Set<number>();
         const merged: Ticket[] = [];
         
@@ -149,25 +217,41 @@ ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
     });
   }
 
-  // Get tickets based on selected tab
 get displayTickets(): Ticket[] {
   const userId = this.getCurrentUserId();
   
-  if (this.isAdmin()) {
-    // Admin sees everything
+  if (this.isAdmin() || this.isSupervisor()) {
     switch (this.ticketView) {
-      case 'assigned': return this.filteredTickets.filter(t => t.assignedToId === userId);
-      case 'unassigned': return this.filteredTickets.filter(t => !t.assignedToId);
-      default: return this.filteredTickets;
+      case 'assigned':
+        return this.filteredTickets.filter(
+          t => t.assignedToId === userId
+        );
+
+      case 'unassigned':
+        return this.filteredTickets.filter(
+          t => !t.assignedToId
+        );
+
+      default:
+        return this.filteredTickets;
     }
   } else {
-    // Non-admin sees only their tickets
     switch (this.ticketView) {
-      case 'assigned': return this.filteredTickets.filter(t => t.assignedToId === userId);
-      case 'unassigned': return this.filteredTickets.filter(t => !t.assignedToId);
-      default: return this.filteredTickets.filter(t => 
-        t.createdById === userId || t.assignedToId === userId
-      );
+      case 'assigned':
+        return this.filteredTickets.filter(
+          t => t.assignedToId === userId
+        );
+
+      case 'unassigned':
+        return this.filteredTickets.filter(
+          t => !t.assignedToId
+        );
+
+      default:
+        return this.filteredTickets.filter(
+          t => t.createdById === userId ||
+               t.assignedToId === userId
+        );
     }
   }
 }
@@ -186,6 +270,14 @@ get displayTickets(): Ticket[] {
     if (this.sortColumn !== column) return 'bi-arrow-down-up text-muted';
     return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
   }
+
+
+
+
+
+
+
+
 
   deleteTicket(ticket: Ticket, event: Event): void {
     event.stopPropagation();
@@ -212,7 +304,6 @@ get displayTickets(): Ticket[] {
   applyFiltersAndSort(): void {
     let result = [...this.tickets];
 
-    // Filter
     if (this.searchText.trim()) {
       const search = this.searchText.toLowerCase();
       result = result.filter(t =>
@@ -230,7 +321,6 @@ get displayTickets(): Ticket[] {
       result = result.filter(t => t.categoryName === this.selectedCategory);
     }
 
-    // Sort
     result.sort((a, b) => {
       let valA: any, valB: any;
       switch (this.sortColumn) {
@@ -306,6 +396,4 @@ get displayTickets(): Ticket[] {
   getPriorityClass(priority: string | undefined): string {
     return `priority-${priority}`;
   }
-
-
 }

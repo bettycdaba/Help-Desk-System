@@ -47,4 +47,7 @@ export class UserService {
 getActiveUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.baseUrl}/active`);
   }
+getSupportOfficers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/support-officers`);
+}
 }

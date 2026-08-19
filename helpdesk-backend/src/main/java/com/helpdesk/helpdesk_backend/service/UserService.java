@@ -9,6 +9,8 @@ public interface UserService {
 
     UserResponseDTO createUser(UserRequestDTO request);
 
+    UserResponseDTO registerUser(UserRequestDTO request);
+
     List<UserResponseDTO> getAllUsers();
 
     UserResponseDTO getUserById(Long id);
@@ -26,4 +28,7 @@ public interface UserService {
     boolean mustChangePassword(String email);
 
     List<UserResponseDTO> getActiveUsers();
+
+    List<UserResponseDTO> getActiveSupportOfficers();
+    
 }
