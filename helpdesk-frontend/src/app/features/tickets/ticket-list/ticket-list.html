@@ -108,7 +108,10 @@
             No tickets found
           }
         </p>
-        <a routerLink="/tickets/new" class="btn btn-primary btn-sm">Create New Ticket</a>
+        <!-- Only show "Create New Ticket" when NOT in a specific tab -->
+        @if (ticketView === 'all') {
+          <a routerLink="/tickets/new" class="btn btn-primary btn-sm">Create New Ticket</a>
+        }
       </div>
     } @else {
       <table class="table mb-0">
