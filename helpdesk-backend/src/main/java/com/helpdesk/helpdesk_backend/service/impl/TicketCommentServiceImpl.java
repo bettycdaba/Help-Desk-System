@@ -51,87 +51,69 @@ public class TicketCommentServiceImpl implements TicketCommentService {
                 .build();
 
         TicketComment saved = commentRepository.save(comment);
-            if (ticket.getCreatedBy() != null
-            && !ticket.getCreatedBy().getId().equals(request.getUserId())) {
 
-        emailService.sendCommentAddedEmail(
-                ticket.getCreatedBy().getEmail(),
-                ticket.getCreatedBy().getFirstName()
-                        + " " + ticket.getCreatedBy().getLastName(),
-                ticket.getTicketNumber(),
-                ticket.getSubject(),
-                user.getFirstName() + " " + user.getLastName(),
-                request.getComment()
-        );
-        
+        // =============================================
+        // NOTIFY TICKET CREATOR (if not the commenter)
+        // =============================================
+        if (ticket.getCreatedBy() != null
+                && !ticket.getCreatedBy().getId().equals(request.getUserId())) {
+
+            // Send email
+            emailService.sendCommentAddedEmail(
+                    ticket.getCreatedBy().getEmail(),
+                    ticket.getCreatedBy().getFirstName()
+                            + " " + ticket.getCreatedBy().getLastName(),
+                    ticket.getTicketNumber(),
+                    ticket.getSubject(),
+                    user.getFirstName() + " " + user.getLastName(),
+                    request.getComment()
+            );
+
+            // Send notification
+            notificationService.createNotification(
+                    ticket.getCreatedBy().getId(),
+                    ticket.getId(),
+                    user.getFirstName() + " " + user.getLastName()
+                            + " commented on ticket "
+                            + ticket.getTicketNumber() + ".",
+                    "comment"
+            );
+        }
+
+        // =============================================
+        // NOTIFY ASSIGNEE (if exists, not commenter,
+        // and not the creator already notified)
+        // =============================================
         if (ticket.getAssignedTo() != null
-            && !ticket.getAssignedTo().getId().equals(request.getUserId())
-            && !ticket.getAssignedTo().getId().equals(
-                    ticket.getCreatedBy().getId())) {
+                && !ticket.getAssignedTo().getId().equals(request.getUserId())
+                && (ticket.getCreatedBy() == null
+                        || !ticket.getAssignedTo().getId()
+                                .equals(ticket.getCreatedBy().getId()))) {
 
-        emailService.sendCommentAddedEmail(
-                ticket.getAssignedTo().getEmail(),
-                ticket.getAssignedTo().getFirstName()
-                        + " " + ticket.getAssignedTo().getLastName(),
-                ticket.getTicketNumber(),
-                ticket.getSubject(),
-                user.getFirstName() + " " + user.getLastName(),
-                request.getComment()
-                );
+            // Send email
+            emailService.sendCommentAddedEmail(
+                    ticket.getAssignedTo().getEmail(),
+                    ticket.getAssignedTo().getFirstName()
+                            + " " + ticket.getAssignedTo().getLastName(),
+                    ticket.getTicketNumber(),
+                    ticket.getSubject(),
+                    user.getFirstName() + " " + user.getLastName(),
+                    request.getComment()
+            );
+
+            // Send notification
+            notificationService.createNotification(
+                    ticket.getAssignedTo().getId(),
+                    ticket.getId(),
+                    user.getFirstName() + " " + user.getLastName()
+                            + " commented on ticket "
+                            + ticket.getTicketNumber() + ".",
+                    "comment"
+            );
         }
 
         return mapToResponse(saved);
-        }
-        // Notify ticket creator (if not the commenter)
-if (ticket.getCreatedBy() != null
-    && !ticket.getCreatedBy().getId()
-        .equals(request.getUserId())) {
-    notificationService.createNotification(
-        ticket.getCreatedBy().getId(),
-        ticket.getId(),
-        user.getFirstName() + " " + user.getLastName()
-            + " commented on ticket "
-            + ticket.getTicketNumber() + ".",
-        "comment"
-    );
-}
-
-// Notify assignee (if exists, not commenter,
-// and not the creator already notified)
-if (ticket.getAssignedTo() != null
-    && !ticket.getAssignedTo().getId()
-        .equals(request.getUserId())
-    && (ticket.getCreatedBy() == null
-        || !ticket.getAssignedTo().getId()
-            .equals(ticket.getCreatedBy().getId()))) {
-    notificationService.createNotification(
-        ticket.getAssignedTo().getId(),
-        ticket.getId(),
-        user.getFirstName() + " " + user.getLastName()
-            + " commented on ticket "
-            + ticket.getTicketNumber() + ".",
-        "comment"
-    );
-}
-        return mapToResponse(commentRepository.save(comment));
-    
- }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 
 
     @Override
