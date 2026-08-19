@@ -119,6 +119,13 @@ export const routes: Routes = [
         .then(m => m.Notifications)
   },
   {
+  path: 'team-workload',
+  canActivate: [authGuard, permissionGuard('VIEW_TICKETS')],
+  loadComponent: () =>
+    import('./features/team-workload/team-workload')
+      .then(m => m.TeamWorkload)
+},
+  {
     path: '**',
     loadComponent: () =>
       import('./features/not-found/not-found')

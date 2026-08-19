@@ -151,7 +151,9 @@ deleteAttachment(
   return this.http.delete<void>(
     `${this.baseUrl}/${ticketId}/attachments/${attachmentId}`);
 }
-
+getTeamWorkload(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/workload`);
+}
 
 }
 

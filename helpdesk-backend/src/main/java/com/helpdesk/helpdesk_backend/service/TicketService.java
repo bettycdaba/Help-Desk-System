@@ -38,6 +38,6 @@ public interface TicketService {
         Long id,
         TicketRejectionRequestDTO request);
 
-
+        List<TeamWorkloadDTO> getTeamWorkload();
 
 }

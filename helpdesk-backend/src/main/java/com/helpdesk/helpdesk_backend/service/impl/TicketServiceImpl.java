@@ -1044,4 +1044,26 @@ public class TicketServiceImpl implements TicketService {
 
                 .build();
     }
+
+    @Override
+@Transactional(readOnly = true)
+public List<TeamWorkloadDTO> getTeamWorkload() {
+    List<User> supportOfficers = userRepository.findActiveSupportOfficers();
+    
+    return supportOfficers.stream().map(officer -> {
+        List<Ticket> officerTickets = ticketRepository.findByAssignedToId(officer.getId());
+        
+        return TeamWorkloadDTO.builder()
+            .userId(officer.getId())
+            .firstName(officer.getFirstName())
+            .lastName(officer.getLastName())
+            .email(officer.getEmail())
+            .assignedCount(officerTickets.stream().filter(t -> t.getStatus() == TicketStatus.ASSIGNED).count())
+            .inProgressCount(officerTickets.stream().filter(t -> t.getStatus() == TicketStatus.IN_PROGRESS).count())
+            .pendingCount(officerTickets.stream().filter(t -> t.getStatus() == TicketStatus.PENDING).count())
+            .resolvedCount(officerTickets.stream().filter(t -> t.getStatus() == TicketStatus.RESOLVED).count())
+            .totalCount(officerTickets.size())
+            .build();
+    }).collect(Collectors.toList());
+}
 }

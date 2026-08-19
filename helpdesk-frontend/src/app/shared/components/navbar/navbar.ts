@@ -229,4 +229,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+  isSupervisor(): boolean {
+    return this.authService.isSupervisor();
+}
 }

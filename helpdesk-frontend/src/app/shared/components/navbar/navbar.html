@@ -70,7 +70,7 @@
       <span *ngIf="!isCollapsed">My Profile</span>
     </a>
 
-    <!-- Categories - visible to Admin OR users with VIEW_CATEGORIES -->
+    <!-- Categories -->
     @if (isAdmin() || authService.hasPermission('VIEW_CATEGORIES')) {
       <a routerLink="/categories"
          routerLinkActive="active"
@@ -80,7 +80,17 @@
       </a>
     }
 
-    <!-- Admin Only Section -->
+    <!-- Team Workload - Supervisor Only -->
+    @if (isSupervisor()) {
+      <a routerLink="/team-workload"
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="bi bi-clipboard-data"></i>
+        <span *ngIf="!isCollapsed">Team Workload</span>
+      </a>
+    }
+
+    <!-- Admin Section -->
     @if (isAdmin()) {
       <div class="nav-section" *ngIf="!isCollapsed">
         ADMIN

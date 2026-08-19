@@ -1,0 +1,62 @@
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="bi bi-people me-2"></i>Team Workload
+  </h1>
+  <button class="btn btn-outline-secondary" (click)="loadWorkload()">
+    <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <i class="bi bi-clipboard-data me-2"></i>Support Officers Overview
+  </div>
+  <div class="card-body p-0">
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+      </div>
+    } @else if (workload.length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-people"></i>
+        <p>No support officers found</p>
+      </div>
+    } @else {
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>Officer</th>
+            <th>Assigned</th>
+            <th>In Progress</th>
+            <th>Pending</th>
+            <th>Resolved</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (w of workload; track w.userId) {
+            <tr>
+              <td>
+                <div class="officer-info">
+                  <div class="officer-avatar">
+                    {{ w.firstName.charAt(0) }}{{ w.lastName.charAt(0) }}
+                  </div>
+                  <div>
+                    <strong>{{ w.firstName }} {{ w.lastName }}</strong>
+                    <br>
+                    <small class="text-muted">{{ w.email }}</small>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-primary">{{ w.assignedCount }}</span></td>
+              <td><span class="badge bg-info">{{ w.inProgressCount }}</span></td>
+              <td><span class="badge bg-warning text-dark">{{ w.pendingCount }}</span></td>
+              <td><span class="badge bg-success">{{ w.resolvedCount }}</span></td>
+              <td><strong>{{ w.totalCount }}</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

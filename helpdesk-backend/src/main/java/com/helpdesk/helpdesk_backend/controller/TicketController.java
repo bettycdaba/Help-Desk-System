@@ -100,5 +100,9 @@ public ResponseEntity<TicketResponseDTO> rejectTicket(
         ticketService.deleteTicket(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/workload")
+public ResponseEntity<List<TeamWorkloadDTO>> getTeamWorkload() {
+    return ResponseEntity.ok(ticketService.getTeamWorkload());
+}
 }
 
