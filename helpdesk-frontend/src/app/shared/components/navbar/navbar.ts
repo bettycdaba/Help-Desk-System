@@ -168,6 +168,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       case 'status':   return 'bi-arrow-repeat';
       case 'comment':  return 'bi-chat-dots-fill';
       case 'resolved': return 'bi-check-circle-fill';
+      case 'new_ticket': return 'bi-plus-circle-fill';
       default:         return 'bi-bell-fill';
     }
   }
@@ -178,6 +179,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       case 'status':   return 'icon-status';
       case 'comment':  return 'icon-comment';
       case 'resolved': return 'icon-resolved';
+      case 'new_ticket': return 'icon-new';
       default:         return 'icon-default';
     }
   }

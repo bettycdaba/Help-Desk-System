@@ -91,6 +91,8 @@ public class TicketServiceImpl implements TicketService {
                 saved.getSubject()
         );
 
+        notifySupervisorsAndAdmins(saved, createdBy);
+
         return mapToResponse(saved);
     }
 
@@ -1066,4 +1068,31 @@ public List<TeamWorkloadDTO> getTeamWorkload() {
             .build();
     }).collect(Collectors.toList());
 }
+
+
+private void notifySupervisorsAndAdmins(Ticket ticket, User createdBy) {
+    // Find all active Supervisors and Admins
+    List<User> supervisorsAndAdmins = userRepository.findAll()
+            .stream()
+            .filter(User::getActive)
+            .filter(user -> user.getRoles().stream()
+                    .anyMatch(role -> 
+                        "SUPERVISOR".equals(role.getName()) || 
+                        "ADMIN".equals(role.getName())))
+            .collect(Collectors.toList());
+
+    String message = "New ticket " + ticket.getTicketNumber() 
+            + " created by " + createdBy.getFirstName() + " " 
+            + createdBy.getLastName() + ": " + ticket.getSubject();
+
+    for (User supervisor : supervisorsAndAdmins) {
+        notificationService.createNotification(
+                supervisor.getId(),
+                ticket.getId(),
+                message,
+                "new_ticket"
+        );
+    }
+}
+
 }
