@@ -20,7 +20,7 @@ interface Workload {
 @Component({
   selector: 'app-team-workload',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './team-workload.html',
   styleUrl: './team-workload.css'
 })
