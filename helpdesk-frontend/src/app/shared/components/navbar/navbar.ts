@@ -51,6 +51,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
       this.cdr.detectChanges();
     });
+    this.router.events.subscribe(event => {
+      if (event.constructor.name === 'NavigationEnd' && this.currentUser?.id) {
+        this.refreshCount();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -63,7 +68,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (this.currentUser?.id) {
         this.refreshCount();
       }
-    }, 30000);
+    }, 2000);
   }
 
   stopPolling(): void {
