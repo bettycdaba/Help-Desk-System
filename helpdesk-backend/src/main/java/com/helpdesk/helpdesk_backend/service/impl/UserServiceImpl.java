@@ -129,18 +129,30 @@ public UserResponseDTO createUser(UserRequestDTO request) {
                     "A user with this email already exists: " + request.getEmail());
         }
 
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Department not found with id: " + request.getDepartmentId()));
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean hasPrivileges = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("EDIT_USER") || a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (hasPrivileges) {
+            if (request.getDepartmentId() != null) {
+                Department department = departmentRepository.findById(request.getDepartmentId())
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Department not found with id: " + request.getDepartmentId()));
+                user.setDepartment(department);
+            }
+            if (request.getActive() != null) {
+                user.setActive(request.getActive());
+            }
+            if (request.getRoleIds() != null) {
+                user.setRoles(resolveRoles(request.getRoleIds()));
+            }
+        }
 
         user.setEmployeeId(request.getEmployeeId());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setActive(request.getActive());
-        user.setDepartment(department);
-        user.setRoles(resolveRoles(request.getRoleIds()));
 
         return mapToResponse(userRepository.save(user));
     }

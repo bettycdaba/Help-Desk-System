@@ -28,7 +28,7 @@ public class TicketCategoryController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('VIEW_CATEGORIES', 'ROLE_ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TicketCategoryResponseDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }

@@ -52,7 +52,9 @@ export class TicketCreate implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
-    this.loadUsers();
+    if (this.isAdmin()) {
+      this.loadUsers();
+    }
   }
 
   loadCategories(): void {

@@ -55,11 +55,16 @@ export class Profile implements OnInit {
 
   loadProfile(): void {
     const userId = this.getCurrentUserId();
+
     if (!userId) {
       this.toastService.error('User not found');
+      this.isLoading = false;
+      this.cdr.detectChanges();
       return;
     }
+
     this.isLoading = true;
+
     this.userService.getById(userId).subscribe({
       next: (user) => {
         this.user = user;
@@ -69,6 +74,7 @@ export class Profile implements OnInit {
       error: () => {
         this.toastService.error('Failed to load profile');
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -83,10 +89,12 @@ export class Profile implements OnInit {
       employeeId: this.user.employeeId
     };
     this.isEditing = true;
+    this.cdr.detectChanges();
   }
 
   cancelEdit(): void {
     this.isEditing = false;
+    this.cdr.detectChanges();
   }
 
   saveProfile(): void {
@@ -97,6 +105,8 @@ export class Profile implements OnInit {
     }
 
     this.isSaving = true;
+    this.cdr.detectChanges();
+
     const updatePayload: User = {
       ...this.user,
       firstName: this.editForm.firstName,
@@ -117,6 +127,7 @@ export class Profile implements OnInit {
       error: (err) => {
         this.isSaving = false;
         this.toastService.error(err?.error?.message || 'Update failed');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -132,9 +143,12 @@ export class Profile implements OnInit {
     }
 
     this.isChangingPassword = true;
+    this.cdr.detectChanges();
+
     // Add password change API call here if you have one
     this.toastService.success('Password changed');
     this.isChangingPassword = false;
     this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
+    this.cdr.detectChanges();
   }
 }

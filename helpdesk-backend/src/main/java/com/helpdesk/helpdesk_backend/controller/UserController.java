@@ -33,11 +33,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN')")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
+@GetMapping("/{id}")
+@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN') || #id == authentication.principal.id")
+public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getUserById(id));
+}
 
     @GetMapping("/department/{departmentId}")
     @PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN')")
@@ -54,7 +54,7 @@ public class UserController {
     // return ResponseEntity.ok(userService.updateUser(id, request));
     // }
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('EDIT_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EDIT_USER', 'ROLE_ADMIN') || #id == authentication.principal.id")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
             @RequestBody UserRequestDTO request) {// @Valid
@@ -81,7 +81,7 @@ public ResponseEntity<List<UserResponseDTO>> getSupportOfficers() {
     return ResponseEntity.ok(userService.getActiveSupportOfficers());
 }
 @GetMapping("/support-officers/workload")
-@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')")
 public ResponseEntity<List<Map<String, Object>>> getSupportOfficerWorkload() {
     return ResponseEntity.ok(userService.getSupportOfficerWorkload());
 }
