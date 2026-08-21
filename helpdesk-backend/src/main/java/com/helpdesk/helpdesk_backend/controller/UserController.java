@@ -81,7 +81,7 @@ public ResponseEntity<List<UserResponseDTO>> getSupportOfficers() {
     return ResponseEntity.ok(userService.getActiveSupportOfficers());
 }
 @GetMapping("/support-officers/workload")
-@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')")
+@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERVISOR')")
 public ResponseEntity<List<Map<String, Object>>> getSupportOfficerWorkload() {
     return ResponseEntity.ok(userService.getSupportOfficerWorkload());
 }

@@ -69,7 +69,7 @@
     </a>
 
     <!-- Team Workload - Admin + Supervisor -->
-    @if (authService.hasPermission('VIEW_TICKETS')) {
+    @if (isAdmin() || isSupervisor()) {
       <a routerLink="/team-workload"
          routerLinkActive="active"
          class="nav-item">

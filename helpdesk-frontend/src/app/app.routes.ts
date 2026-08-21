@@ -3,7 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { notAdminGuard } from './core/guards/not-admin.guard';
-
+import { supervisorAdminGuard } from './core/guards/supervisor-admin.guard';
 
 export const routes: Routes = [
   {
@@ -99,13 +99,13 @@ export const routes: Routes = [
       import('./features/roles/roles')
         .then(m => m.Roles)
   },
-{
-  path: 'categories',
-  canActivate: [authGuard, permissionGuard('VIEW_CATEGORIES')],
-  loadComponent: () =>
-    import('./features/categories/categories')
-      .then(m => m.Categories)
-},
+  {
+    path: 'categories',
+    canActivate: [authGuard, permissionGuard('VIEW_CATEGORIES')],
+    loadComponent: () =>
+      import('./features/categories/categories')
+        .then(m => m.Categories)
+  },
   {
     path: 'profile',
     canActivate: [authGuard],
@@ -121,12 +121,12 @@ export const routes: Routes = [
         .then(m => m.Notifications)
   },
   {
-  path: 'team-workload',
-  canActivate: [authGuard, permissionGuard('VIEW_TICKETS')],
-  loadComponent: () =>
-    import('./features/team-workload/team-workload')
-      .then(m => m.TeamWorkload)
-},
+    path: 'team-workload',
+    canActivate: [authGuard, supervisorAdminGuard],
+    loadComponent: () =>
+      import('./features/team-workload/team-workload')
+        .then(m => m.TeamWorkload)
+  },
   {
     path: '**',
     loadComponent: () =>
