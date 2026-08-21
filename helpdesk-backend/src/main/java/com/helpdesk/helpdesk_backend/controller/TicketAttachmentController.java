@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class TicketAttachmentController {
     private String uploadDir;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('CREATE_TICKET', 'ROLE_ADMIN')")
     public ResponseEntity<TicketAttachmentResponseDTO> uploadAttachment(
             @PathVariable Long ticketId,
             @RequestParam("file") MultipartFile file,
@@ -103,6 +105,7 @@ public class TicketAttachmentController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
     public ResponseEntity<List<TicketAttachmentResponseDTO>> 
         getAttachments(@PathVariable Long ticketId) {
 
@@ -121,6 +124,7 @@ public class TicketAttachmentController {
     }
 
     @GetMapping("/{attachmentId}/download")
+    @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
     public ResponseEntity<Resource> downloadAttachment(
             @PathVariable Long ticketId,
             @PathVariable Long attachmentId) {
@@ -167,6 +171,7 @@ public class TicketAttachmentController {
     }
 
     @DeleteMapping("/{attachmentId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteAttachment(
             @PathVariable Long ticketId,
             @PathVariable Long attachmentId) {

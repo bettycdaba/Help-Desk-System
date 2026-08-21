@@ -2,9 +2,11 @@
   <h1 class="page-title">
     <i class="bi bi-tag me-2"></i>Ticket Categories
   </h1>
+  @if (hasPermission('MANAGE_CATEGORIES')) {
   <button class="btn btn-primary" (click)="openAddForm()">
     <i class="bi bi-plus-circle me-2"></i>Add Category
   </button>
+  }
 </div>
 
 @if (showForm) {
@@ -89,14 +91,18 @@
               </td>
               <td>
                 <div class="d-flex gap-2">
+                  @if (hasPermission('MANAGE_CATEGORIES')) {
                   <button class="btn btn-sm btn-outline-primary"
                     (click)="openEditForm(cat)">
                     <i class="bi bi-pencil"></i>
                   </button>
+                  }
+                  @if (hasPermission('MANAGE_CATEGORIES')) {
                   <button class="btn btn-sm btn-outline-danger"
                     (click)="delete(cat)">
                     <i class="bi bi-trash"></i>
                   </button>
+                  }
                 </div>
               </td>
             </tr>

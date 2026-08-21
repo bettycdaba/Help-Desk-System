@@ -6,6 +6,7 @@ import com.helpdesk.helpdesk_backend.entity.Permission;
 import com.helpdesk.helpdesk_backend.entity.Role;
 import com.helpdesk.helpdesk_backend.repository.PermissionRepository;
 import com.helpdesk.helpdesk_backend.repository.RoleRepository;
+import com.helpdesk.helpdesk_backend.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class PermissionService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public RolePermissionsDTO getRolePermissions(Long roleId) {
         Role role = roleRepository.findById(roleId)
             .orElseThrow(() -> new RuntimeException("Role not found"));
@@ -48,9 +50,17 @@ public class PermissionService {
         Role role = roleRepository.findById(roleId)
             .orElseThrow(() -> new RuntimeException("Role not found"));
 
-        List<Permission> permissions = permissionRepository.findAllById(permissionIds);
+        if (permissionIds == null) {
+            throw new BadRequestException("Permission IDs are required.");
+        }
+
+        List<Long> distinctPermissionIds = permissionIds.stream().distinct().toList();
+        List<Permission> permissions = permissionRepository.findAllById(distinctPermissionIds);
+        if (permissions.size() != distinctPermissionIds.size()) {
+            throw new BadRequestException("One or more selected permissions do not exist.");
+        }
         role.setPermissions(new java.util.HashSet<>(permissions));
-        roleRepository.save(role);
+        roleRepository.saveAndFlush(role);
 
         return getRolePermissions(roleId);
     }

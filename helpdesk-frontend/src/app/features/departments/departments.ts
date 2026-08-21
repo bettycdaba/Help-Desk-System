@@ -8,6 +8,7 @@ import { ToastService }
   from '../../core/services/toast.service';
 import { Department } 
   from '../../core/models/department.model';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-departments',
@@ -31,11 +32,16 @@ export class Departments implements OnInit {
   constructor(
     private departmentService: DepartmentService,
     private toastService: ToastService,
+    public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadDepartments();
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.authService.hasPermission(permission);
   }
 
   loadDepartments(): void {

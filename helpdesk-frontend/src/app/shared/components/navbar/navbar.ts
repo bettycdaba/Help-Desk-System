@@ -238,5 +238,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
   isSupervisor(): boolean {
     return this.authService.isSupervisor();
-}
+  }
+
 }

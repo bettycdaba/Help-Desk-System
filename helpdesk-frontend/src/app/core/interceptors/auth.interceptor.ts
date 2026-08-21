@@ -18,9 +18,15 @@ export const authInterceptor: HttpInterceptorFn =
     path = rawUrl;
   }
 
-  const isAuthEndpoint = path.startsWith('/api/auth');
+  const isPublicAuthEndpoint = [
+    '/api/auth/login',
+    '/api/auth/register',
+    '/api/auth/forgot-password',
+    '/api/auth/reset-password',
+    '/api/auth/must-change-password'
+  ].some(endpoint => path.startsWith(endpoint));
 
-  if (token && !isAuthEndpoint) {
+  if (token && !isPublicAuthEndpoint) {
     const cloned = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)
     });

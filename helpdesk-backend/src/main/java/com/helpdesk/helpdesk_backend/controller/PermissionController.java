@@ -6,6 +6,7 @@ import com.helpdesk.helpdesk_backend.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -17,16 +18,19 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('MANAGE_PERMISSIONS', 'ROLE_ADMIN')")
     public ResponseEntity<List<PermissionDTO>> getAllPermissions() {
         return ResponseEntity.ok(permissionService.getAllPermissions());
     }
 
     @GetMapping("/role/{roleId}")
+    @PreAuthorize("hasAnyAuthority('MANAGE_PERMISSIONS', 'ROLE_ADMIN')")
     public ResponseEntity<RolePermissionsDTO> getRolePermissions(@PathVariable Long roleId) {
         return ResponseEntity.ok(permissionService.getRolePermissions(roleId));
     }
 
     @PutMapping("/role/{roleId}")
+    @PreAuthorize("hasAnyAuthority('MANAGE_PERMISSIONS', 'ROLE_ADMIN')")
     public ResponseEntity<RolePermissionsDTO> updateRolePermissions(
             @PathVariable Long roleId,
             @RequestBody List<Long> permissionIds) {

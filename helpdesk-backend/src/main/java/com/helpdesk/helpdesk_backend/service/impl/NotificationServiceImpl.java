@@ -10,6 +10,7 @@ import com.helpdesk.helpdesk_backend.repository.UserRepository;
 import com.helpdesk.helpdesk_backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -46,12 +47,14 @@ public class NotificationServiceImpl
 
     @Override
     @Transactional
-    public void markAsRead(Long notificationId) {
-        notificationRepository.findById(notificationId)
-                .ifPresent(n -> {
-                    n.setIsRead(true);
-                    notificationRepository.save(n);
-                });
+    public void markAsRead(Long notificationId, Long userId, boolean isAdmin) {
+        notificationRepository.findById(notificationId).ifPresent(n -> {
+            if (!isAdmin && !n.getUser().getId().equals(userId)) {
+                throw new AccessDeniedException("You cannot modify another user's notification.");
+            }
+            n.setIsRead(true);
+            notificationRepository.save(n);
+        });
     }
 
     @Override

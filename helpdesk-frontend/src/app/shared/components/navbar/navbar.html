@@ -22,6 +22,7 @@
       <span *ngIf="!isCollapsed">Dashboard</span>
     </a>
 
+    @if (authService.hasPermission('VIEW_TICKETS')) {
     <a routerLink="/tickets"
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: true }"
@@ -32,9 +33,10 @@
         @else { My Tickets }
       </span>
     </a>
+    }
 
     <!-- New Ticket - NOT for Admin -->
-    @if (isActive() && !isAdmin()) {
+    @if (isActive() && !isAdmin() && authService.hasPermission('CREATE_TICKET')) {
       <a routerLink="/tickets/new"
          routerLinkActive="active"
          class="nav-item">
@@ -67,7 +69,7 @@
     </a>
 
     <!-- Team Workload - Admin + Supervisor -->
-    @if (isAdmin() || isSupervisor()) {
+    @if (authService.hasPermission('VIEW_TICKETS')) {
       <a routerLink="/team-workload"
          routerLinkActive="active"
          class="nav-item">
@@ -77,38 +79,46 @@
     }
 
     <!-- Admin Section -->
-    @if (isAdmin()) {
+    @if (authService.hasPermission('VIEW_USERS') || authService.hasPermission('VIEW_DEPARTMENTS') || authService.hasPermission('VIEW_ROLES') || authService.hasPermission('VIEW_CATEGORIES')) {
       <div class="nav-section" *ngIf="!isCollapsed">
         ADMIN
       </div>
 
+      @if (authService.hasPermission('VIEW_USERS')) {
       <a routerLink="/users"
          routerLinkActive="active"
          class="nav-item">
         <i class="bi bi-people"></i>
         <span *ngIf="!isCollapsed">Users</span>
       </a>
+      }
 
+      @if (authService.hasPermission('VIEW_DEPARTMENTS')) {
       <a routerLink="/departments"
          routerLinkActive="active"
          class="nav-item">
         <i class="bi bi-building"></i>
         <span *ngIf="!isCollapsed">Departments</span>
       </a>
+      }
 
+      @if (authService.hasPermission('VIEW_ROLES')) {
       <a routerLink="/roles"
          routerLinkActive="active"
          class="nav-item">
         <i class="bi bi-shield-check"></i>
         <span *ngIf="!isCollapsed">Roles</span>
       </a>
+      }
 
+      @if (authService.hasPermission('VIEW_CATEGORIES')) {
       <a routerLink="/categories"
          routerLinkActive="active"
          class="nav-item">
         <i class="bi bi-tag"></i>
         <span *ngIf="!isCollapsed">Categories</span>
       </a>
+      }
     }
 
   </nav>

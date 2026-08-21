@@ -2,9 +2,11 @@
   <h1 class="page-title">
     <i class="bi bi-shield-check me-2"></i>Roles
   </h1>
+  @if (hasPermission('MANAGE_ROLES')) {
   <button class="btn btn-primary" (click)="openAddForm()">
     <i class="bi bi-plus-circle me-2"></i>Add Role
   </button>
+  }
 </div>
 
 <!-- Add/Edit Role Form -->
@@ -148,22 +150,28 @@
                 {{ role.description || '—' }}
               </td>
               <td>
+                @if (hasPermission('MANAGE_PERMISSIONS')) {
                 <button class="btn btn-sm btn-outline-info"
                   (click)="openPermissions(role)">
                   <i class="bi bi-shield-lock me-1"></i>
                   Permissions
                 </button>
+                }
               </td>
               <td>
                 <div class="d-flex gap-2">
+                  @if (hasPermission('MANAGE_ROLES')) {
                   <button class="btn btn-sm btn-outline-primary"
                     (click)="openEditForm(role)">
                     <i class="bi bi-pencil"></i>
                   </button>
+                  }
+                  @if (hasPermission('MANAGE_ROLES')) {
                   <button class="btn btn-sm btn-outline-danger"
                     (click)="delete(role)">
                     <i class="bi bi-trash"></i>
                   </button>
+                  }
                 </div>
               </td>
             </tr>

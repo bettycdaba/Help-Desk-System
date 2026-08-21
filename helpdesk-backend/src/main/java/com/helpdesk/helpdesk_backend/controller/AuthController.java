@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -61,13 +63,23 @@ public class AuthController {
         User user = (User) authentication.getPrincipal();
         String token = jwtUtil.generateToken(user);
 
-        LoginResponseDTO response = LoginResponseDTO.builder()
+        return ResponseEntity.ok(toLoginResponse(user, token, "Login successful"));
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<LoginResponseDTO> me(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(toLoginResponse(user, null, null));
+    }
+
+    private LoginResponseDTO toLoginResponse(User user, String token, String message) {
+        return LoginResponseDTO.builder()
                 .id(user.getId())
                 .token(token)
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .message("Login successful")
+                .message(message)
                 .roles(user.getRoles().stream()
                         .map(Role::getName)
                         .collect(java.util.stream.Collectors.toList()))
@@ -75,8 +87,6 @@ public class AuthController {
                         .map(grantedAuthority -> grantedAuthority.getAuthority())
                         .collect(java.util.stream.Collectors.toList()))
                 .build();
-
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/forgot-password")

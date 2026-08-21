@@ -290,12 +290,9 @@ export class TicketDetail implements OnInit, OnDestroy {
     return this.isAdmin() || this.isSupervisor();
   }
 
-  canUpdateStatus(): boolean {
-    if (this.isSupervisor()) {
-      return true;
-    }
+canUpdateStatus(): boolean {
     return this.isSupportOfficer() && this.isAssignedToMe();
-  }
+}
 
   canConfirmResolution(): boolean {
     return this.isEmployee()

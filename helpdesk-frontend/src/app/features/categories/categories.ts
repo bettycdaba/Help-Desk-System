@@ -8,6 +8,7 @@ import { ToastService }
   from '../../core/services/toast.service';
 import { TicketCategory } 
   from '../../core/models/category.model';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-categories',
@@ -31,11 +32,16 @@ export class Categories implements OnInit {
   constructor(
     private categoryService: CategoryService,
     private toastService: ToastService,
+    public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadCategories();
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.authService.hasPermission(permission);
   }
 
   loadCategories(): void {

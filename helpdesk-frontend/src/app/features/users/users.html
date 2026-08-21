@@ -2,9 +2,11 @@
   <h1 class="page-title">
     <i class="bi bi-people me-2"></i>Users
   </h1>
+  @if (hasPermission('CREATE_USER')) {
   <button class="btn btn-primary" (click)="openAddForm()">
     <i class="bi bi-person-plus me-2"></i>Add User
   </button>
+  }
 </div>
 
 @if (showForm) {
@@ -215,14 +217,18 @@
               </td>
               <td>
                 <div class="d-flex gap-2">
+                  @if (hasPermission('EDIT_USER')) {
                   <button class="btn btn-sm btn-outline-primary"
                     (click)="openEditForm(user)">
                     <i class="bi bi-pencil"></i>
                   </button>
+                  }
+                  @if (hasPermission('DELETE_USER')) {
                   <button class="btn btn-sm btn-outline-danger"
                     (click)="confirmDelete(user)">
                     <i class="bi bi-trash"></i>
                   </button>
+                  }
                 </div>
               </td>
             </tr>

@@ -11,6 +11,7 @@ import { ToastService }
 import { Role } from '../../core/models/role.model';
 import { Permission, RolePermissions } 
   from '../../core/models/permission.model';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-roles',
@@ -42,12 +43,19 @@ export class Roles implements OnInit {
     private roleService: RoleService,
     private permissionService: PermissionService,
     private toastService: ToastService,
+    public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadRoles();
-    this.loadPermissions();
+    if (this.hasPermission('MANAGE_PERMISSIONS')) {
+      this.loadPermissions();
+    }
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.authService.hasPermission(permission);
   }
 
   loadRoles(): void {

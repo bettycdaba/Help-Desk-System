@@ -76,6 +76,17 @@ export class AuthService {
     return permissions.includes(permission);
   }
 
+  refreshCurrentUser(): Observable<LoginResponse> {
+    const token = this.getToken();
+    return this.http.get<LoginResponse>(`${this.baseUrl}/auth/me`).pipe(
+      tap(response => {
+        const refreshed = { ...response, token: token || response.token };
+        localStorage.setItem('currentUser', JSON.stringify(refreshed));
+        this.currentUserSubject.next(refreshed);
+      })
+    );
+  }
+
   hasAnyPermission(permissions: string[]): boolean {
     return permissions.some(p => this.hasPermission(p));
   }

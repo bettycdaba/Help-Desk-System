@@ -16,6 +16,7 @@ import { Department }
 import { Role } from '../../core/models/role.model';
 import { ConfirmModal }
   from '../../shared/components/confirm-modal/confirm-modal';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-users',
@@ -60,14 +61,21 @@ export class Users implements OnInit {
     private userService: UserService,
     private departmentService: DepartmentService,
     private roleService: RoleService,
+    public authService: AuthService,
     private toastService: ToastService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadUsers();
-    this.loadDepartments();
-    this.loadRoles();
+    if (this.hasPermission('CREATE_USER') || this.hasPermission('EDIT_USER')) {
+      this.loadDepartments();
+      this.loadRoles();
+    }
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.authService.hasPermission(permission);
   }
 
   loadUsers(): void {
