@@ -66,14 +66,6 @@
       <span *ngIf="!isCollapsed">My Profile</span>
     </a>
 
-<!-- Categories - Admin Only -->
-@if (isAdmin()) {
-  <a routerLink="/categories" class="nav-item">
-    <i class="bi bi-tag"></i>
-    <span *ngIf="!isCollapsed">Categories</span>
-  </a>
-}
-
     <!-- Team Workload - Admin + Supervisor -->
     @if (isAdmin() || isSupervisor()) {
       <a routerLink="/team-workload"
@@ -109,6 +101,13 @@
          class="nav-item">
         <i class="bi bi-shield-check"></i>
         <span *ngIf="!isCollapsed">Roles</span>
+      </a>
+
+      <a routerLink="/categories"
+         routerLinkActive="active"
+         class="nav-item">
+        <i class="bi bi-tag"></i>
+        <span *ngIf="!isCollapsed">Categories</span>
       </a>
     }
 
