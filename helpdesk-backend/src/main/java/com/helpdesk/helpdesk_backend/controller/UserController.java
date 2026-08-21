@@ -69,14 +69,14 @@ public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/active")
-    @PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN')")
+@GetMapping("/active")
+@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')")
 public ResponseEntity<List<UserResponseDTO>> getActiveUsers() {
     return ResponseEntity.ok(userService.getActiveUsers());
 }
 
 @GetMapping("/support-officers")
-@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')")
 public ResponseEntity<List<UserResponseDTO>> getSupportOfficers() {
     return ResponseEntity.ok(userService.getActiveSupportOfficers());
 }

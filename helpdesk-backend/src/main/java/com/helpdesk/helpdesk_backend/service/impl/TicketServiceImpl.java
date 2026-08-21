@@ -295,115 +295,119 @@ public class TicketServiceImpl implements TicketService {
     // ASSIGN / REASSIGN TICKET
     // =========================================================
 
-    @Override
-    @Transactional
-    public TicketResponseDTO assignTicket(
-            Long id,
-            TicketAssignRequestDTO request) {
+ 
+   @Override
+@Transactional
+public TicketResponseDTO assignTicket(
+        Long id,
+        TicketAssignRequestDTO request) {
 
-        Ticket ticket = findTicketById(id);
+    Ticket ticket = findTicketById(id);
 
-        User newAssignee =
-                userRepository.findById(request.getNewAssigneeId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "User not found"));
+    User newAssignee =
+            userRepository.findById(request.getNewAssigneeId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "User not found"));
 
-        if (!newAssignee.getActive()) {
-            throw new BadRequestException(
-                    "Cannot assign to inactive user");
-        }
-
-        User assignedBy =
-                userRepository.findById(request.getAssignedById())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "User not found"));
-
-        boolean canAssign = assignedBy.getRoles()
-                .stream()
-                .anyMatch(role ->
-                        "SUPERVISOR".equals(role.getName())
-                                || "ADMIN".equals(role.getName())
-                );
-
-        if (!canAssign) {
-            throw new BadRequestException(
-                    "Only supervisors or administrators can assign tickets."
-            );
-        }
-
-        /*
-         * If the ticket was previously assigned,
-         * this is a reassignment.
-         *
-         * Otherwise the creator is used as the old reference
-         * for the initial assignment history.
-         */
-        User oldAssignee =
-                ticket.getAssignedTo() != null
-                        ? ticket.getAssignedTo()
-                        : ticket.getCreatedBy();
-
-        ticket.setAssignedTo(newAssignee);
-
-        /*
-         * Assignment automatically changes the status
-         * to ASSIGNED.
-         */
-        ticket.setStatus(TicketStatus.ASSIGNED);
-        ticket.setUpdatedAt(LocalDateTime.now());
-
-        Ticket saved = ticketRepository.save(ticket);
-
-        // WebSocket notification
-        webSocketNotificationService.notifyTicketUpdate(
-                "ASSIGNED",
-                mapToResponse(saved)
-        );
-
-        // Assignment history
-        TicketAssignmentHistory history =
-                TicketAssignmentHistory.builder()
-                        .ticket(saved)
-                        .oldAssignee(oldAssignee)
-                        .newAssignee(newAssignee)
-                        .assignedBy(assignedBy)
-                        .assignedAt(LocalDateTime.now())
-                        .build();
-
-        assignmentHistoryRepository.save(history);
-
-        // Notify assigned Support Officer
-        notificationService.createNotification(
-                newAssignee.getId(),
-                saved.getId(),
-                "Ticket " + saved.getTicketNumber()
-                        + " has been assigned to you by "
-                        + assignedBy.getFirstName()
-                        + " "
-                        + assignedBy.getLastName()
-                        + ".",
-                "assign"
-        );
-
-        // Email assigned Support Officer
-        emailService.sendTicketAssignedEmail(
-                newAssignee.getEmail(),
-                newAssignee.getFirstName()
-                        + " "
-                        + newAssignee.getLastName(),
-                saved.getTicketNumber(),
-                saved.getSubject(),
-                assignedBy.getFirstName()
-                        + " "
-                        + assignedBy.getLastName()
-        );
-
-        return mapToResponse(saved);
+    if (!newAssignee.getActive()) {
+        throw new BadRequestException(
+                "Cannot assign to inactive user");
     }
 
+    User assignedBy =
+            userRepository.findById(request.getAssignedById())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "User not found"));
 
+    boolean canAssign = assignedBy.getRoles()
+            .stream()
+            .anyMatch(role ->
+                    "SUPERVISOR".equals(role.getName())
+                            || "ADMIN".equals(role.getName())
+            );
+
+    if (!canAssign) {
+        throw new BadRequestException(
+                "Only supervisors or administrators can assign tickets."
+        );
+    }
+
+    User oldAssignee =
+            ticket.getAssignedTo() != null
+                    ? ticket.getAssignedTo()
+                    : ticket.getCreatedBy();
+
+    // Capture old status BEFORE changing
+    String oldStatus = ticket.getStatus().name();
+
+    ticket.setAssignedTo(newAssignee);
+    ticket.setStatus(TicketStatus.ASSIGNED);
+    ticket.setUpdatedAt(LocalDateTime.now());
+
+    Ticket saved = ticketRepository.save(ticket);
+
+    // WebSocket notification
+    webSocketNotificationService.notifyTicketUpdate(
+            "ASSIGNED",
+            mapToResponse(saved)
+    );
+
+    // Save assignment history
+    TicketAssignmentHistory history =
+            TicketAssignmentHistory.builder()
+                    .ticket(saved)
+                    .oldAssignee(oldAssignee)
+                    .newAssignee(newAssignee)
+                    .assignedBy(assignedBy)
+                    .assignedAt(LocalDateTime.now())
+                    .build();
+
+    assignmentHistoryRepository.save(history);
+
+    // =============================================
+    // SAVE STATUS HISTORY (OPEN → ASSIGNED)
+    // =============================================
+    TicketStatusHistory statusHistory =
+            TicketStatusHistory.builder()
+                    .ticket(saved)
+                    .oldStatus(oldStatus)
+                    .newStatus(TicketStatus.ASSIGNED.name())
+                    .changedBy(assignedBy)
+                    .changedAt(LocalDateTime.now())
+                    .build();
+
+    statusHistoryRepository.save(statusHistory);
+
+    // Notify assigned Support Officer
+    notificationService.createNotification(
+            newAssignee.getId(),
+            saved.getId(),
+            "Ticket " + saved.getTicketNumber()
+                    + " has been assigned to you by "
+                    + assignedBy.getFirstName()
+                    + " "
+                    + assignedBy.getLastName()
+                    + ".",
+            "assign"
+    );
+
+    // Email assigned Support Officer
+    emailService.sendTicketAssignedEmail(
+            newAssignee.getEmail(),
+            newAssignee.getFirstName()
+                    + " "
+                    + newAssignee.getLastName(),
+            saved.getTicketNumber(),
+            saved.getSubject(),
+            assignedBy.getFirstName()
+                    + " "
+                    + assignedBy.getLastName()
+    );
+
+    return mapToResponse(saved);
+}
     // =========================================================
     // REJECT TICKET
     // =========================================================
