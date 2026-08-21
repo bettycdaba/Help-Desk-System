@@ -7,6 +7,8 @@ import { TicketService }
   from '../../../core/services/ticket.service';
 import { CategoryService } 
   from '../../../core/services/category.service';
+import { UserService } 
+  from '../../../core/services/user.service';
 import { AuthService } 
   from '../../../core/services/auth.service';
 import { ToastService } 
@@ -29,6 +31,7 @@ export class TicketList implements OnInit {
   tickets: Ticket[] = [];
   filteredTickets: Ticket[] = [];
   categories: TicketCategory[] = [];
+  supportOfficers: any[] = [];
   isLoading = true;
 
   searchText = '';
@@ -44,6 +47,8 @@ export class TicketList implements OnInit {
 
   ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
 
+  showAssignDropdownForTicket: number | null = null;
+
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
     'PENDING', 'RESOLVED', 'CLOSED', 'REOPENED', 'UNASSIGNED'
@@ -53,6 +58,7 @@ export class TicketList implements OnInit {
   constructor(
     private ticketService: TicketService,
     private categoryService: CategoryService,
+    private userService: UserService,
     private authService: AuthService,
     private toastService: ToastService,
     private router: Router,
@@ -62,18 +68,54 @@ export class TicketList implements OnInit {
   ngOnInit(): void {
     this.loadTickets();
     this.loadCategories();
+    this.loadSupportOfficers();
   }
 
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }
+
   isSupervisor(): boolean {
-  return this.authService.isSupervisor();
-}
+    return this.authService.isSupervisor();
+  }
+
+  canAssignTicket(): boolean {
+    return this.isAdmin() || this.isSupervisor();
+  }
 
   getCurrentUserId(): number {
     const user = this.authService.getCurrentUser();
     return user?.id || 0;
+  }
+
+  loadSupportOfficers(): void {
+    this.userService.getSupportOfficerWorkload().subscribe({
+      next: (officers) => {
+        this.supportOfficers = officers;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
+  toggleAssignDropdown(ticketId: number): void {
+    this.showAssignDropdownForTicket = 
+      this.showAssignDropdownForTicket === ticketId ? null : ticketId;
+  }
+
+  assignTicket(ticket: Ticket, officerId: number): void {
+    this.ticketService.assign(ticket.id!, {
+      newAssigneeId: officerId,
+      assignedById: this.getCurrentUserId()
+    }).subscribe({
+      next: () => {
+        this.toastService.success('Ticket assigned successfully');
+        this.showAssignDropdownForTicket = null;
+        this.loadTickets();
+        this.loadSupportOfficers();
+      },
+      error: () => this.toastService.error('Failed to assign ticket')
+    });
   }
 
   canDeleteTicket(ticket: Ticket): boolean {
@@ -82,22 +124,21 @@ export class TicketList implements OnInit {
     return ticket.createdById === userId && ticket.assignedToId !== userId;
   }
 
-
   showExportModal = false;
-exportFileName = '';
+  exportFileName = '';
 
-openExportModal(): void {
+  openExportModal(): void {
     this.exportFileName = `tickets-report-${new Date().toISOString().slice(0, 10)}`;
     this.showExportModal = true;
     this.cdr.detectChanges();
-}
+  }
 
-closeExportModal(): void {
+  closeExportModal(): void {
     this.showExportModal = false;
     this.cdr.detectChanges();
-}
+  }
 
-exportToPDF(): void {
+  exportToPDF(): void {
     const data = this.displayTickets;
     
     if (data.length === 0) {
@@ -105,27 +146,17 @@ exportToPDF(): void {
       return;
     }
 
-    // Ask user for filename
-    const defaultName = `tickets-report-${new Date().toISOString().slice(0, 10)}`;
-    const customName = prompt('Enter filename for PDF export:', defaultName);
-    
-    if (customName === null) return; // User cancelled
-    
-    const finalName = customName.trim() || defaultName;
+    const finalName = this.exportFileName.trim() || 
+      `tickets-report-${new Date().toISOString().slice(0, 10)}`;
     const fileName = finalName.endsWith('.pdf') ? finalName : finalName + '.pdf';
 
     const doc = new jsPDF();
-
     doc.setFontSize(18);
     doc.setTextColor(30, 58, 95);
     doc.text('Help Desk - Ticket Report', 14, 20);
-
     doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
-    doc.text(
-      `Generated: ${new Date().toLocaleString()}  |  Total: ${data.length} tickets`,
-      14, 28
-    );
+    doc.text(`Generated: ${new Date().toLocaleString()}  |  Total: ${data.length} tickets`, 14, 28);
 
     autoTable(doc, {
       startY: 35,
@@ -145,8 +176,9 @@ exportToPDF(): void {
     });
 
     doc.save(fileName);
+    this.closeExportModal();
     this.toastService.success(`PDF exported as "${fileName}"`);
-}
+  }
 
   loadTickets(): void {
     this.isLoading = true;
@@ -217,44 +249,31 @@ exportToPDF(): void {
     });
   }
 
-get displayTickets(): Ticket[] {
-  const userId = this.getCurrentUserId();
-  
-  if (this.isAdmin() || this.isSupervisor()) {
-    switch (this.ticketView) {
-      case 'assigned':
-        return this.filteredTickets.filter(
-          t => t.assignedToId === userId
-        );
-
-      case 'unassigned':
-        return this.filteredTickets.filter(
-          t => !t.assignedToId
-        );
-
-      default:
-        return this.filteredTickets;
-    }
-  } else {
-    switch (this.ticketView) {
-      case 'assigned':
-        return this.filteredTickets.filter(
-          t => t.assignedToId === userId
-        );
-
-      case 'unassigned':
-        return this.filteredTickets.filter(
-          t => !t.assignedToId
-        );
-
-      default:
-        return this.filteredTickets.filter(
-          t => t.createdById === userId ||
-               t.assignedToId === userId
-        );
+  get displayTickets(): Ticket[] {
+    const userId = this.getCurrentUserId();
+    
+    if (this.isAdmin() || this.isSupervisor()) {
+      switch (this.ticketView) {
+        case 'assigned':
+          return this.filteredTickets.filter(t => t.assignedToId === userId);
+        case 'unassigned':
+          return this.filteredTickets.filter(t => !t.assignedToId);
+        default:
+          return this.filteredTickets;
+      }
+    } else {
+      switch (this.ticketView) {
+        case 'assigned':
+          return this.filteredTickets.filter(t => t.assignedToId === userId);
+        case 'unassigned':
+          return this.filteredTickets.filter(t => !t.assignedToId);
+        default:
+          return this.filteredTickets.filter(t => 
+            t.createdById === userId || t.assignedToId === userId
+          );
+      }
     }
   }
-}
 
   sortBy(column: string): void {
     if (this.sortColumn === column) {
@@ -270,14 +289,6 @@ get displayTickets(): Ticket[] {
     if (this.sortColumn !== column) return 'bi-arrow-down-up text-muted';
     return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
   }
-
-
-
-
-
-
-
-
 
   deleteTicket(ticket: Ticket, event: Event): void {
     event.stopPropagation();

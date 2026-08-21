@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 import java.util.List;
 
@@ -69,5 +70,9 @@ public ResponseEntity<List<UserResponseDTO>> getActiveUsers() {
 @GetMapping("/support-officers")
 public ResponseEntity<List<UserResponseDTO>> getSupportOfficers() {
     return ResponseEntity.ok(userService.getActiveSupportOfficers());
+}
+@GetMapping("/support-officers/workload")
+public ResponseEntity<List<Map<String, Object>>> getSupportOfficerWorkload() {
+    return ResponseEntity.ok(userService.getSupportOfficerWorkload());
 }
 }

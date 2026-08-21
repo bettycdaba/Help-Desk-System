@@ -5,6 +5,8 @@ import com.helpdesk.helpdesk_backend.dto.UserResponseDTO;
 
 import java.util.List;
 
+import java.util.Map;
+
 public interface UserService {
 
     UserResponseDTO createUser(UserRequestDTO request);
@@ -30,5 +32,7 @@ public interface UserService {
     List<UserResponseDTO> getActiveUsers();
 
     List<UserResponseDTO> getActiveSupportOfficers();
+
+    List<Map<String, Object>> getSupportOfficerWorkload();
     
 }

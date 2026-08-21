@@ -50,4 +50,7 @@ getActiveUsers(): Observable<User[]> {
 getSupportOfficers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.baseUrl}/support-officers`);
 }
+getSupportOfficerWorkload(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/support-officers/workload`);
+}
 }

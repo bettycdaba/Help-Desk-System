@@ -108,7 +108,6 @@
             No tickets found
           }
         </p>
-        <!-- Only show "Create New Ticket" when NOT in a specific tab -->
         @if (ticketView === 'all') {
           <a routerLink="/tickets/new" class="btn btn-primary btn-sm">Create New Ticket</a>
         }
@@ -152,11 +151,39 @@
               <td>{{ ticket.assignedToName || '—' }}</td>
               <td>{{ ticket.createdByName }}</td>
               <td>
-                @if (canDeleteTicket(ticket)) {
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteTicket(ticket, $event)" title="Delete Ticket">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                }
+                <div class="d-flex gap-2 position-relative">
+                  <!-- Assign Icon - Admin/Supervisor + Unassigned ticket -->
+                  @if (canAssignTicket() && !ticket.assignedToId) {
+                    <button class="btn btn-sm btn-outline-primary" 
+                            (click)="toggleAssignDropdown(ticket.id!); $event.stopPropagation()" 
+                            title="Assign Ticket">
+                      <i class="bi bi-person-plus"></i>
+                    </button>
+                    
+                    @if (showAssignDropdownForTicket === ticket.id) {
+                      <div class="assign-dropdown" (click)="$event.stopPropagation()">
+                        <div class="assign-dropdown-header">Select Support Officer</div>
+                        @for (officer of supportOfficers; track officer.id) {
+                          <button class="assign-option" (click)="assignTicket(ticket, officer.id)">
+                            {{ officer.firstName }} {{ officer.lastName }} ({{ officer.activeTicketCount }})
+                          </button>
+                        }
+                        @if (supportOfficers.length === 0) {
+                          <div class="text-muted small p-2">No support officers available</div>
+                        }
+                      </div>
+                    }
+                  }
+                  
+                  <!-- Delete Icon -->
+                  @if (canDeleteTicket(ticket)) {
+                    <button class="btn btn-sm btn-outline-danger" 
+                            (click)="deleteTicket(ticket, $event)" 
+                            title="Delete Ticket">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
           }
@@ -190,6 +217,7 @@
   </div>
 </div>
 
+<!-- Export PDF Modal -->
 @if (showExportModal) {
   <div class="export-modal-backdrop" (click)="closeExportModal()">
     <div class="export-modal" (click)="$event.stopPropagation()">

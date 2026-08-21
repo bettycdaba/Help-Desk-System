@@ -5,6 +5,7 @@ import com.helpdesk.helpdesk_backend.dto.UserResponseDTO;
 import com.helpdesk.helpdesk_backend.entity.Department;
 import com.helpdesk.helpdesk_backend.entity.Role;
 import com.helpdesk.helpdesk_backend.entity.User;
+import com.helpdesk.helpdesk_backend.entity.enums.TicketStatus;
 import com.helpdesk.helpdesk_backend.exception.BadRequestException;
 import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.DepartmentRepository;
@@ -19,10 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.helpdesk.helpdesk_backend.service.EmailService;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import java.util.Map;
+
+import com.helpdesk.helpdesk_backend.repository.TicketRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final TicketRepository ticketRepository;
 
    @Override
 @Transactional
@@ -309,6 +316,20 @@ public List<UserResponseDTO> getActiveSupportOfficers() {
             .stream()
             .map(this::mapToResponse)
             .collect(Collectors.toList());
+}
+
+@Override
+public List<Map<String, Object>> getSupportOfficerWorkload() {
+    return userRepository.findActiveSupportOfficers().stream().map(officer -> {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", officer.getId());
+        map.put("firstName", officer.getFirstName());
+        map.put("lastName", officer.getLastName());
+        map.put("activeTicketCount", ticketRepository.findByAssignedToId(officer.getId()).stream()
+                .filter(t -> t.getStatus() == TicketStatus.ASSIGNED || t.getStatus() == TicketStatus.IN_PROGRESS)
+                .count());
+        return map;
+    }).collect(Collectors.toList());
 }
 }
 

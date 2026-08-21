@@ -44,7 +44,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/departments").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/roles").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
-                
+                .requestMatchers("/api/users/support-officers/workload").authenticated()
+                .requestMatchers("/api/users/support-officers").authenticated()
+                .requestMatchers("/api/users/active").authenticated()
+                                
                 // ADD THIS LINE - Allow permissions endpoint for authenticated users
                 .requestMatchers("/api/permissions/**").authenticated()
                 
