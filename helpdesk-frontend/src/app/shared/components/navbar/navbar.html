@@ -33,7 +33,8 @@
       </span>
     </a>
 
-    @if (isActive()) {
+    <!-- New Ticket - NOT for Admin -->
+    @if (isActive() && !isAdmin()) {
       <a routerLink="/tickets/new"
          routerLinkActive="active"
          class="nav-item">
@@ -75,7 +76,7 @@
       </a>
     }
 
-    <!-- Team Workload - Supervisor Only -->
+    <!-- Team Workload - Admin + Supervisor -->
     @if (isAdmin() || isSupervisor()) {
       <a routerLink="/team-workload"
          routerLinkActive="active"

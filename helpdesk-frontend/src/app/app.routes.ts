@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { permissionGuard } from './core/guards/permission.guard';
+import { notAdminGuard } from './core/guards/not-admin.guard';
+
 
 export const routes: Routes = [
   {
@@ -64,7 +66,7 @@ export const routes: Routes = [
   },
   {
     path: 'tickets/new',
-    canActivate: [authGuard, permissionGuard('CREATE_TICKET')],
+    canActivate: [authGuard, permissionGuard('CREATE_TICKET'), notAdminGuard],
     loadComponent: () =>
       import('./features/tickets/ticket-create/ticket-create')
         .then(m => m.TicketCreate)
