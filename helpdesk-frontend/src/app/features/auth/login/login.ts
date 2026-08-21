@@ -65,12 +65,14 @@ export class Login {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage =
-          err?.status === 401 ||
-          err?.status === 403
-            ? 'Invalid email or password. Please try again.'
-            : err?.error?.message ||
-              'Login failed. Please try again.';
+        if (err?.error?.message) {
+          this.errorMessage = err.error.message;
+        } else if (err?.status === 401 || err?.status === 403) {
+          this.errorMessage = 'Invalid email or password. Please try again.';
+        } else {
+          this.errorMessage = 'Login failed. Please try again.';
+        }
+        
         this.cdr.detectChanges();
       }
     });
