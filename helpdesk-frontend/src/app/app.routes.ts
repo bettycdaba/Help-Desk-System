@@ -99,13 +99,13 @@ export const routes: Routes = [
       import('./features/roles/roles')
         .then(m => m.Roles)
   },
-  {
-    path: 'categories',
-    canActivate: [authGuard, permissionGuard('VIEW_CATEGORIES')],
-    loadComponent: () =>
-      import('./features/categories/categories')
-        .then(m => m.Categories)
-  },
+{
+  path: 'categories',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./features/categories/categories')
+      .then(m => m.Categories)
+},
   {
     path: 'profile',
     canActivate: [authGuard],
