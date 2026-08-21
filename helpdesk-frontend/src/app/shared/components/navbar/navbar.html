@@ -76,7 +76,7 @@
     }
 
     <!-- Team Workload - Supervisor Only -->
-    @if (isSupervisor()) {
+    @if (isAdmin() || isSupervisor()) {
       <a routerLink="/team-workload"
          routerLinkActive="active"
          class="nav-item">
