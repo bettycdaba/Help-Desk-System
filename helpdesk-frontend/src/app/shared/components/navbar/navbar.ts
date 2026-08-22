@@ -25,6 +25,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   currentUser: LoginResponse | null = null;
   isCollapsed = false;
+  isMobile = false;  // ← ADD THIS
 
   notifications: AppNotification[] = [];
   unreadCount = 0;
@@ -41,6 +42,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.checkScreenSize();  // ← ADD THIS
+
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (user?.id) {
@@ -60,6 +63,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopPolling();
+  }
+
+  // ← ADD THIS METHOD
+  @HostListener('window:resize')
+  checkScreenSize(): void {
+    this.isMobile = window.innerWidth < 768;
+    if (this.isMobile) {
+      this.isCollapsed = true;  // Start closed on mobile
+    } else {
+      this.isCollapsed = false;  // Start open on desktop
+    }
+    this.cdr.detectChanges();
   }
 
   startPolling(): void {
@@ -174,6 +189,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       case 'comment':  return 'bi-chat-dots-fill';
       case 'resolved': return 'bi-check-circle-fill';
       case 'new_ticket': return 'bi-plus-circle-fill';
+      case 'new_user': return 'bi-person-plus-fill';
       default:         return 'bi-bell-fill';
     }
   }
@@ -185,6 +201,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       case 'comment':  return 'icon-comment';
       case 'resolved': return 'icon-resolved';
       case 'new_ticket': return 'icon-new';
+      case 'new_user': return 'icon-new';
       default:         return 'icon-default';
     }
   }
@@ -236,8 +253,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
   isSupervisor(): boolean {
     return this.authService.isSupervisor();
   }
-
 }

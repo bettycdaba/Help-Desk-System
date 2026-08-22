@@ -6,7 +6,7 @@
 
   <div class="dashboard-header">
 
-    <div>
+    <div class="dashboard-title-section">
 
       <div class="eyebrow">
         HELP DESK
@@ -34,23 +34,25 @@
       </span>
 
       <button
+        type="button"
         class="action-btn"
         (click)="loadTickets()"
         [disabled]="isLoading">
 
         <i class="bi bi-arrow-clockwise"></i>
 
-        Refresh
+        <span>Refresh</span>
 
       </button>
 
       <button
+        type="button"
         class="action-btn primary"
         (click)="exportToPDF()">
 
         <i class="bi bi-file-earmark-pdf"></i>
 
-        Export
+        <span>Export</span>
 
       </button>
 
@@ -78,10 +80,12 @@
   } @else {
 
     <!-- =====================================================
-         STAT CARDS
+         STATISTICS
          ===================================================== -->
 
     <div class="stats-grid">
+
+      <!-- TOTAL / MY TICKETS -->
 
       <div class="stat-card">
 
@@ -102,13 +106,13 @@
         </div>
 
         <div class="stat-icon blue">
-
           <i class="bi bi-ticket-perforated"></i>
-
         </div>
 
       </div>
 
+
+      <!-- OPEN -->
 
       <div class="stat-card">
 
@@ -129,13 +133,13 @@
         </div>
 
         <div class="stat-icon orange">
-
           <i class="bi bi-folder2-open"></i>
-
         </div>
 
       </div>
 
+
+      <!-- ASSIGNED -->
 
       <div class="stat-card">
 
@@ -156,13 +160,13 @@
         </div>
 
         <div class="stat-icon purple">
-
           <i class="bi bi-person-check"></i>
-
         </div>
 
       </div>
 
+
+      <!-- IN PROGRESS -->
 
       <div class="stat-card">
 
@@ -183,13 +187,13 @@
         </div>
 
         <div class="stat-icon cyan">
-
           <i class="bi bi-arrow-repeat"></i>
-
         </div>
 
       </div>
 
+
+      <!-- RESOLVED -->
 
       <div class="stat-card">
 
@@ -210,9 +214,7 @@
         </div>
 
         <div class="stat-icon green">
-
           <i class="bi bi-check-circle"></i>
-
         </div>
 
       </div>
@@ -221,15 +223,12 @@
 
 
     <!-- =====================================================
-         MAIN CONTENT
+         MAIN DASHBOARD GRID
          ===================================================== -->
 
     <div class="dashboard-grid">
 
-
-      <!-- =================================================
-           STATUS CHART
-           ================================================= -->
+      <!-- TICKET STATUS -->
 
       <div class="dashboard-card status-card">
 
@@ -258,9 +257,7 @@
       </div>
 
 
-      <!-- =================================================
-           PRIORITY
-           ================================================= -->
+      <!-- PRIORITY OVERVIEW -->
 
       <div class="dashboard-card">
 
@@ -297,7 +294,6 @@
 
     <div class="dashboard-grid secondary">
 
-
       <!-- PRIORITY SUMMARY -->
 
       <div class="dashboard-card">
@@ -321,14 +317,13 @@
 
         <div class="priority-list">
 
-
           <div class="priority-item">
 
             <div class="priority-name">
 
               <span class="priority-dot critical"></span>
 
-              Critical
+              <span>Critical</span>
 
             </div>
 
@@ -345,7 +340,7 @@
 
               <span class="priority-dot high"></span>
 
-              High
+              <span>High</span>
 
             </div>
 
@@ -362,7 +357,7 @@
 
               <span class="priority-dot medium"></span>
 
-              Medium
+              <span>Medium</span>
 
             </div>
 
@@ -379,7 +374,7 @@
 
               <span class="priority-dot low"></span>
 
-              Low
+              <span>Low</span>
 
             </div>
 
@@ -388,7 +383,6 @@
             </strong>
 
           </div>
-
 
         </div>
 
@@ -419,14 +413,11 @@
 
 
         <div class="attention-number">
-
           {{ needsAttention }}
-
         </div>
 
 
         <div class="attention-items">
-
 
           <div>
 
@@ -468,7 +459,6 @@
             </strong>
 
           </div>
-
 
         </div>
 
@@ -560,9 +550,7 @@
 
                 <span
                   class="badge"
-                  [ngClass]="
-                    getPriorityClass(ticket.priority)
-                  ">
+                  [ngClass]="getPriorityClass(ticket.priority)">
 
                   {{ ticket.priority }}
 
@@ -571,9 +559,7 @@
 
                 <span
                   class="badge"
-                  [ngClass]="
-                    getStatusClass(ticket.status)
-                  ">
+                  [ngClass]="getStatusClass(ticket.status)">
 
                   {{ ticket.status }}
 
@@ -581,11 +567,8 @@
 
 
                 <span class="ticket-time">
-
                   {{ timeAgo(ticket.createdAt) }}
-
                 </span>
-
 
                 <i class="bi bi-chevron-right"></i>
 
@@ -613,12 +596,10 @@
         class="quick-action">
 
         <div class="quick-icon blue">
-
           <i class="bi bi-plus-lg"></i>
-
         </div>
 
-        <div>
+        <div class="quick-action-content">
 
           <strong>
             Create Ticket
@@ -630,7 +611,7 @@
 
         </div>
 
-        <i class="bi bi-arrow-right"></i>
+        <i class="bi bi-arrow-right quick-arrow"></i>
 
       </a>
 
@@ -640,57 +621,49 @@
         class="quick-action">
 
         <div class="quick-icon purple">
-
           <i class="bi bi-ticket-perforated"></i>
-
         </div>
 
-        <div>
+        <div class="quick-action-content">
 
           <strong>
             View Tickets
           </strong>
 
           <span>
-            Browse and manage your tickets
+            Browse and manage tickets
           </span>
 
         </div>
 
-        <i class="bi bi-arrow-right"></i>
+        <i class="bi bi-arrow-right quick-arrow"></i>
 
       </a>
 
 
-      @if (isAdmin()) {
+      <a
+        routerLink="/profile"
+        class="quick-action">
 
-        <a
-          routerLink="/users"
-          class="quick-action">
+        <div class="quick-icon green">
+          <i class="bi bi-person"></i>
+        </div>
 
-          <div class="quick-icon green">
+        <div class="quick-action-content">
 
-            <i class="bi bi-people"></i>
+          <strong>
+            My Profile
+          </strong>
 
-          </div>
+          <span>
+            View and update your profile
+          </span>
 
-          <div>
+        </div>
 
-            <strong>
-              Manage Users
-            </strong>
+        <i class="bi bi-arrow-right quick-arrow"></i>
 
-            <span>
-              Manage help desk users
-            </span>
-
-          </div>
-
-          <i class="bi bi-arrow-right"></i>
-
-        </a>
-
-      }
+      </a>
 
     </div>
 
