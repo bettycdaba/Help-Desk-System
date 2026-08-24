@@ -1,7 +1,55 @@
+/* =========================================================
+   APPLICATION LAYOUT
+   ========================================================= */
+
 .main-content {
   margin-left: 250px;
   min-height: 100vh;
+  width: calc(100% - 250px);
+
   background-color: #f0f2f5;
+
   padding: 24px;
-  transition: margin-left 0.3s ease;
+  box-sizing: border-box;
+
+  transition:
+    margin-left 0.3s ease,
+    width 0.3s ease,
+    padding 0.3s ease;
+
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 576px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 16px 12px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+  .main-content {
+    padding: 12px 10px;
+  }
 }
