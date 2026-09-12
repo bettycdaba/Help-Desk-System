@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +21,7 @@ public class RoleRequestDTO {
 
     @Size(max = 255, message = "Description cannot exceed 255 characters")
     private String description;
+
+    @Builder.Default
+    private Set<Long> permissionIds = Set.of();
 }

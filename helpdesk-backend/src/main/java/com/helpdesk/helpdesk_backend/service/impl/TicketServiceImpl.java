@@ -213,6 +213,12 @@ public class TicketServiceImpl implements TicketService {
 
         Ticket ticket = findTicketById(id);
 
+        if (ticket.getStatus() == TicketStatus.CLOSED) {
+    throw new BadRequestException(
+        "Closed tickets cannot be edited."
+    );
+}
+
         validateReopenedTicketFields(
                 ticket,
                 request.getSubject(),
@@ -261,6 +267,12 @@ public class TicketServiceImpl implements TicketService {
             TicketUpdateDTO request) {
 
         Ticket ticket = findTicketById(id);
+
+        if (ticket.getStatus() == TicketStatus.CLOSED) {
+        throw new BadRequestException(
+                "Closed tickets cannot be edited."
+        );
+        }
 
         validateReopenedTicketFields(
                 ticket,
