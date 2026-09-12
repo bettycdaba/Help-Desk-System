@@ -1,8 +1,13 @@
 @if (showSidebar) {
-  <app-navbar></app-navbar>
+  <app-navbar
+    (sidebarStateChange)="onSidebarStateChange($event)">
+  </app-navbar>
 }
 
-<div [class.main-content]="showSidebar">
+<div
+  [class.main-content]="showSidebar"
+  [class.expanded]="sidebarCollapsed"
+>
   <router-outlet></router-outlet>
 </div>
 

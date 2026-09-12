@@ -1,6 +1,8 @@
 import {
   Component, OnInit, OnDestroy,
-  ChangeDetectorRef, HostListener
+  ChangeDetectorRef, HostListener,
+   Output,
+  EventEmitter
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive }
   from '@angular/router';
@@ -25,7 +27,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   currentUser: LoginResponse | null = null;
   isCollapsed = false;
-  isMobile = false;  // ← ADD THIS
+  isMobile = false;  
+  @Output() sidebarStateChange = new EventEmitter<boolean>();
 
   notifications: AppNotification[] = [];
   unreadCount = 0;
@@ -68,12 +71,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // ← ADD THIS METHOD
   @HostListener('window:resize')
   checkScreenSize(): void {
-    this.isMobile = window.innerWidth < 768;
-    if (this.isMobile) {
-      this.isCollapsed = true;  // Start closed on mobile
-    } else {
-      this.isCollapsed = false;  // Start open on desktop
-    }
+    this.isMobile = window.innerWidth < 993;
     this.cdr.detectChanges();
   }
 
@@ -247,6 +245,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;
+    this.sidebarStateChange.emit(this.isCollapsed);
   }
 
   logout(): void {

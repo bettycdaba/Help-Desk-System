@@ -1,55 +1,35 @@
-/* =========================================================
-   APPLICATION LAYOUT
-   ========================================================= */
-
 .main-content {
   margin-left: 250px;
+  width: auto;
   min-height: 100vh;
-  width: calc(100% - 250px);
-
-  background-color: #f0f2f5;
-
-  padding: 24px;
+  padding: 84px 24px 24px;
   box-sizing: border-box;
-
-  transition:
-    margin-left 0.3s ease,
-    width 0.3s ease,
-    padding 0.3s ease;
-
-  overflow-x: hidden;
+  background: #f0f2f5;
+  transition: margin-left 0.3s ease, padding 0.3s ease;
 }
 
-/* =========================================================
-   TABLET
-   ========================================================= */
-
+.main-content.expanded {
+  margin-left: 70px;
+}
 @media (max-width: 992px) {
-  .main-content {
+  .main-content,
+  .main-content.expanded {
     margin-left: 0;
     width: 100%;
-    padding: 20px;
+    padding: 80px 20px 20px;
   }
 }
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 576px) {
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-    padding: 16px 12px;
+@media (max-width: 767px) {
+  .main-content,
+  .main-content.expanded {
+    padding: 72px 16px 16px;
   }
 }
-
-/* =========================================================
-   VERY SMALL PHONES
-   ========================================================= */
 
 @media (max-width: 380px) {
-  .main-content {
-    padding: 12px 10px;
+  .main-content,
+  .main-content.expanded {
+    padding: 68px 10px 12px;
   }
 }

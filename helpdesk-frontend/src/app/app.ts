@@ -28,6 +28,11 @@ import { AuthService }
 export class App implements OnInit, OnDestroy {
   title = 'helpdesk-frontend';
   showSidebar = false;
+  sidebarCollapsed = false;
+
+  onSidebarStateChange(collapsed: boolean): void {
+  this.sidebarCollapsed = collapsed;
+}
 
   private hiddenRoutes = [
     '/home',
