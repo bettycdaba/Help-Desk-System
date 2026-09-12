@@ -1,0 +1,222 @@
+/* =========================================
+   USERS PAGE
+   ========================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+
+/* =========================================
+   USER FORM
+   ========================================= */
+
+.card {
+  width: 100%;
+  min-width: 0;
+}
+
+.card-body {
+  min-width: 0;
+}
+
+.form-control,
+.form-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.card-footer {
+  flex-wrap: wrap;
+}
+
+
+/* =========================================
+   SEARCH + FILTER
+   ========================================= */
+
+.users-header-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.users-search {
+  width: 200px;
+}
+
+.users-department-filter {
+  width: 180px;
+}
+
+
+/* =========================================
+   TABLE
+   ========================================= */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  min-width: 900px;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+.table td {
+  overflow-wrap: anywhere;
+}
+
+.table td:last-child {
+  white-space: nowrap;
+}
+
+.table .badge {
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   EMPTY STATE
+   ========================================= */
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+.empty-state i {
+  display: block;
+  font-size: 42px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 992px) {
+
+  .page-header {
+    align-items: flex-start;
+  }
+
+  .users-search {
+    width: 180px;
+  }
+
+  .users-department-filter {
+    width: 170px;
+  }
+
+  .table {
+    min-width: 850px;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 767px) {
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .card-header {
+    padding: 14px;
+  }
+
+  .card-header > .d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .users-header-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .users-search,
+  .users-department-filter {
+    width: 100%;
+  }
+
+  .card-footer {
+    padding: 14px;
+  }
+
+  .card-footer .btn {
+    flex: 1;
+  }
+
+  .table {
+    min-width: 850px;
+  }
+}
+
+
+/* =========================================
+   SMALL PHONES
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .card-header {
+    padding: 12px;
+  }
+
+  .card-footer {
+    flex-direction: column;
+  }
+
+  .card-footer .btn {
+    width: 100%;
+  }
+
+  .table {
+    min-width: 800px;
+  }
+}
