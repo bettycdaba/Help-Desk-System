@@ -234,14 +234,6 @@
                       <i class="bi bi-pencil"></i>
                     </button>
                   }
-
-                  @if (hasPermission('DELETE_USER')) {
-                    <button
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="confirmDelete(user)">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  }
                 </div>
               </td>
             </tr>
@@ -251,9 +243,3 @@
     </div>
   }
 </div>
-<app-confirm-modal
-  [isVisible]="showDeleteModal"
-  [message]="deleteModalMessage"
-  (confirmed)="onDeleteConfirmed()"
-  (cancelled)="onDeleteCancelled()">
-</app-confirm-modal>

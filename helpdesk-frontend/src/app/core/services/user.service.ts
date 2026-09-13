@@ -34,10 +34,6 @@ export class UserService {
     return this.http.patch<User>(`${this.baseUrl}/${id}`, user);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
-  }
-
   updateWithoutPassword(id: number, user: User): Observable<User> {
   const payload = { ...user };
   delete payload.password;

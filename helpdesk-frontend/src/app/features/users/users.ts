@@ -14,14 +14,12 @@ import { User } from '../../core/models/user.model';
 import { Department }
   from '../../core/models/department.model';
 import { Role } from '../../core/models/role.model';
-import { ConfirmModal }
-  from '../../shared/components/confirm-modal/confirm-modal';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmModal],
+  imports: [CommonModule, FormsModule],
   templateUrl: './users.html',
   styleUrl: './users.css'
 })
@@ -40,10 +38,6 @@ export class Users implements OnInit {
   selectedDepartment = '';
 
   editingId: number | null = null;
-
-  showDeleteModal = false;
-  deleteModalMessage = '';
-  userToDelete: User | null = null;
 
   form = {
     employeeId: '',
@@ -316,40 +310,5 @@ export class Users implements OnInit {
         }
       });
     }
-  }
-
-  confirmDelete(user: User): void {
-    this.userToDelete = user;
-    this.deleteModalMessage =
-      `Are you sure you want to delete "${user.firstName} ${user.lastName}"? This action cannot be undone.`;
-    this.showDeleteModal = true;
-    this.cdr.detectChanges();
-  }
-
-  onDeleteConfirmed(): void {
-    if (!this.userToDelete) return;
-    this.showDeleteModal = false;
-
-    this.userService.delete(this.userToDelete.id!).subscribe({
-      next: () => {
-        this.users = this.users.filter(
-          u => u.id !== this.userToDelete!.id);
-        this.userToDelete = null;
-        this.toastService.success(
-          'User deleted successfully');
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.toastService.error('Failed to delete user');
-        this.userToDelete = null;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  onDeleteCancelled(): void {
-    this.showDeleteModal = false;
-    this.userToDelete = null;
-    this.cdr.detectChanges();
   }
 }

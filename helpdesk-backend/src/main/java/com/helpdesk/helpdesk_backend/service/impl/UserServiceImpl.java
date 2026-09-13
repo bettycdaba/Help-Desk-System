@@ -165,15 +165,6 @@ public class UserServiceImpl implements UserService {
         return mapToResponse(userRepository.save(user));
     }
 
-    @Override
-    @Transactional
-    public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with id: " + id));
-        userRepository.delete(user);
-    }
-
     private Set<Role> resolveRoles(Set<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
             return new HashSet<>();

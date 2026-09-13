@@ -62,13 +62,6 @@ public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('DELETE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
-
 @GetMapping("/active")
 @PreAuthorize("hasAnyAuthority('VIEW_USERS', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')")
 public ResponseEntity<List<UserResponseDTO>> getActiveUsers() {
