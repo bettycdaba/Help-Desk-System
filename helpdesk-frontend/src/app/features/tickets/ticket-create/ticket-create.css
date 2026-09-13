@@ -1,3 +1,41 @@
+/* ================================
+   TICKET CREATE
+================================ */
+
+.ticket-create-layout {
+  align-items: flex-start;
+}
+
+.ticket-form-column,
+.ticket-side-column {
+  min-width: 0;
+}
+
+.ticket-form-column .card,
+.ticket-side-column .card {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ================================
+   FORM
+================================ */
+
+.form-control,
+.form-select {
+  max-width: 100%;
+  min-width: 0;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ================================
+   TIPS
+================================ */
+
 .tips-list {
   list-style: none;
   padding: 0;
@@ -18,6 +56,10 @@
   border-bottom: none;
 }
 
+/* ================================
+   DROP ZONE
+================================ */
+
 .drop-zone {
   border: 2px dashed #c0cce0;
   border-radius: 12px;
@@ -26,6 +68,9 @@
   cursor: pointer;
   transition: all 0.2s;
   background: #f8f9ff;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .drop-zone:hover {
@@ -52,10 +97,17 @@
   margin-bottom: 4px;
 }
 
+/* ================================
+   SELECTED FILES
+================================ */
+
 .selected-files {
+  width: 100%;
+  max-width: 100%;
   border: 1px solid #e0e6f0;
   border-radius: 10px;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .file-item {
@@ -65,6 +117,7 @@
   padding: 10px 14px;
   border-bottom: 1px solid #f0f0f0;
   background: white;
+  min-width: 0;
 }
 
 .file-item:last-child {
@@ -79,6 +132,7 @@
 .file-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -98,4 +152,149 @@
 .remove-file {
   flex-shrink: 0;
   padding: 2px 6px;
+}
+
+/* ================================
+   FORM FOOTER
+================================ */
+
+.ticket-form-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 991px) {
+  .ticket-create-layout {
+    --bs-gutter-y: 1rem;
+  }
+
+  .ticket-side-column {
+    margin-top: 0;
+  }
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 767px) {
+  .ticket-create-layout {
+    --bs-gutter-x: 0;
+  }
+
+  .ticket-form-column,
+  .ticket-side-column {
+    width: 100%;
+  }
+
+  .card-header {
+    padding: 14px 16px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .ticket-form-footer {
+    padding: 14px 16px;
+  }
+
+  .ticket-form-footer .btn {
+    flex: 1 1 140px;
+  }
+
+  .drop-zone {
+    padding: 26px 14px;
+  }
+
+  .drop-icon {
+    font-size: 32px;
+  }
+
+  .drop-text {
+    font-size: 13px;
+  }
+
+  .file-item {
+    padding: 10px;
+    gap: 8px;
+  }
+}
+
+/* ================================
+   SMALL MOBILE
+================================ */
+
+@media (max-width: 480px) {
+  .card-body {
+    padding: 14px;
+  }
+
+  .ticket-form-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ticket-form-footer .btn {
+    width: 100%;
+    flex: none;
+  }
+
+  .drop-zone {
+    padding: 22px 10px;
+  }
+
+  .drop-text {
+    line-height: 1.5;
+  }
+
+  .drop-zone small {
+    display: block;
+    line-height: 1.5;
+  }
+
+  .file-item {
+    align-items: center;
+  }
+
+  .file-name {
+    font-size: 12px;
+  }
+
+  .remove-file {
+    padding: 2px 5px;
+  }
+}
+
+/* ================================
+   VERY SMALL SCREENS
+================================ */
+
+@media (max-width: 380px) {
+  .card-body {
+    padding: 12px;
+  }
+
+  .ticket-form-footer {
+    padding: 12px;
+  }
+
+  .drop-zone {
+    padding: 20px 8px;
+  }
+
+  .drop-icon {
+    font-size: 28px;
+  }
+
+  .file-item {
+    gap: 6px;
+    padding: 9px;
+  }
 }

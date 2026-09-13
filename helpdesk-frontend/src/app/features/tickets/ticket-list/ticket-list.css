@@ -1,55 +1,86 @@
-.ticket-number {
-  font-family: monospace;
-  font-size: 12px;
-  background: #e8f0fe;
-  padding: 4px 10px;
-  border-radius: 4px;
-  color: #1a73e8;
+/* =========================================
+   TICKET LIST
+   ========================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
   font-weight: 600;
-  transition: all 0.2s ease;
-  border: 1px solid #d2e3fc;
 }
 
-.clickable-row {
-  cursor: pointer;
-  transition: all 0.15s ease;
+
+/* =========================================
+   FILTERS
+   ========================================= */
+
+.ticket-filters {
+  width: 100%;
 }
 
-.clickable-row:hover {
-  background-color: #f0f7ff !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+.ticket-filters .form-control,
+.ticket-filters .form-select {
+  width: 100%;
+  min-width: 0;
 }
 
-.clickable-row:hover .ticket-number {
-  background: #1a73e8;
-  color: white;
-  border-color: #1a73e8;
-  box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+
+/* =========================================
+   TABS
+   ========================================= */
+
+.ticket-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 16px;
 }
 
-.clickable-row:active {
-  transform: translateY(0);
+
+/* =========================================
+   TABLE WRAPPER
+   ========================================= */
+
+.ticket-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
-.clickable-row:focus {
-  outline: 2px solid #1a73e8;
-  outline-offset: -2px;
-}
-/* Delete button styling */
-.btn-outline-danger {
-  padding: 2px 8px;
-  font-size: 14px;
+.ticket-table {
+  min-width: 1050px;
+  margin-bottom: 0;
 }
 
-.btn-outline-danger:hover {
-  background-color: #dc3545;
-  color: white;
+.ticket-table th,
+.ticket-table td {
+  vertical-align: middle;
 }
 
-/* Prevent row click when clicking delete button */
-.clickable-row td:last-child {
-  cursor: default;
+.ticket-table th {
+  white-space: nowrap;
 }
+
+.ticket-table td {
+  overflow-wrap: anywhere;
+}
+
+.ticket-table td:last-child {
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   SORTABLE HEADERS
+   ========================================= */
 
 .sortable {
   cursor: pointer;
@@ -66,6 +97,11 @@
   margin-left: 4px;
 }
 
+
+/* =========================================
+   TICKET NUMBER
+   ========================================= */
+
 .ticket-number {
   font-family: monospace;
   font-size: 12px;
@@ -75,120 +111,82 @@
   color: #1a73e8;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  border: 1px solid #d2e3fc;
+  white-space: nowrap;
 }
 
 .ticket-number:hover {
   background: #1a73e8;
   color: white;
+  border-color: #1a73e8;
 }
+
+
+/* =========================================
+   CLICKABLE ROW
+   ========================================= */
 
 .clickable-row {
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s ease;
 }
 
 .clickable-row:hover {
   background-color: #f8f9fa;
 }
 
-.export-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(6px);
+.clickable-row:focus {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+}
+
+.clickable-row td:last-child {
+  cursor: default;
+}
+
+
+/* =========================================
+   ACTION BUTTONS
+   ========================================= */
+
+.ticket-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 99999;
-  padding: 20px;
-  animation: fadeIn 0.2s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.export-modal {
-  background: white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
-  animation: slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
-  overflow: hidden;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.export-modal-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px 24px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.export-modal-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: #ffebee;
-  color: #dc3545;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-.export-modal-header h4 {
-  margin: 0;
-  flex: 1;
-  font-size: 17px;
-  font-weight: 700;
-  color: #1e3a5f;
-}
-
-.export-modal-close {
-  background: none;
-  border: none;
-  color: #999;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.export-modal-body {
-  padding: 20px 24px;
-}
-
-.export-modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-/* Assign Dropdown */
-.position-relative {
+  gap: 8px;
   position: relative;
 }
 
+.ticket-actions .btn {
+  flex-shrink: 0;
+}
+
+.btn-outline-danger {
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+
+/* =========================================
+   ASSIGN DROPDOWN
+   ========================================= */
+
 .assign-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   right: 0;
-  z-index: 100;
+  z-index: 1000;
+  width: 220px;
+  max-width: calc(100vw - 24px);
   background: white;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  min-width: 220px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
 }
 
@@ -210,8 +208,9 @@
   text-align: left;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s ease;
   border-bottom: 1px solid #f5f5f5;
+  overflow-wrap: anywhere;
 }
 
 .assign-option:hover {
@@ -220,4 +219,273 @@
 
 .assign-option:last-child {
   border-bottom: none;
+}
+
+
+/* =========================================
+   PAGINATION
+   ========================================= */
+
+.ticket-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ticket-pagination nav {
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   EMPTY STATE
+   ========================================= */
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+.empty-state i {
+  display: block;
+  font-size: 42px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin-bottom: 16px;
+}
+
+
+/* =========================================
+   EXPORT MODAL
+   ========================================= */
+
+.export-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.export-modal {
+  background: white;
+  border-radius: 16px;
+  width: min(400px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.export-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.export-modal-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 10px;
+  background: #ffebee;
+  color: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.export-modal-header h4 {
+  margin: 0;
+  flex: 1;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e3a5f;
+}
+
+.export-modal-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.export-modal-body {
+  padding: 20px 24px;
+}
+
+.export-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 992px) {
+
+  .page-header {
+    align-items: flex-start;
+  }
+
+  .ticket-table {
+    min-width: 1000px;
+  }
+
+  .ticket-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    padding-bottom: 4px;
+  }
+
+  .ticket-tabs .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 767px) {
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .page-header > .d-flex {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .page-header > .d-flex .btn {
+    width: 100%;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .ticket-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .ticket-table {
+    min-width: 950px;
+  }
+
+  .ticket-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ticket-pagination nav {
+    align-self: center;
+  }
+
+  .export-modal-backdrop {
+    padding: 12px;
+  }
+
+  .export-modal {
+    border-radius: 12px;
+    max-height: calc(100vh - 24px);
+  }
+
+  .export-modal-header {
+    padding: 16px;
+  }
+
+  .export-modal-body {
+    padding: 16px;
+  }
+
+  .export-modal-footer {
+    padding: 14px 16px;
+    flex-direction: column-reverse;
+  }
+
+  .export-modal-footer .btn {
+    width: 100%;
+  }
+
+  .assign-dropdown {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    width: min(300px, calc(100vw - 24px));
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}
+
+
+/* =========================================
+   SMALL PHONES
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .ticket-table {
+    min-width: 900px;
+  }
+
+  .export-modal-header h4 {
+    font-size: 15px;
+  }
 }

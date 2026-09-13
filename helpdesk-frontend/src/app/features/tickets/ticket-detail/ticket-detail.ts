@@ -1,5 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } 
-  from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ChangeDetectorRef,
+  ElementRef,
+  ViewChild,
+  HostListener
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } 
@@ -30,7 +38,7 @@ import { AuthService }
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css'
 })
-export class TicketDetail implements OnInit, OnDestroy {
+export class TicketDetail implements OnInit, OnDestroy, AfterViewInit {
 
   ticket: Ticket | null = null;
   comments: TicketComment[] = [];
@@ -52,6 +60,7 @@ export class TicketDetail implements OnInit, OnDestroy {
   isRejecting = false;
   showRejectModal = false;
   rejectionReason = '';
+  
 
   // Edit ticket form
   isEditingTicket = false;
@@ -64,6 +73,11 @@ export class TicketDetail implements OnInit, OnDestroy {
   };
 
   activeTab = 'comments';
+
+@ViewChild('ticketTabsScroll')
+ticketTabsScroll?: ElementRef<HTMLDivElement>;
+  showLeftTabIndicator = false;
+  showRightTabIndicator = false;
 
   attachments: any[] = [];
   isUploadingFile = false;
@@ -239,6 +253,51 @@ export class TicketDetail implements OnInit, OnDestroy {
       .includes(fileType?.toLowerCase());
   }
 
+  ngAfterViewInit(): void {
+  setTimeout(() => {
+    this.updateTabScrollState();
+  });
+}
+
+@HostListener('window:resize')
+onWindowResize(): void {
+  setTimeout(() => {
+    this.updateTabScrollState();
+  });
+}
+
+updateTabScrollState(): void {
+  const tabs = this.ticketTabsScroll?.nativeElement;
+
+  if (!tabs) {
+    return;
+  }
+
+  const maxScroll = tabs.scrollWidth - tabs.clientWidth;
+
+  this.showLeftTabIndicator = tabs.scrollLeft > 4;
+  this.showRightTabIndicator = maxScroll - tabs.scrollLeft > 4;
+}
+
+scrollTabs(direction: 'left' | 'right'): void {
+  const tabs = this.ticketTabsScroll?.nativeElement;
+
+  if (!tabs) {
+    return;
+  }
+
+  const amount = Math.max(160, tabs.clientWidth * 0.6);
+
+  tabs.scrollBy({
+    left: direction === 'right' ? amount : -amount,
+    behavior: 'smooth'
+  });
+
+  setTimeout(() => {
+    this.updateTabScrollState();
+  }, 300);
+}
+  
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }

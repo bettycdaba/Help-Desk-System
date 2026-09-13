@@ -1,9 +1,61 @@
+/* =========================================================
+   TICKET DETAIL
+   ========================================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.page-header > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+  min-width: 0;
+}
+
+.card-header {
+  min-width: 0;
+}
+
+.card-header > span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.card-body {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   COMMENTS
+   ========================================================= */
+
 .comment-item {
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
+  min-width: 0;
 }
 
 .comment-item:last-child {
@@ -13,6 +65,7 @@
 .comment-avatar {
   width: 36px;
   height: 36px;
+  min-width: 36px;
   border-radius: 50%;
   background: #1e3a5f;
   color: white;
@@ -21,24 +74,46 @@
   justify-content: center;
   font-weight: 700;
   font-size: 14px;
-  flex-shrink: 0;
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
 }
 
 .comment-header {
   display: flex;
   align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
+  min-width: 0;
+}
+
+.comment-header strong {
+  overflow-wrap: anywhere;
+}
+
+.comment-header small {
+  overflow-wrap: anywhere;
 }
 
 .comment-text {
   font-size: 14px;
   color: #333;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .add-comment {
   border-top: 1px solid #f0f0f0;
   padding-top: 16px;
 }
+
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
 
 .timeline {
   position: relative;
@@ -58,6 +133,7 @@
 .timeline-item {
   position: relative;
   margin-bottom: 20px;
+  min-width: 0;
 }
 
 .timeline-dot {
@@ -76,19 +152,56 @@
   background: #f8f9ff;
   border-radius: 8px;
   padding: 12px;
+  min-width: 0;
 }
 
-.nav-link {
+.timeline-content p,
+.timeline-content small {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.timeline-content .d-flex {
+  flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.nav-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-tabs .nav-item {
+  flex: 0 0 auto;
+}
+
+.nav-tabs .nav-link {
   cursor: pointer;
   background: none;
   border: none;
   color: #6c757d;
+  white-space: nowrap;
 }
 
-.nav-link.active {
+.nav-tabs .nav-link.active {
   color: #1e3a5f;
   font-weight: 600;
 }
+
+
+
+
+/* =========================================================
+   FILE UPLOAD
+   ========================================================= */
 
 .upload-area {
   border: 2px dashed #c0cce0;
@@ -97,7 +210,6 @@
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  background: #f8f9ff;
 }
 
 .upload-area:hover {
@@ -110,12 +222,21 @@
   background: #dce8ff;
 }
 
+.upload-area p {
+  overflow-wrap: anywhere;
+}
+
 .upload-icon {
   font-size: 28px;
   color: #2d5986;
   display: block;
   margin-bottom: 8px;
 }
+
+
+/* =========================================================
+   ATTACHMENTS
+   ========================================================= */
 
 .attachments-grid {
   display: flex;
@@ -131,6 +252,7 @@
   border: 1px solid #e0e6f0;
   border-radius: 10px;
   padding: 10px 14px;
+  min-width: 0;
   transition: all 0.2s;
 }
 
@@ -142,9 +264,9 @@
 .attachment-preview {
   width: 48px;
   height: 48px;
+  min-width: 48px;
   border-radius: 8px;
   overflow: hidden;
-  flex-shrink: 0;
   background: white;
   border: 1px solid #e0e6f0;
   display: flex;
@@ -190,6 +312,7 @@
   font-size: 11px;
   color: #888;
   margin-top: 2px;
+  overflow-wrap: anywhere;
 }
 
 .attachment-actions {
@@ -198,7 +321,11 @@
   flex-shrink: 0;
 }
 
-/* ── Rejection Banner ── */
+
+/* =========================================================
+   REJECTION
+   ========================================================= */
+
 .rejection-banner {
   border: 1px solid #f5c6cb;
   border-radius: 10px;
@@ -239,67 +366,14 @@
 .rejection-value {
   color: #2c3e50;
   font-weight: 500;
-}
-
-/* ── Reject Modal ── */
-.modal-backdrop-custom {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9000;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.reject-modal {
-  background: white;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 480px;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
-  animation: slideUp 0.25s
-    cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: hidden;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ============================= */
-/* ROLE ACTION CARDS              */
-/* ============================= */
-
-.employee-action-card {
-  border-left: 4px solid #198754;
-}
-
-.employee-action-card .card-header {
-  color: #198754;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 
-/* ============================= */
-/* TICKET ACTIONS                 */
-/* ============================= */
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 .card-header i {
   font-size: 15px;
@@ -312,20 +386,6 @@
 .btn:hover:not(:disabled) {
   transform: translateY(-1px);
 }
-
-
-/* ============================= */
-/* STATUS ACTION AREA             */
-/* ============================= */
-
-.status-action-card {
-  border-left: 4px solid #0d6efd;
-}
-
-
-/* ============================= */
-/* ACTION BUTTONS                 */
-/* ============================= */
 
 .btn-warning {
   color: #212529;
@@ -342,18 +402,9 @@
 }
 
 
-/* ============================= */
-/* RESPONSIVE                     */
-/* ============================= */
-
-@media (max-width: 767px) {
-
-  .card-body {
-    padding: 16px;
-  }
-
-}
-
+/* =========================================================
+   REJECT MODAL
+   ========================================================= */
 
 .modal-backdrop-custom {
   position: fixed;
@@ -364,27 +415,37 @@
   justify-content: center;
   z-index: 1050;
   padding: 20px;
+  backdrop-filter: blur(4px);
 }
 
 .reject-modal {
   width: 100%;
   max-width: 550px;
+  max-height: calc(100vh - 40px);
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .reject-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 18px 20px;
   border-bottom: 1px solid #dee2e6;
 }
 
+.reject-modal-header h5 {
+  overflow-wrap: anywhere;
+}
+
 .reject-modal-body {
   padding: 20px;
+  overflow-y: auto;
 }
 
 .reject-modal-body textarea {
@@ -398,4 +459,394 @@
   gap: 10px;
   padding: 15px 20px;
   border-top: 1px solid #dee2e6;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+  .page-header {
+    align-items: stretch;
+  }
+
+  .page-header > div:last-child {
+    width: 100%;
+  }
+
+  .page-header > div:last-child .badge {
+    font-size: 0.85rem !important;
+  }
+
+  .attachment-card {
+    padding: 10px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  .page-header {
+    gap: 10px;
+  }
+
+  .page-title {
+    font-size: 1.35rem;
+  }
+
+  .page-header > div:last-child {
+    width: 100%;
+  }
+
+  .page-header > div:last-child .badge {
+    font-size: 0.8rem !important;
+  }
+
+  .card-header {
+    padding: 12px 14px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  /* Ticket details */
+  .card-header.d-flex {
+    align-items: flex-start !important;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .card-header.d-flex > span {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Comments */
+  .comment-item {
+    gap: 8px;
+  }
+
+  .comment-avatar {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 12px;
+  }
+
+  .comment-header {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .comment-header .btn {
+    margin-left: auto !important;
+  }
+
+  /* Timeline */
+  .timeline {
+    padding-left: 18px;
+  }
+
+  .timeline-content {
+    padding: 10px;
+  }
+
+  /* Attachments */
+  .attachment-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .attachment-info {
+    flex: 1 1 calc(100% - 72px);
+  }
+
+  .attachment-actions {
+    width: 100%;
+    padding-left: 60px;
+  }
+
+  .attachment-actions .btn {
+    flex: 1;
+  }
+
+  /* Upload */
+  .upload-area {
+    padding: 20px 12px;
+  }
+
+  /* Modal */
+  .modal-backdrop-custom {
+    padding: 12px;
+  }
+
+  .reject-modal {
+    max-height: calc(100vh - 24px);
+    border-radius: 10px;
+  }
+
+  .reject-modal-header {
+    padding: 14px 16px;
+  }
+
+  .reject-modal-body {
+    padding: 16px;
+  }
+
+  .reject-modal-footer {
+    padding: 12px 16px;
+    flex-direction: column-reverse;
+  }
+
+  .reject-modal-footer .btn {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .card-body {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+  }
+
+  .upload-area {
+    padding: 16px 10px;
+  }
+
+  .attachment-card {
+    gap: 8px;
+  }
+
+  .attachment-preview {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  .attachment-actions {
+    padding-left: 50px;
+  }
+
+  .reject-modal-body {
+    padding: 14px;
+  }
+
+}
+/* =========================================================
+   TICKET DETAIL TABS
+   ========================================================= */
+
+.ticket-tabs-header {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+
+.ticket-tabs-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.ticket-detail-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+
+  width: max-content;
+  min-width: 100%;
+
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+.ticket-detail-tabs .nav-item {
+  flex: 0 0 auto;
+}
+.ticket-detail-tabs .nav-link {
+  white-space: nowrap;
+  display: block;
+  padding: 10px 14px;
+}
+
+.ticket-detail-tabs .nav-link.active {
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   MOBILE SCROLL INDICATOR
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  .ticket-tabs-scroll::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 1px;
+    width: 35px;
+    pointer-events: none;
+
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.95)
+    );
+  }
+
+  .ticket-detail-tabs {
+    scrollbar-width: none;
+    padding-right: 25px;
+  }
+
+  .ticket-detail-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ticket-detail-tabs .nav-link {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .ticket-tabs-scroll::after {
+    width: 28px;
+  }
+
+  .ticket-detail-tabs {
+    padding-right: 20px;
+  }
+
+  .ticket-detail-tabs .nav-link {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+.ticket-tabs-header {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ticket-tabs-scroll {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ticket-detail-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ticket-detail-tabs .nav-item {
+  flex: 0 0 auto;
+}
+
+.ticket-detail-tabs .nav-link {
+  white-space: nowrap;
+}
+
+/* Scroll indicators */
+.tab-scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+
+  width: 30px;
+  height: 30px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #495057;
+  cursor: pointer;
+}
+
+.tab-scroll-arrow:hover {
+  background: #f1f3f5;
+}
+
+.tab-scroll-left {
+  left: 6px;
+}
+
+.tab-scroll-right {
+  right: 6px;
+}
+
+@media (max-width: 767px) {
+  .tab-scroll-arrow {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  .ticket-detail-tabs .nav-link {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tab-scroll-arrow {
+    width: 26px;
+    height: 26px;
+  }
+
+  .ticket-detail-tabs .nav-link {
+    padding: 9px 12px;
+  }
 }

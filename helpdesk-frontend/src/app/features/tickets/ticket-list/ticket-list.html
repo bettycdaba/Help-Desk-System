@@ -14,7 +14,7 @@
 </div>
 
 <!-- FILTER CARD -->
-<div class="card mb-3">
+<div class="card mb-3 ticket-filters">
   <div class="card-body">
     <div class="row g-2 align-items-end">
       <div class="col-md-3">
@@ -65,7 +65,7 @@
 </div>
 
 <!-- TABS -->
-<div class="btn-group mb-3">
+<div class="btn-group ticket-tabs mb-3">
   <button class="btn btn-sm" [class.btn-primary]="ticketView === 'all'" 
           [class.btn-outline-primary]="ticketView !== 'all'"
           (click)="ticketView = 'all'; currentPage = 1">
@@ -112,8 +112,9 @@
           <a routerLink="/tickets/new" class="btn btn-primary btn-sm">Create New Ticket</a>
         }
       </div>
-    } @else {
-      <table class="table mb-0">
+      } @else {
+        <div class="ticket-table-wrapper">
+          <table class="table ticket-table mb-0">
         <thead>
           <tr>
             <th class="sortable" (click)="sortBy('ticketNumber')">
@@ -151,7 +152,7 @@
               <td>{{ ticket.assignedToName || '—' }}</td>
               <td>{{ ticket.createdByName }}</td>
               <td>
-                <div class="d-flex gap-2 position-relative">
+                <div class="ticket-actions">
                   <!-- Assign Icon - Admin/Supervisor + Unassigned ticket -->
                   @if (canAssignTicket() && !ticket.assignedToId) {
                     <button class="btn btn-sm btn-outline-primary" 
@@ -188,10 +189,11 @@
             </tr>
           }
         </tbody>
-      </table>
+          </table>
+  </div>
 
-      @if (totalPages > 1) {
-        <div class="d-flex justify-content-between align-items-center p-3">
+  @if (totalPages > 1) {
+        <div class="ticket-pagination p-3">
           <small class="text-muted">
             Showing {{ (currentPage-1)*pageSize+1 }}–{{ currentPage * pageSize > displayTickets.length ? displayTickets.length : currentPage * pageSize }}
             of {{ displayTickets.length }} tickets
