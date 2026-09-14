@@ -1,0 +1,243 @@
+/* =========================================
+   CATEGORIES PAGE
+   ========================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* =========================================
+   CARDS
+   ========================================= */
+
+.card {
+  width: 100%;
+  min-width: 0;
+}
+
+.card-body {
+  min-width: 0;
+}
+
+.card-header {
+  min-width: 0;
+}
+
+/* =========================================
+   CATEGORY FORM
+   ========================================= */
+
+.category-form-card {
+  min-width: 0;
+}
+
+.form-control,
+.form-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.category-form-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-form-footer .btn {
+  min-width: 90px;
+}
+
+/* =========================================
+   CATEGORY LIST HEADER
+   ========================================= */
+
+.categories-list-header {
+  min-width: 0;
+}
+
+.categories-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.categories-count {
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.categories-search {
+  width: 250px;
+  flex-shrink: 1;
+}
+
+/* =========================================
+   TABLE
+   ========================================= */
+
+.categories-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories-table {
+  min-width: 650px;
+}
+
+.categories-table th,
+.categories-table td {
+  vertical-align: middle;
+}
+
+.categories-table th {
+  white-space: nowrap;
+}
+
+.categories-table td {
+  overflow-wrap: anywhere;
+}
+
+.category-description {
+  max-width: 450px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.category-actions {
+  white-space: nowrap;
+}
+
+/* =========================================
+   EMPTY STATE
+   ========================================= */
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+.empty-state i {
+  display: block;
+  font-size: 42px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 992px) {
+  .categories-header-content {
+    align-items: flex-start;
+  }
+
+  .categories-search {
+    width: 220px;
+  }
+
+  .categories-table {
+    min-width: 600px;
+  }
+}
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 767px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .card-header {
+    padding: 14px;
+  }
+
+  .categories-header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .categories-count {
+    width: 100%;
+  }
+
+  .categories-search {
+    width: 100%;
+  }
+
+  .category-form-footer {
+    padding: 14px;
+  }
+
+  .category-form-footer .btn {
+    flex: 1;
+  }
+
+  .categories-table {
+    min-width: 600px;
+  }
+
+  .categories-table th,
+  .categories-table td {
+    padding: 12px;
+  }
+}
+
+/* =========================================
+   SMALL PHONES
+   ========================================= */
+
+@media (max-width: 380px) {
+  .page-title {
+    font-size: 18px;
+  }
+
+  .card-header {
+    padding: 12px;
+  }
+
+  .category-form-footer {
+    flex-direction: column;
+  }
+
+  .category-form-footer .btn {
+    width: 100%;
+  }
+
+  .categories-table {
+    min-width: 550px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+  }
+}
