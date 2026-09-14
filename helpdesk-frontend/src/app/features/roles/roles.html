@@ -1,183 +1,293 @@
-<div class="page-header">
+<div class="page-header roles-page-header">
   <h1 class="page-title">
     <i class="bi bi-shield-check me-2"></i>Roles
   </h1>
-  @if (hasPermission('MANAGE_ROLES')) {
-  <button class="btn btn-primary" (click)="openAddForm()">
-    <i class="bi bi-plus-circle me-2"></i>Add Role
-  </button>
-  }
+
+@if (hasPermission('MANAGE_ROLES')) {
+<button class="btn btn-primary roles-add-btn" (click)="openAddForm()"> <i class="bi bi-plus-circle me-2"></i>Add Role </button>
+}
+
 </div>
 
 <!-- Add/Edit Role Form -->
+
 @if (showForm) {
-  <div class="card mb-3">
+
+  <div class="card mb-3 role-form-card">
     <div class="card-header">
       {{ isEditing ? 'Edit Role' : 'Add Role' }}
     </div>
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">
-            Name <span class="text-danger">*</span>
-          </label>
-          <input type="text" class="form-control"
-            placeholder="Role name"
-            [(ngModel)]="form.name"
-            [disabled]="isSubmitting">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Description</label>
-          <input type="text" class="form-control"
-            placeholder="Optional description"
-            [(ngModel)]="form.description"
-            [disabled]="isSubmitting">
-        </div>
-      </div>
+
+<div class="card-body">
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">
+        Name <span class="text-danger">*</span>
+      </label>
+
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Role name"
+        [(ngModel)]="form.name"
+        [disabled]="isSubmitting"
+      >
     </div>
-    <div class="card-footer d-flex gap-2">
-      <button class="btn btn-primary"
-        (click)="onSubmit()"
-        [disabled]="isSubmitting">
-        @if (isSubmitting) {
-          <span class="spinner-border spinner-border-sm me-2"></span>
-        }
-        {{ isEditing ? 'Update' : 'Create' }}
-      </button>
-      <button class="btn btn-outline-secondary"
-        (click)="closeForm()">
-        Cancel
-      </button>
+
+    <div class="col-md-6">
+      <label class="form-label">Description</label>
+
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Optional description"
+        [(ngModel)]="form.description"
+        [disabled]="isSubmitting"
+      >
     </div>
+  </div>
+</div>
+
+<div class="card-footer role-form-footer">
+  <button
+    class="btn btn-primary"
+    (click)="onSubmit()"
+    [disabled]="isSubmitting"
+  >
+    @if (isSubmitting) {
+      <span class="spinner-border spinner-border-sm me-2"></span>
+    }
+    {{ isEditing ? 'Update' : 'Create' }}
+  </button>
+
+  <button
+    class="btn btn-outline-secondary"
+    (click)="closeForm()"
+  >
+    Cancel
+  </button>
+</div>
+
+
   </div>
 }
 
 <!-- Permissions Panel -->
+
 @if (showPermissions && selectedRolePermissions) {
-  <div class="card mb-3 border-primary">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-      <span>
-        <i class="bi bi-shield-lock me-2"></i>
-        Permissions for: <strong>{{ selectedRolePermissions.roleName }}</strong>
-      </span>
-      <button class="btn btn-sm btn-outline-light" (click)="closePermissions()">
-        <i class="bi bi-x"></i>
-      </button>
-    </div>
-    <div class="card-body">
-      @for (group of getPermissionGroups(); track group.category) {
-        <div class="mb-3">
-          <h6 class="text-muted mb-2">
-            @if (group.category === 'Users') { <i class="bi bi-people me-1"></i> }
-            @if (group.category === 'Tickets') { <i class="bi bi-ticket-perforated me-1"></i> }
-            @if (group.category === 'Departments') { <i class="bi bi-building me-1"></i> }
-            @if (group.category === 'Roles') { <i class="bi bi-shield-check me-1"></i> }
-            @if (group.category === 'Categories') { <i class="bi bi-tag me-1"></i> }
-            @if (group.category === 'System') { <i class="bi bi-gear me-1"></i> }
-            {{ group.category }}
-          </h6>
-          <div class="d-flex flex-wrap gap-2">
-            @for (perm of group.permissions; track perm.id) {
-              <div class="form-check">
-                <input type="checkbox"
-                  class="form-check-input"
-                  [id]="'perm-' + perm.id"
-                  [checked]="isPermissionSelected(perm.id!)"
-                  (change)="togglePermission(perm.id!)">
-                <label class="form-check-label" [for]="'perm-' + perm.id">
-                  {{ formatPermissionName(perm.name) }}
-                </label>
-              </div>
-            }
-          </div>
-        </div>
-      }
-    </div>
-    <div class="card-footer d-flex gap-2">
-      <button class="btn btn-primary"
-        (click)="savePermissions()"
-        [disabled]="isSavingPermissions">
-        @if (isSavingPermissions) {
-          <span class="spinner-border spinner-border-sm me-2"></span>
+
+  <div class="card mb-3 border-primary role-permissions-card">
+
+
+<div class="card-header bg-primary text-white role-permissions-header">
+  <span class="role-permissions-title">
+    <i class="bi bi-shield-lock me-2"></i>
+    Permissions for:
+    <strong>{{ selectedRolePermissions.roleName }}</strong>
+  </span>
+
+  <button
+    class="btn btn-sm btn-outline-light"
+    (click)="closePermissions()"
+    aria-label="Close permissions"
+  >
+    <i class="bi bi-x"></i>
+  </button>
+</div>
+
+<div class="card-body">
+  @for (group of getPermissionGroups(); track group.category) {
+    <div class="permission-group mb-3">
+
+      <h6 class="text-muted mb-2 permission-group-title">
+        @if (group.category === 'Users') {
+          <i class="bi bi-people me-1"></i>
         }
-        <i class="bi bi-save me-2"></i>Save Changes
-      </button>
-      <button class="btn btn-outline-secondary" (click)="closePermissions()">
-        Cancel
-      </button>
+
+        @if (group.category === 'Tickets') {
+          <i class="bi bi-ticket-perforated me-1"></i>
+        }
+
+        @if (group.category === 'Departments') {
+          <i class="bi bi-building me-1"></i>
+        }
+
+        @if (group.category === 'Roles') {
+          <i class="bi bi-shield-check me-1"></i>
+        }
+
+        @if (group.category === 'Categories') {
+          <i class="bi bi-tag me-1"></i>
+        }
+
+        @if (group.category === 'System') {
+          <i class="bi bi-gear me-1"></i>
+        }
+
+        {{ group.category }}
+      </h6>
+
+      <div class="permission-list">
+        @for (perm of group.permissions; track perm.id) {
+          <div class="form-check permission-item">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [id]="'perm-' + perm.id"
+              [checked]="isPermissionSelected(perm.id!)"
+              (change)="togglePermission(perm.id!)"
+            >
+
+            <label
+              class="form-check-label"
+              [for]="'perm-' + perm.id"
+            >
+              {{ formatPermissionName(perm.name) }}
+            </label>
+          </div>
+        }
+      </div>
+
     </div>
+  }
+</div>
+
+<div class="card-footer role-permissions-footer">
+  <button
+    class="btn btn-primary"
+    (click)="savePermissions()"
+    [disabled]="isSavingPermissions"
+  >
+    @if (isSavingPermissions) {
+      <span class="spinner-border spinner-border-sm me-2"></span>
+    }
+
+    <i class="bi bi-save me-2"></i>Save Changes
+  </button>
+
+  <button
+    class="btn btn-outline-secondary"
+    (click)="closePermissions()"
+  >
+    Cancel
+  </button>
+</div>
+
+
   </div>
 }
 
 <!-- Roles Table -->
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <span>All Roles ({{ roles.length }})</span>
-    <input type="text" class="form-control form-control-sm"
-      style="width: 250px"
-      placeholder="Search roles..."
-      [(ngModel)]="searchText">
+
+<div class="card roles-list-card">
+
+  <div class="card-header roles-list-header">
+    <span class="roles-list-title">
+      All Roles ({{ roles.length }})
+    </span>
+
+
+<input
+  type="text"
+  class="form-control form-control-sm roles-search"
+  placeholder="Search roles..."
+  [(ngModel)]="searchText"
+>
+
+
   </div>
+
   <div class="card-body p-0">
-    @if (isLoading) {
-      <div class="text-center py-4">
-        <div class="spinner-border text-primary"></div>
-      </div>
-    } @else if (filteredRoles.length === 0) {
-      <div class="empty-state">
-        <i class="bi bi-shield-check"></i>
-        <p>No roles found</p>
-      </div>
-    } @else {
-      <table class="table mb-0">
-        <thead>
+
+
+@if (isLoading) {
+  <div class="text-center py-4">
+    <div class="spinner-border text-primary"></div>
+  </div>
+}
+
+@else if (filteredRoles.length === 0) {
+  <div class="empty-state">
+    <i class="bi bi-shield-check"></i>
+    <p>No roles found</p>
+  </div>
+}
+
+@else {
+  <div class="roles-table-wrapper">
+    <table class="table mb-0 roles-table">
+
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Permissions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (role of filteredRoles; track role.id) {
           <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Permissions</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (role of filteredRoles; track role.id) {
-            <tr>
-              <td>{{ role.id }}</td>
-              <td>
-                <span class="badge bg-primary">{{ role.name }}</span>
-              </td>
-              <td class="text-muted">
-                {{ role.description || '—' }}
-              </td>
-              <td>
-                @if (hasPermission('MANAGE_PERMISSIONS')) {
-                <button class="btn btn-sm btn-outline-info"
-                  (click)="openPermissions(role)">
+
+            <td>{{ role.id }}</td>
+
+            <td>
+              <span class="badge bg-primary role-name-badge">
+                {{ role.name }}
+              </span>
+            </td>
+
+            <td class="text-muted role-description">
+              {{ role.description || '—' }}
+            </td>
+
+            <td class="role-permissions-cell">
+              @if (hasPermission('MANAGE_PERMISSIONS')) {
+                <button
+                  class="btn btn-sm btn-outline-info permission-btn"
+                  (click)="openPermissions(role)"
+                >
                   <i class="bi bi-shield-lock me-1"></i>
                   Permissions
                 </button>
-                }
-              </td>
-              <td>
-                <div class="d-flex gap-2">
-                  @if (hasPermission('MANAGE_ROLES')) {
-                  <button class="btn btn-sm btn-outline-primary"
-                    (click)="openEditForm(role)">
+              }
+            </td>
+
+            <td>
+              <div class="role-actions">
+
+                @if (hasPermission('MANAGE_ROLES')) {
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="openEditForm(role)"
+                    aria-label="Edit role"
+                  >
                     <i class="bi bi-pencil"></i>
                   </button>
-                  }
-                  @if (hasPermission('MANAGE_ROLES')) {
-                  <button class="btn btn-sm btn-outline-danger"
-                    (click)="delete(role)">
+                }
+
+                @if (hasPermission('MANAGE_ROLES')) {
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="delete(role)"
+                    aria-label="Delete role"
+                  >
                     <i class="bi bi-trash"></i>
                   </button>
-                  }
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
+                }
+
+              </div>
+            </td>
+
+          </tr>
+        }
+      </tbody>
+
+    </table>
+  </div>
+}
+
   </div>
 </div>

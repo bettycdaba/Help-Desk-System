@@ -1,0 +1,269 @@
+/* =========================================
+Roles Page
+========================================= */
+
+.roles-page-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+flex-wrap: wrap;
+}
+
+.roles-add-btn {
+white-space: nowrap;
+}
+
+/* =========================================
+Add / Edit Role Form
+========================================= */
+
+.role-form-card {
+overflow: hidden;
+}
+
+.role-form-footer,
+.role-permissions-footer {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+flex-wrap: wrap;
+}
+
+/* =========================================
+Permissions Panel
+========================================= */
+
+.role-permissions-card {
+overflow: hidden;
+}
+
+.role-permissions-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+}
+
+.role-permissions-title {
+min-width: 0;
+overflow-wrap: anywhere;
+}
+
+.permission-group {
+border-bottom: 1px solid #eee;
+padding-bottom: 0.75rem;
+}
+
+.permission-group:last-child {
+border-bottom: none;
+padding-bottom: 0;
+}
+
+.permission-group-title {
+font-weight: 600;
+}
+
+.permission-list {
+display: flex;
+flex-wrap: wrap;
+gap: 0.5rem 1rem;
+}
+
+.permission-item {
+margin: 0;
+}
+
+/* =========================================
+Roles List
+========================================= */
+
+.roles-list-card {
+overflow: hidden;
+}
+
+.roles-list-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+flex-wrap: wrap;
+}
+
+.roles-list-title {
+font-weight: 500;
+}
+
+.roles-search {
+width: 250px;
+max-width: 100%;
+}
+
+.roles-table-wrapper {
+width: 100%;
+overflow-x: auto;
+overflow-y: hidden;
+-webkit-overflow-scrolling: touch;
+}
+
+.roles-table {
+min-width: 850px;
+table-layout: auto;
+}
+
+.roles-table th {
+white-space: nowrap;
+vertical-align: middle;
+}
+
+.roles-table td {
+vertical-align: middle;
+}
+
+.role-name-badge {
+white-space: nowrap;
+}
+
+.role-description {
+max-width: 350px;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.role-permissions-cell {
+white-space: nowrap;
+}
+
+.permission-btn {
+white-space: nowrap;
+}
+
+.role-actions {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+white-space: nowrap;
+}
+
+/* =========================================
+Empty State
+========================================= */
+
+.empty-state {
+padding: 2rem 1rem;
+text-align: center;
+}
+
+.empty-state i {
+display: block;
+font-size: 2rem;
+margin-bottom: 0.5rem;
+}
+
+/* =========================================
+Tablet
+========================================= */
+
+@media (max-width: 992px) {
+
+.roles-page-header {
+align-items: flex-start;
+}
+
+.roles-search {
+width: 220px;
+}
+
+.roles-table {
+min-width: 800px;
+}
+
+.role-description {
+max-width: 280px;
+}
+
+.permission-list {
+gap: 0.5rem 0.75rem;
+}
+}
+
+/* =========================================
+Mobile
+========================================= */
+
+@media (max-width: 767px) {
+
+.roles-page-header {
+flex-direction: column;
+align-items: stretch;
+}
+
+.roles-add-btn {
+width: 100%;
+}
+
+.role-form-footer,
+.role-permissions-footer {
+flex-direction: column;
+align-items: stretch;
+}
+
+.role-form-footer .btn,
+.role-permissions-footer .btn {
+width: 100%;
+}
+
+.role-permissions-header {
+align-items: flex-start;
+}
+
+.role-permissions-title {
+font-size: 0.95rem;
+line-height: 1.4;
+}
+
+.permission-list {
+flex-direction: column;
+gap: 0.75rem;
+}
+
+.permission-item {
+width: 100%;
+}
+
+.roles-list-header {
+align-items: stretch;
+flex-direction: column;
+}
+
+.roles-search {
+width: 100%;
+}
+
+.roles-table {
+min-width: 760px;
+}
+
+.role-description {
+max-width: 240px;
+}
+}
+
+/* =========================================
+Small Mobile
+========================================= */
+
+@media (max-width: 380px) {
+
+.roles-table {
+min-width: 700px;
+}
+
+.role-permissions-title {
+font-size: 0.9rem;
+}
+
+.permission-btn {
+font-size: 0.8rem;
+}
+}
