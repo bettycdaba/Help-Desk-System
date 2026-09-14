@@ -1,10 +1,67 @@
+/* =========================================
+   Team Workload
+   ========================================= */
+
+.team-workload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.team-refresh-btn {
+  white-space: nowrap;
+}
+
+.team-workload-card {
+  overflow: hidden;
+}
+
+.team-workload-card-header {
+  display: flex;
+  align-items: center;
+}
+
+/* =========================================
+   Table
+   ========================================= */
+
+.team-workload-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.team-workload-table {
+  min-width: 850px;
+  margin-bottom: 0;
+}
+
+.team-workload-table th {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.team-workload-table td {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* =========================================
+   Officer Information
+   ========================================= */
+
 .officer-info {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 260px;
 }
 
 .officer-avatar {
+  flex: 0 0 36px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -17,7 +74,113 @@
   font-weight: 700;
 }
 
-.badge {
+.officer-details {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.officer-details strong {
+  overflow-wrap: anywhere;
+}
+
+.officer-details small {
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   Workload Badges
+   ========================================= */
+
+.workload-badge {
+  min-width: 36px;
   font-size: 13px;
   padding: 6px 12px;
+}
+
+/* =========================================
+   Empty State
+   ========================================= */
+
+.empty-state {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.empty-state i {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* =========================================
+   Tablet
+   ========================================= */
+
+@media (max-width: 992px) {
+  .team-workload-table {
+    min-width: 800px;
+  }
+
+  .officer-info {
+    min-width: 240px;
+  }
+}
+
+/* =========================================
+   Mobile
+   ========================================= */
+
+@media (max-width: 767px) {
+  .team-workload-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .team-refresh-btn {
+    width: 100%;
+  }
+
+  .team-workload-card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .team-workload-table {
+    min-width: 760px;
+  }
+
+  .officer-info {
+    min-width: 220px;
+  }
+
+  .workload-badge {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+/* =========================================
+   Small Mobile
+   ========================================= */
+
+@media (max-width: 380px) {
+  .team-workload-table {
+    min-width: 700px;
+  }
+
+  .officer-info {
+    min-width: 200px;
+  }
+
+  .officer-avatar {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    font-size: 11px;
+  }
+
+  .workload-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
 }

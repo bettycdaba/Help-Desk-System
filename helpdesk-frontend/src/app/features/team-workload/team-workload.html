@@ -1,16 +1,18 @@
-<div class="page-header">
+<div class="page-header team-workload-header">
   <h1 class="page-title">
     <i class="bi bi-people me-2"></i>Team Workload
   </h1>
-  <button class="btn btn-outline-secondary" (click)="loadWorkload()">
+
+  <button class="btn btn-outline-secondary team-refresh-btn" (click)="loadWorkload()">
     <i class="bi bi-arrow-clockwise me-2"></i>Refresh
   </button>
 </div>
 
-<div class="card">
-  <div class="card-header">
+<div class="card team-workload-card">
+  <div class="card-header team-workload-card-header">
     <i class="bi bi-clipboard-data me-2"></i>Support Officers Overview
   </div>
+
   <div class="card-body p-0">
     @if (isLoading) {
       <div class="text-center py-5">
@@ -22,41 +24,67 @@
         <p>No support officers found</p>
       </div>
     } @else {
-      <table class="table mb-0">
-        <thead>
-          <tr>
-            <th>Officer</th>
-            <th>Assigned</th>
-            <th>In Progress</th>
-            <th>Pending</th>
-            <th>Resolved</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (w of workload; track w.userId) {
+      <div class="team-workload-table-wrapper">
+        <table class="table mb-0 team-workload-table">
+          <thead>
             <tr>
-              <td>
-                <div class="officer-info">
-                  <div class="officer-avatar">
-                    {{ w.firstName.charAt(0) }}{{ w.lastName.charAt(0) }}
-                  </div>
-                  <div>
-                    <strong>{{ w.firstName }} {{ w.lastName }}</strong>
-                    <br>
-                    <small class="text-muted">{{ w.email }}</small>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge bg-primary">{{ w.assignedCount }}</span></td>
-              <td><span class="badge bg-info">{{ w.inProgressCount }}</span></td>
-              <td><span class="badge bg-warning text-dark">{{ w.pendingCount }}</span></td>
-              <td><span class="badge bg-success">{{ w.resolvedCount }}</span></td>
-              <td><strong>{{ w.totalCount }}</strong></td>
+              <th>Officer</th>
+              <th>Assigned</th>
+              <th>In Progress</th>
+              <th>Pending</th>
+              <th>Resolved</th>
+              <th>Total</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            @for (w of workload; track w.userId) {
+              <tr>
+                <td>
+                  <div class="officer-info">
+                    <div class="officer-avatar">
+                      {{ w.firstName.charAt(0) }}{{ w.lastName.charAt(0) }}
+                    </div>
+
+                    <div class="officer-details">
+                      <strong>{{ w.firstName }} {{ w.lastName }}</strong>
+                      <small class="text-muted">{{ w.email }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="badge bg-primary workload-badge">
+                    {{ w.assignedCount }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="badge bg-info workload-badge">
+                    {{ w.inProgressCount }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="badge bg-warning text-dark workload-badge">
+                    {{ w.pendingCount }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="badge bg-success workload-badge">
+                    {{ w.resolvedCount }}
+                  </span>
+                </td>
+
+                <td>
+                  <strong>{{ w.totalCount }}</strong>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     }
   </div>
 </div>
