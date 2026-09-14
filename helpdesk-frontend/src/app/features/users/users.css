@@ -16,9 +16,8 @@
   font-weight: 600;
 }
 
-
 /* =========================================
-   USER FORM
+   CARDS
    ========================================= */
 
 .card {
@@ -27,6 +26,10 @@
 }
 
 .card-body {
+  min-width: 0;
+}
+
+.card-header {
   min-width: 0;
 }
 
@@ -40,15 +43,54 @@
   flex-wrap: wrap;
 }
 
+/* =========================================
+   USER FORM
+   ========================================= */
+
+.user-form-card {
+  min-width: 0;
+}
+
+.roles-container {
+  min-width: 0;
+}
+
+.user-form-footer {
+  gap: 8px;
+}
+
+.user-form-footer .btn {
+  min-width: 90px;
+}
 
 /* =========================================
-   SEARCH + FILTER
+   USERS LIST HEADER
    ========================================= */
+
+.users-list-header {
+  min-width: 0;
+}
+
+.users-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.users-count {
+  flex-shrink: 0;
+  font-weight: 500;
+}
 
 .users-header-controls {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .users-search {
@@ -59,42 +101,44 @@
   width: 180px;
 }
 
-
 /* =========================================
    TABLE
    ========================================= */
 
-.table-responsive {
+.users-table-wrapper {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.table {
+.users-table {
   min-width: 900px;
 }
 
-.table th,
-.table td {
+.users-table th,
+.users-table td {
   vertical-align: middle;
 }
 
-.table th {
+.users-table th {
   white-space: nowrap;
 }
 
-.table td {
+.users-table td {
   overflow-wrap: anywhere;
 }
 
-.table td:last-child {
+.users-table td:last-child {
   white-space: nowrap;
 }
 
-.table .badge {
+.users-table .badge {
   white-space: nowrap;
 }
 
+.user-actions {
+  white-space: nowrap;
+}
 
 /* =========================================
    EMPTY STATE
@@ -116,15 +160,17 @@
   margin: 0;
 }
 
-
 /* =========================================
    TABLET
    ========================================= */
 
 @media (max-width: 992px) {
-
-  .page-header {
+  .users-header-content {
     align-items: flex-start;
+  }
+
+  .users-header-controls {
+    justify-content: flex-end;
   }
 
   .users-search {
@@ -135,18 +181,16 @@
     width: 170px;
   }
 
-  .table {
+  .users-table {
     min-width: 850px;
   }
 }
-
 
 /* =========================================
    MOBILE
    ========================================= */
 
 @media (max-width: 767px) {
-
   .page-header {
     flex-direction: column;
     align-items: stretch;
@@ -165,13 +209,19 @@
     padding: 14px;
   }
 
-  .card-header > .d-flex {
+  .users-header-content {
     flex-direction: column;
-    align-items: stretch !important;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .users-count {
+    width: 100%;
   }
 
   .users-header-controls {
     flex-direction: column;
+    align-items: stretch;
     width: 100%;
   }
 
@@ -180,26 +230,29 @@
     width: 100%;
   }
 
-  .card-footer {
+  .user-form-footer {
     padding: 14px;
   }
 
-  .card-footer .btn {
+  .user-form-footer .btn {
     flex: 1;
   }
 
-  .table {
+  .users-table {
     min-width: 850px;
   }
-}
 
+  .users-table th,
+  .users-table td {
+    padding: 12px;
+  }
+}
 
 /* =========================================
    SMALL PHONES
    ========================================= */
 
 @media (max-width: 380px) {
-
   .page-title {
     font-size: 18px;
   }
@@ -208,15 +261,19 @@
     padding: 12px;
   }
 
-  .card-footer {
+  .user-form-footer {
     flex-direction: column;
   }
 
-  .card-footer .btn {
+  .user-form-footer .btn {
     width: 100%;
   }
 
-  .table {
+  .users-table {
     min-width: 800px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
   }
 }
