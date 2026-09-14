@@ -1,3 +1,121 @@
+/* ================================
+   Profile Page
+   ================================ */
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1e3a5f;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.page-title i {
+  flex-shrink: 0;
+}
+
+/* ================================
+   Cards
+   ================================ */
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.card-header {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  color: #1e3a5f;
+  gap: 1rem;
+}
+
+.card-header > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* ================================
+   Profile Information
+   ================================ */
+
+.card-body strong {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.text-muted {
+  overflow-wrap: anywhere;
+}
+
+/* ================================
+   Forms
+   ================================ */
+
+.form-label {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+.form-control {
+  width: 100%;
+  min-width: 0;
+  border-radius: 7px;
+  padding: 0.65rem 0.75rem;
+}
+
+.form-control:focus {
+  border-color: #1e3a5f;
+  box-shadow: 0 0 0 0.2rem rgba(30, 58, 95, 0.12);
+}
+
+/* ================================
+   Buttons
+   ================================ */
+
+.btn {
+  white-space: nowrap;
+}
+
+.card-header .btn {
+  flex-shrink: 0;
+}
+
+.card-body .btn {
+  min-height: 38px;
+}
+
+.gap-2 {
+  flex-wrap: wrap;
+}
+
+/* ================================
+   Avatar
+   ================================ */
+
 .profile-avatar {
   width: 100px;
   height: 100px;
@@ -10,4 +128,210 @@
   font-size: 36px;
   font-weight: 700;
   margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.card.text-center h5 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.card.text-center p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.card.text-center .badge {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ================================
+   Loading
+   ================================ */
+
+.spinner-border {
+  flex-shrink: 0;
+}
+
+/* ================================
+   Tablet
+   ================================ */
+
+@media (max-width: 991.98px) {
+  .page-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .card-body {
+    padding: 1.1rem;
+  }
+
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    font-size: 32px;
+  }
+}
+
+/* ================================
+   Mobile
+   ================================ */
+
+@media (max-width: 767.98px) {
+  .page-header {
+    margin-bottom: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .card-header {
+    padding: 0.9rem 1rem;
+    align-items: flex-start;
+  }
+
+  .card-header .btn {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  /* Profile information fields */
+  .card-body .row {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+  }
+
+  /* Buttons should remain usable on narrow screens */
+  .card-body .d-flex {
+    align-items: stretch;
+  }
+
+  .card-body .d-flex .btn {
+    flex: 0 0 auto;
+  }
+
+  .profile-avatar {
+    width: 85px;
+    height: 85px;
+    font-size: 30px;
+  }
+}
+
+/* ================================
+   Small Mobile
+   ================================ */
+
+@media (max-width: 575.98px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .page-title i {
+    margin-right: 0.35rem !important;
+  }
+
+  .card {
+    border-radius: 8px;
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+
+  .card-header .btn {
+    width: 100%;
+  }
+
+  .card-body {
+    padding: 0.9rem;
+  }
+
+  /* Make action buttons full-width */
+  .card-body .d-flex {
+    width: 100%;
+  }
+
+  .card-body .d-flex .btn {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  /* Password buttons */
+  .card-body .col-md-4.d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 28px;
+  }
+
+  .card.text-center .card-body {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* ================================
+   Very Small Screens
+   ================================ */
+
+@media (max-width: 380px) {
+  .page-title {
+    font-size: 1.15rem;
+  }
+
+  .card-header {
+    padding: 0.75rem;
+  }
+
+  .card-body {
+    padding: 0.8rem;
+  }
+
+  .form-control {
+    font-size: 0.9rem;
+  }
+
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    font-size: 25px;
+  }
+}
+
+/* ================================
+   Accessibility
+   ================================ */
+
+.btn:focus-visible,
+.form-control:focus-visible {
+  outline: 2px solid #1e3a5f;
+  outline-offset: 2px;
+}
+
+/* ================================
+   Reduced Motion
+   ================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .btn,
+  .form-control {
+    transition: none !important;
+  }
 }
