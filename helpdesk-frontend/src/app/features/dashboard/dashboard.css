@@ -6,8 +6,8 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
+  min-width: 0;
 }
-
 
 /* =========================================================
    HEADER
@@ -19,39 +19,38 @@
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 28px;
+  min-width: 0;
 }
 
 .welcome-section {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .eyebrow {
   display: inline-block;
   margin-bottom: 6px;
-
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-
   color: #64748b;
 }
 
 .welcome-section h1 {
   margin: 0;
-
   color: #172033;
-
   font-size: clamp(1.65rem, 3vw, 2.35rem);
   line-height: 1.15;
   font-weight: 750;
+  overflow-wrap: anywhere;
 }
 
 .welcome-section p {
   margin: 8px 0 0;
-
   color: #64748b;
-
   font-size: 0.95rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .welcome-section strong {
@@ -64,15 +63,14 @@
   justify-content: flex-end;
   gap: 10px;
   flex-wrap: wrap;
+  flex: 0 0 auto;
 }
 
 .last-updated {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   color: #64748b;
-
   font-size: 0.78rem;
   white-space: nowrap;
 }
@@ -82,46 +80,42 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   min-height: 40px;
   padding: 0 14px;
-
   border: 1px solid #dbe1e8;
   border-radius: 10px;
-
   background: #ffffff;
   color: #334155;
-
   font-size: 0.85rem;
   font-weight: 600;
-
   cursor: pointer;
-
+  white-space: nowrap;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     background 0.2s ease;
 }
 
-.header-button:hover {
+.header-button:hover:not(:disabled) {
   transform: translateY(-1px);
-
-  box-shadow:
-    0 5px 15px rgba(15, 23, 42, 0.08);
-
+  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
   background: #f8fafc;
+}
+
+.header-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .header-button.primary {
   border-color: #2563eb;
   background: #2563eb;
-  color: white;
+  color: #ffffff;
 }
 
-.header-button.primary:hover {
+.header-button.primary:hover:not(:disabled) {
   background: #1d4ed8;
 }
-
 
 /* =========================================================
    LOADING
@@ -129,27 +123,23 @@
 
 .loading-state {
   min-height: 420px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   text-align: center;
+  padding: 40px 20px;
 }
 
 .loading-state h3 {
   margin: 18px 0 5px;
-
   color: #334155;
 }
 
 .loading-state p {
   margin: 0;
-
   color: #64748b;
 }
-
 
 /* =========================================================
    STATISTICS
@@ -157,36 +147,24 @@
 
 .stats-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
-
   margin-bottom: 22px;
+  min-width: 0;
 }
 
 .stat-card {
   position: relative;
-
   display: flex;
   align-items: center;
-
   min-width: 0;
   min-height: 128px;
-
   padding: 18px;
-
   overflow: hidden;
-
   border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 16px;
-
-  background: white;
-
-  box-shadow:
-    0 2px 8px rgba(15, 23, 42, 0.04);
-
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -194,23 +172,17 @@
 
 .stat-card::before {
   content: "";
-
   position: absolute;
-
   left: 0;
   top: 0;
   bottom: 0;
-
   width: 4px;
-
   background: var(--accent);
 }
 
 .stat-card:hover {
   transform: translateY(-3px);
-
-  box-shadow:
-    0 12px 25px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
 }
 
 .stat-card.blue {
@@ -247,65 +219,51 @@
 
 .stat-icon {
   flex: 0 0 auto;
-
   width: 48px;
   height: 48px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   margin-right: 14px;
-
   border-radius: 13px;
-
   background: color-mix(
     in srgb,
     var(--accent) 12%,
     white
   );
-
   color: var(--accent);
-
   font-size: 1.3rem;
 }
 
 .stat-body {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .stat-label {
   display: block;
-
   color: #64748b;
-
   font-size: 0.78rem;
   font-weight: 600;
 }
 
 .stat-value {
   display: block;
-
   margin: 2px 0;
-
   color: #172033;
-
   font-size: 1.65rem;
   line-height: 1.2;
 }
 
 .stat-description {
   display: block;
-
+  max-width: 100%;
   overflow: hidden;
-
   color: #94a3b8;
-
   font-size: 0.7rem;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
 
 /* =========================================================
    GENERAL GRID
@@ -313,15 +271,15 @@
 
 .content-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-
   margin-bottom: 20px;
+  min-width: 0;
 }
 
+.content-grid > * {
+  min-width: 0;
+}
 
 /* =========================================================
    CARD
@@ -329,35 +287,29 @@
 
 .dashboard-card {
   min-width: 0;
-
+  overflow: hidden;
   padding: 22px;
-
   border: 1px solid #e2e8f0;
   border-radius: 16px;
-
   background: #ffffff;
-
-  box-shadow:
-    0 2px 8px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 16px;
-
   margin-bottom: 20px;
+  min-width: 0;
 }
 
 .card-title {
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .card-title > div:last-child {
@@ -366,33 +318,28 @@
 
 .card-title h2 {
   margin: 0;
-
   color: #1e293b;
-
   font-size: 1rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .card-title p {
   margin: 4px 0 0;
-
   color: #94a3b8;
-
   font-size: 0.78rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .section-icon {
   flex: 0 0 auto;
-
   width: 40px;
   height: 40px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 11px;
-
   font-size: 1rem;
 }
 
@@ -416,22 +363,23 @@
   color: #7c3aed;
 }
 
-
 /* =========================================================
    CHARTS
    ========================================================= */
 
 .chart-wrapper {
   position: relative;
-
   width: 100%;
+  max-width: 100%;
   height: 310px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chart-wrapper canvas {
+  display: block;
   max-width: 100%;
 }
-
 
 /* =========================================================
    PRIORITY
@@ -440,7 +388,6 @@
 .priority-list {
   display: flex;
   flex-direction: column;
-
   gap: 8px;
 }
 
@@ -448,35 +395,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
+  gap: 12px;
   min-height: 48px;
-
   padding: 0 12px;
-
   border-radius: 10px;
-
   background: #f8fafc;
+  min-width: 0;
 }
 
 .priority-info {
   display: flex;
   align-items: center;
   gap: 9px;
-
+  min-width: 0;
   color: #475569;
-
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .priority-row strong {
+  flex: 0 0 auto;
   color: #1e293b;
 }
 
 .priority-dot {
+  flex: 0 0 auto;
   width: 9px;
   height: 9px;
-
   border-radius: 50%;
 }
 
@@ -496,37 +441,32 @@
   background: #22c55e;
 }
 
-
 /* =========================================================
    ATTENTION
    ========================================================= */
 
 .attention-card {
-  background:
-    linear-gradient(
-      135deg,
-      #ffffff 0%,
-      #fffafa 100%
-    );
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #fffafa 100%
+  );
 }
 
 .attention-total {
   display: flex;
   align-items: baseline;
   gap: 8px;
-
   margin-bottom: 16px;
 }
 
 .attention-total strong {
   color: #dc2626;
-
   font-size: 2rem;
 }
 
 .attention-total span {
   color: #64748b;
-
   font-size: 0.8rem;
 }
 
@@ -540,13 +480,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
+  gap: 12px;
   min-height: 42px;
-
   padding: 0 10px;
-
   border-radius: 9px;
-
   background: #f8fafc;
 }
 
@@ -554,21 +491,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
+  min-width: 0;
   color: #64748b;
-
   font-size: 0.8rem;
 }
 
 .attention-list span i {
+  flex: 0 0 auto;
   color: #dc2626;
   font-size: 0.65rem;
 }
 
 .attention-list strong {
+  flex: 0 0 auto;
   color: #1e293b;
 }
-
 
 /* =========================================================
    RECENT TICKETS
@@ -582,14 +519,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
+  flex: 0 0 auto;
   color: #2563eb;
-
   font-size: 0.8rem;
   font-weight: 600;
-
   text-decoration: none;
-
   white-space: nowrap;
 }
 
@@ -600,28 +534,22 @@
 .ticket-list {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .ticket-row {
   width: 100%;
-
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
-
   padding: 14px 4px;
-
   border: 0;
   border-bottom: 1px solid #f1f5f9;
-
   background: transparent;
-
   text-align: left;
-
   cursor: pointer;
-
   transition:
     background 0.2s ease,
     padding 0.2s ease;
@@ -634,60 +562,50 @@
 .ticket-row:hover {
   padding-left: 8px;
   padding-right: 8px;
-
   background: #f8fafc;
 }
 
 .ticket-main {
   display: flex;
   flex-direction: column;
-
   gap: 4px;
-
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .ticket-number {
   color: #2563eb;
-
   font-size: 0.7rem;
   font-weight: 700;
 }
 
 .ticket-main strong {
+  display: block;
+  max-width: 100%;
   overflow: hidden;
-
   color: #334155;
-
   font-size: 0.85rem;
   font-weight: 600;
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .ticket-meta {
   flex: 0 0 auto;
-
   display: flex;
   align-items: center;
-
   gap: 8px;
+  min-width: 0;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-
   min-height: 24px;
-
   padding: 0 8px;
-
   border-radius: 6px;
-
   font-size: 0.65rem;
   font-weight: 700;
-
   white-space: nowrap;
 }
 
@@ -763,15 +681,11 @@
 
 .ticket-time {
   min-width: 55px;
-
   color: #94a3b8;
-
   font-size: 0.7rem;
-
   text-align: right;
   white-space: nowrap;
 }
-
 
 /* =========================================================
    EMPTY STATE
@@ -779,32 +693,26 @@
 
 .empty-state {
   padding: 50px 20px;
-
   text-align: center;
 }
 
 .empty-state > i {
   color: #94a3b8;
-
   font-size: 2.5rem;
 }
 
 .empty-state h3 {
   margin: 12px 0 5px;
-
   color: #334155;
-
   font-size: 1rem;
 }
 
 .empty-state p {
   margin: 0;
-
   color: #94a3b8;
-
   font-size: 0.8rem;
+  line-height: 1.5;
 }
-
 
 /* =========================================================
    FAQ
@@ -824,36 +732,30 @@
 
 .faq-question {
   width: 100%;
-
   min-height: 58px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 16px;
-
   padding: 14px 4px;
-
   border: 0;
-
   background: transparent;
-
   color: #334155;
-
   font-size: 0.85rem;
   font-weight: 600;
-
+  line-height: 1.5;
   text-align: left;
-
   cursor: pointer;
+}
+
+.faq-question span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .faq-question i {
   flex: 0 0 auto;
-
   color: #64748b;
-
   transition: transform 0.2s ease;
 }
 
@@ -863,13 +765,11 @@
 
 .faq-answer {
   padding: 0 32px 18px 4px;
-
   color: #64748b;
-
   font-size: 0.8rem;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
-
 
 /* =========================================================
    QUICK ACTIONS
@@ -877,34 +777,23 @@
 
 .quick-actions {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-
   padding-bottom: 20px;
+  min-width: 0;
 }
 
 .quick-action {
   display: flex;
   align-items: center;
-
   gap: 13px;
-
   min-width: 0;
-
   padding: 16px;
-
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-
-  background: white;
-
+  background: #ffffff;
   color: #334155;
-
   text-decoration: none;
-
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -913,10 +802,7 @@
 
 .quick-action:hover {
   transform: translateY(-2px);
-
-  box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.08);
-
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
   border-color: #cbd5e1;
 }
 
@@ -937,82 +823,84 @@
 
 .quick-icon {
   flex: 0 0 auto;
-
   width: 42px;
   height: 42px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 11px;
-
   background: var(--quick-bg);
-
   color: var(--quick-color);
 }
 
 .quick-content {
   min-width: 0;
-
-  flex: 1;
+  flex: 1 1 auto;
 }
 
 .quick-content strong {
   display: block;
-
   color: #334155;
-
   font-size: 0.85rem;
+  overflow-wrap: anywhere;
 }
 
 .quick-content span {
   display: block;
-
   margin-top: 3px;
-
   overflow: hidden;
-
   color: #94a3b8;
-
   font-size: 0.7rem;
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .quick-action > i {
   flex: 0 0 auto;
-
   color: #94a3b8;
 }
 
+/* =========================================================
+   LARGE TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 /* =========================================================
    TABLET
    ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 992px) {
+  .dashboard-header {
+    gap: 18px;
+  }
 
   .stats-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
 
-  .quick-actions {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+  .dashboard-card {
+    padding: 20px;
   }
 
+  .chart-wrapper {
+    height: 290px;
+  }
 }
-
 
 /* =========================================================
    SMALL TABLET
    ========================================================= */
 
 @media (max-width: 850px) {
-
   .dashboard-header {
     align-items: flex-start;
     flex-direction: column;
@@ -1028,15 +916,20 @@
     grid-template-columns: 1fr;
   }
 
-}
+  .content-grid {
+    gap: 16px;
+  }
 
+  .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 /* =========================================================
    MOBILE
    ========================================================= */
 
 @media (max-width: 576px) {
-
   .dashboard {
     width: 100%;
   }
@@ -1057,10 +950,7 @@
 
   .header-actions {
     display: grid;
-
-    grid-template-columns:
-      1fr 1fr;
-
+    grid-template-columns: 1fr 1fr;
     width: 100%;
   }
 
@@ -1072,29 +962,24 @@
     width: 100%;
   }
 
-
   /* -----------------------------------------------
      ONE COLUMN STATISTICS
      ----------------------------------------------- */
 
   .stats-grid {
     grid-template-columns: 1fr;
-
     gap: 10px;
-
     margin-bottom: 16px;
   }
 
   .stat-card {
     min-height: 96px;
-
     padding: 14px;
   }
 
   .stat-icon {
     width: 42px;
     height: 42px;
-
     margin-right: 12px;
   }
 
@@ -1102,14 +987,12 @@
     font-size: 1.4rem;
   }
 
-
   /* -----------------------------------------------
      CARDS
      ----------------------------------------------- */
 
   .dashboard-card {
     padding: 16px;
-
     border-radius: 13px;
   }
 
@@ -1118,6 +1001,20 @@
     margin-bottom: 14px;
   }
 
+  .card-header {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    align-items: flex-start;
+  }
+
+  .section-icon {
+    width: 36px;
+    height: 36px;
+  }
 
   /* -----------------------------------------------
      CHARTS
@@ -1127,7 +1024,6 @@
     height: 270px;
   }
 
-
   /* -----------------------------------------------
      RECENT TICKETS
      ----------------------------------------------- */
@@ -1135,9 +1031,7 @@
   .ticket-row {
     align-items: flex-start;
     flex-direction: column;
-
     gap: 10px;
-
     padding: 14px 0;
   }
 
@@ -1150,11 +1044,14 @@
     width: 100%;
   }
 
+  .ticket-main strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .ticket-meta {
     width: 100%;
-
     display: flex;
-
     flex-wrap: wrap;
   }
 
@@ -1162,25 +1059,20 @@
     margin-left: auto;
   }
 
-
   /* -----------------------------------------------
      FAQ
      ----------------------------------------------- */
 
   .faq-question {
     min-height: 64px;
-
     padding: 16px 2px;
-
     font-size: 0.82rem;
   }
 
   .faq-answer {
     padding: 0 4px 18px;
-
     font-size: 0.78rem;
   }
-
 
   /* -----------------------------------------------
      QUICK ACTIONS
@@ -1188,23 +1080,19 @@
 
   .quick-actions {
     grid-template-columns: 1fr;
-
     gap: 10px;
   }
 
   .quick-action {
     padding: 14px;
   }
-
 }
-
 
 /* =========================================================
    VERY SMALL PHONES
    ========================================================= */
 
 @media (max-width: 380px) {
-
   .header-actions {
     grid-template-columns: 1fr;
   }
@@ -1213,8 +1101,20 @@
     grid-column: auto;
   }
 
+  .header-button {
+    min-height: 42px;
+  }
+
   .chart-wrapper {
     height: 240px;
+  }
+
+  .dashboard-card {
+    padding: 14px;
+  }
+
+  .card-title {
+    gap: 9px;
   }
 
   .card-title h2 {
@@ -1225,6 +1125,11 @@
     font-size: 0.7rem;
   }
 
+  .section-icon {
+    width: 34px;
+    height: 34px;
+  }
+
   .ticket-meta {
     gap: 5px;
   }
@@ -1233,15 +1138,26 @@
     font-size: 0.58rem;
   }
 
-}
+  .ticket-time {
+    font-size: 0.65rem;
+  }
 
+  .quick-action {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .quick-icon {
+    width: 38px;
+    height: 38px;
+  }
+}
 
 /* =========================================================
    REDUCE MOTION
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
   .stat-card,
   .header-button,
   .quick-action,
@@ -1250,4 +1166,9 @@
     transition: none;
   }
 
+  .stat-card:hover,
+  .header-button:hover,
+  .quick-action:hover {
+    transform: none;
+  }
 }
