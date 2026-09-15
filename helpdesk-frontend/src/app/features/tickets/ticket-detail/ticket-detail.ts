@@ -328,6 +328,10 @@ scrollTabs(direction: 'left' | 'right'): void {
     return this.ticket?.assignedToId === userId;
   }
 
+  isActingAsAssignee(): boolean {
+    return this.isAssignedToMe();
+  }
+
   canRejectTicket(): boolean {
     if (!this.isSupportOfficer()) {
       return false;
@@ -342,14 +346,22 @@ scrollTabs(direction: 'left' | 'right'): void {
   }
 
   canManageTicket(): boolean {
-    return this.isOwner();
+    return this.isOwner() && !this.isActingAsAssignee();
   }
 
   canAssignTicket(): boolean {
+    if (this.isActingAsAssignee()) {
+      return false;
+    }
+
     return this.isAdmin() || this.isSupervisor();
   }
 
   canAutoAssign(): boolean {
+    if (this.isActingAsAssignee()) {
+      return false;
+    }
+
     if (!this.ticket) return false;
     return this.ticket.status === 'OPEN'
         || this.ticket.status === 'UNASSIGNED';

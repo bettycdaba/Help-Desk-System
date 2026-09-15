@@ -295,6 +295,16 @@ public class TicketServiceImpl implements TicketService {
             );
         }
 
+        if (ticket.getAssignedTo() != null
+                && Objects.equals(
+                        ticket.getAssignedTo().getId(),
+                        assignedBy.getId())) {
+            throw new BadRequestException(
+                    "You cannot reassign a ticket that is already assigned to you. "
+                            + "Please reject it first if you cannot handle it."
+            );
+        }
+
         User oldAssignee = ticket.getAssignedTo() != null
                 ? ticket.getAssignedTo()
                 : ticket.getCreatedBy();
@@ -362,6 +372,15 @@ public class TicketServiceImpl implements TicketService {
     public TicketResponseDTO autoAssignTicket(Long ticketId, Long assignedById) {
 
         Ticket ticket = findTicketById(ticketId);
+
+        if (ticket.getAssignedTo() != null
+                && Objects.equals(
+                        ticket.getAssignedTo().getId(),
+                        assignedById)) {
+            throw new BadRequestException(
+                    "This ticket is already assigned to you."
+            );
+        }
 
         if (ticket.getStatus() != TicketStatus.OPEN
                 && ticket.getStatus() != TicketStatus.UNASSIGNED) {
