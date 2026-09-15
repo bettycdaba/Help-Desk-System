@@ -23,6 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByActiveTrue();
 
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'SUPPORT_OFFICER' AND u.active = true")
-List<User> findActiveSupportOfficers();
+    @Query("SELECT u FROM User u JOIN u.roles r " +
+           "WHERE r.name = 'SUPPORT_OFFICER' AND u.active = true")
+    List<User> findActiveSupportOfficers();
 }

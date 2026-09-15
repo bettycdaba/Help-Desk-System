@@ -26,9 +26,11 @@ public interface TicketService {
 
     TicketResponseDTO updateTicket(Long id, TicketRequestDTO request);
 
-     TicketResponseDTO updateTicketDetails(Long id, TicketUpdateDTO request); 
+    TicketResponseDTO updateTicketDetails(Long id, TicketUpdateDTO request);
 
     TicketResponseDTO assignTicket(Long id, TicketAssignRequestDTO request);
+
+    TicketResponseDTO autoAssignTicket(Long ticketId, Long assignedById);
 
     TicketResponseDTO updateStatus(Long id, TicketStatusUpdateRequestDTO request);
 
@@ -38,6 +40,5 @@ public interface TicketService {
         Long id,
         TicketRejectionRequestDTO request);
 
-        List<TeamWorkloadDTO> getTeamWorkload();
-
+    List<TeamWorkloadDTO> getTeamWorkload();
 }

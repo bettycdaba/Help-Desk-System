@@ -155,5 +155,13 @@ getTeamWorkload(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/workload`);
 }
 
+autoAssign(ticketId: number, assignedById: number)
+    : Observable<Ticket> {
+  return this.http.post<Ticket>(
+    `${this.baseUrl}/${ticketId}/auto-assign?assignedById=${assignedById}`,
+    {}
+  );
+}
+
 }
 

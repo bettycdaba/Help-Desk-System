@@ -850,3 +850,12 @@
     padding: 9px 12px;
   }
 }
+
+
+button.btn-outline-primary:disabled {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.65;
+}

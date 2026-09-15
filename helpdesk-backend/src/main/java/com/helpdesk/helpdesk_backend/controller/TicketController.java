@@ -119,5 +119,14 @@ public ResponseEntity<TicketResponseDTO> rejectTicket(
 public ResponseEntity<List<TeamWorkloadDTO>> getTeamWorkload() {
     return ResponseEntity.ok(ticketService.getTeamWorkload());
 }
+
+@PostMapping("/{id}/auto-assign")
+@PreAuthorize("hasAnyAuthority('ASSIGN_TICKET', 'ROLE_ADMIN')")
+public ResponseEntity<TicketResponseDTO> autoAssignTicket(
+        @PathVariable Long id,
+        @RequestParam Long assignedById) {
+    return ResponseEntity.ok(
+            ticketService.autoAssignTicket(id, assignedById));
+}
 }
 

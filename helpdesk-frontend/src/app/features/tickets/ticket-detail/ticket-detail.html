@@ -124,74 +124,74 @@
 
       <!-- Tabs Card -->
       <div class="card">
-<div class="card-header ticket-tabs-header">
+        <div class="card-header ticket-tabs-header">
 
-  <button
-    *ngIf="showLeftTabIndicator"
-    type="button"
-    class="tab-scroll-arrow tab-scroll-left"
-    (click)="scrollTabs('left')"
-    aria-label="Scroll tabs left">
-    <i class="bi bi-chevron-left"></i>
-  </button>
+          <button
+            *ngIf="showLeftTabIndicator"
+            type="button"
+            class="tab-scroll-arrow tab-scroll-left"
+            (click)="scrollTabs('left')"
+            aria-label="Scroll tabs left">
+            <i class="bi bi-chevron-left"></i>
+          </button>
 
-  <div
-    class="ticket-tabs-scroll"
-    #ticketTabsScroll
-    (scroll)="updateTabScrollState()">
+          <div
+            class="ticket-tabs-scroll"
+            #ticketTabsScroll
+            (scroll)="updateTabScrollState()">
 
-    <ul class="nav nav-tabs card-header-tabs ticket-detail-tabs">
+            <ul class="nav nav-tabs card-header-tabs ticket-detail-tabs">
 
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          [class.active]="activeTab === 'comments'"
-          (click)="setTab('comments')">
-          Comments
-        </button>
-      </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  [class.active]="activeTab === 'comments'"
+                  (click)="setTab('comments')">
+                  Comments
+                </button>
+              </li>
 
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          [class.active]="activeTab === 'status'"
-          (click)="setTab('status')">
-          Status History
-        </button>
-      </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  [class.active]="activeTab === 'status'"
+                  (click)="setTab('status')">
+                  Status History
+                </button>
+              </li>
 
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          [class.active]="activeTab === 'assignment'"
-          (click)="setTab('assignment')">
-          Assignment History
-        </button>
-      </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  [class.active]="activeTab === 'assignment'"
+                  (click)="setTab('assignment')">
+                  Assignment History
+                </button>
+              </li>
 
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          [class.active]="activeTab === 'attachments'"
-          (click)="setTab('attachments')">
-          Attachments
-        </button>
-      </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  [class.active]="activeTab === 'attachments'"
+                  (click)="setTab('attachments')">
+                  Attachments
+                </button>
+              </li>
 
-    </ul>
+            </ul>
 
-  </div>
+          </div>
 
-  <button
-    *ngIf="showRightTabIndicator"
-    type="button"
-    class="tab-scroll-arrow tab-scroll-right"
-    (click)="scrollTabs('right')"
-    aria-label="Scroll tabs right">
-    <i class="bi bi-chevron-right"></i>
-  </button>
+          <button
+            *ngIf="showRightTabIndicator"
+            type="button"
+            class="tab-scroll-arrow tab-scroll-right"
+            (click)="scrollTabs('right')"
+            aria-label="Scroll tabs right">
+            <i class="bi bi-chevron-right"></i>
+          </button>
 
-</div>
+        </div>
 
         <div class="card-body">
 
@@ -355,6 +355,7 @@
               <i class="bi bi-person-check me-2"></i> Assign Ticket
             </div>
             <div class="card-body">
+
               <label class="form-label">Assign to</label>
               <select class="form-select mb-3" [(ngModel)]="selectedAssignee">
                 <option [ngValue]="null">Select support officer</option>
@@ -364,14 +365,54 @@
                   </option>
                 }
               </select>
-              <button class="btn btn-primary w-100" (click)="assignTicket()"
-                [disabled]="isAssigning || !selectedAssignee">
+
+              <button class="btn btn-primary w-100"
+                      (click)="assignTicket()"
+                      [disabled]="isAssigning || !selectedAssignee">
                 @if (isAssigning) {
-                  <span class="spinner-border spinner-border-sm me-2"></span> Assigning...
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Assigning...
                 } @else {
-                  <i class="bi bi-person-check me-2"></i> Assign Ticket
+                  <i class="bi bi-person-check me-2"></i> Assign
                 }
               </button>
+
+              <div class="text-center my-2 text-muted small">─── OR ───</div>
+
+              <button class="btn btn-outline-primary w-100"
+                      (click)="autoAssignTicket()"
+                      [disabled]="isAutoAssigning || !canAutoAssign()">
+                @if (isAutoAssigning) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Auto-assigning...
+                } @else {
+                  <i class="bi bi-lightning-charge me-2"></i>
+                  Auto Assign (Least Busy)
+                }
+              </button>
+
+          @if (!canAutoAssign()) {
+            <small class="text-muted d-block mt-2 text-center">
+              @if (ticket.status === 'ASSIGNED') {
+                Ticket is already assigned.
+              } @else if (ticket.status === 'IN_PROGRESS') {
+                Ticket is currently in progress.
+              } @else if (ticket.status === 'PENDING') {
+                Ticket is on hold.
+              } @else if (ticket.status === 'RESOLVED') {
+                Ticket has been resolved.
+              } @else if (ticket.status === 'CLOSED') {
+                Ticket is closed.
+              } @else if (ticket.status === 'REOPENED') {
+                Ticket has been reopened.
+              }
+            </small>
+          } @else {
+                <small class="text-muted d-block mt-2 text-center">
+                  System picks the Support Officer with the fewest active tickets.
+                </small>
+              }
+
             </div>
           </div>
         }

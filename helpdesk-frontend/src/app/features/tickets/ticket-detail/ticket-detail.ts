@@ -54,6 +54,7 @@ export class TicketDetail implements OnInit, OnDestroy, AfterViewInit {
   selectedAssignee: number | null = null;
   selectedStatus = '';
   isAssigning = false;
+  isAutoAssigning = false;
   isUpdatingStatus = false;
 
   // Reject ticket
@@ -61,7 +62,6 @@ export class TicketDetail implements OnInit, OnDestroy, AfterViewInit {
   showRejectModal = false;
   rejectionReason = '';
   
-
   // Edit ticket form
   isEditingTicket = false;
   isSavingTicket = false;
@@ -349,6 +349,12 @@ scrollTabs(direction: 'left' | 'right'): void {
     return this.isAdmin() || this.isSupervisor();
   }
 
+  canAutoAssign(): boolean {
+    if (!this.ticket) return false;
+    return this.ticket.status === 'OPEN'
+        || this.ticket.status === 'UNASSIGNED';
+  }
+
 canUpdateStatus(): boolean {
     return this.isSupportOfficer() && this.isAssignedToMe();
 }
@@ -550,6 +556,49 @@ canUpdateStatus(): boolean {
       error: () => {
         this.isAssigning = false;
         this.toastService.error('Failed to assign ticket');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  autoAssignTicket(): void {
+    if (!this.ticket?.id) return;
+
+    if (!this.canAssignTicket()) {
+      this.toastService.error('You are not allowed to auto-assign tickets.');
+      return;
+    }
+
+    if (!this.canAutoAssign()) {
+      this.toastService.error(
+        'Only OPEN or UNASSIGNED tickets can be auto-assigned.'
+      );
+      return;
+    }
+
+    this.isAutoAssigning = true;
+
+    this.ticketService.autoAssign(
+      this.ticket.id,
+      this.getCurrentUserId()
+    ).subscribe({
+      next: (updated) => {
+        this.ticket = updated;
+        this.selectedAssignee = updated.assignedToId || null;
+        this.isAutoAssigning = false;
+
+        this.toastService.success(
+          `Ticket automatically assigned to ${updated.assignedToName}`
+        );
+
+        this.loadHistory(this.ticket!.id!);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isAutoAssigning = false;
+        this.toastService.error(
+          err?.error?.message || 'Failed to auto-assign ticket.'
+        );
         this.cdr.detectChanges();
       }
     });
@@ -786,4 +835,6 @@ canUpdateStatus(): boolean {
     }
     return this.ticket?.status !== 'REOPENED';
   }
+
+
 }
