@@ -24,6 +24,9 @@ public class TicketCategory {
     @Column(length = 255)
     private String description;
 
+    @Column(length = 500)
+    private String tip;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean active = true;

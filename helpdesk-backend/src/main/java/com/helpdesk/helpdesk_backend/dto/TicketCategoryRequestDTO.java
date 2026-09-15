@@ -19,4 +19,7 @@ public class TicketCategoryRequestDTO {
 
     @Size(max = 255, message = "Description cannot exceed 255 characters")
     private String description;
+
+    @Size(max = 500, message = "Tip cannot exceed 500 characters")
+    private String tip;
 }

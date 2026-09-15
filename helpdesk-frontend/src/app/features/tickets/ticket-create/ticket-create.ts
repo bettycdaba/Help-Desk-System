@@ -68,6 +68,11 @@ export class TicketCreate implements OnInit {
     });
   }
 
+  get selectedCategory(): TicketCategory | undefined {
+    return this.categories.find(category =>
+      category.id === this.categoryId);
+  }
+
   loadUsers(): void {
     this.userService.getAll().subscribe({
       next: (users) => {

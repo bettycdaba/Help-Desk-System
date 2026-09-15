@@ -20,13 +20,15 @@ import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-moda
 })
 export class Categories implements OnInit {
 
+  readonly maxTipWords = 500;
+
   categories: TicketCategory[] = [];
   isLoading = true;
   isSubmitting = false;
   showForm = false;
   isEditing = false;
 
-  form: TicketCategory = { name: '', description: '' };
+  form: TicketCategory = { name: '', description: '', tip: '' };
   editingId: number | null = null;
   searchText = '';
   showStatusModal = false;
@@ -75,7 +77,7 @@ export class Categories implements OnInit {
   }
 
   openAddForm(): void {
-    this.form = { name: '', description: '' };
+    this.form = { name: '', description: '', tip: '' };
     this.isEditing = false;
     this.editingId = null;
     this.showForm = true;
@@ -92,7 +94,7 @@ export class Categories implements OnInit {
 
   closeForm(): void {
     this.showForm = false;
-    this.form = { name: '', description: '' };
+    this.form = { name: '', description: '', tip: '' };
     this.editingId = null;
     this.cdr.detectChanges();
   }
@@ -103,11 +105,25 @@ export class Categories implements OnInit {
       return;
     }
 
+    const tipWordCount = this.form.tip?.trim()
+      ? this.form.tip.trim().split(/\s+/).length
+      : 0;
+    if (tipWordCount > this.maxTipWords) {
+      this.toastService.error(
+        `Category tip cannot exceed ${this.maxTipWords} words`);
+      return;
+    }
+
     this.isSubmitting = true;
 
     if (this.isEditing && this.editingId) {
+      const updatePayload: TicketCategory = {
+        name: this.form.name,
+        description: this.form.description,
+        tip: this.form.tip
+      };
       this.categoryService.update(
-        this.editingId, this.form).subscribe({
+        this.editingId, updatePayload).subscribe({
         next: (updated) => {
           const index = this.categories.findIndex(
             c => c.id === this.editingId);
@@ -120,10 +136,10 @@ export class Categories implements OnInit {
             'Category updated successfully');
           this.cdr.detectChanges();
         },
-        error: () => {
+        error: (err) => {
           this.isSubmitting = false;
           this.toastService.error(
-            'Failed to update category');
+            err?.error?.message || 'Failed to update category');
           this.cdr.detectChanges();
         }
       });

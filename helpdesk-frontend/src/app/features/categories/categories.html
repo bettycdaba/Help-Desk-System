@@ -48,6 +48,21 @@
           >
         </div>
 
+        <div class="col-md-10">
+          <label class="form-label">Ticket Tip</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Helpful guidance shown when creating a ticket"
+            maxlength="500"
+            [(ngModel)]="form.tip"
+            [disabled]="isSubmitting"
+          >
+          <small class="text-muted">
+            Maximum {{ maxTipWords }} words.
+          </small>
+        </div>
+
       </div>
     </div>
 
