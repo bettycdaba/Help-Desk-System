@@ -52,4 +52,12 @@ public class RoleController {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyAuthority('MANAGE_ROLES', 'ROLE_ADMIN')")
+    public ResponseEntity<RoleResponseDTO> updateRoleStatus(
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        return ResponseEntity.ok(roleService.updateRoleStatus(id, active));
+    }
 }

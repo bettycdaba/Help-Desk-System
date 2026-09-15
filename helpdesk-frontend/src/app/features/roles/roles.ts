@@ -12,11 +12,12 @@ import { Role } from '../../core/models/role.model';
 import { Permission, RolePermissions } 
   from '../../core/models/permission.model';
 import { AuthService } from '../../core/services/auth.service';
+import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmModal],
   templateUrl: './roles.html',
   styleUrl: './roles.css'
 })
@@ -38,6 +39,10 @@ export class Roles implements OnInit {
   editingId: number | null = null;
   searchText = '';
   selectedRoleId: number | null = null;
+  showStatusModal = false;
+  statusTarget: Role | null = null;
+  statusTargetActive = false;
+  isUpdatingStatus = false;
 
   constructor(
     private roleService: RoleService,
@@ -255,16 +260,38 @@ openPermissions(role: Role): void {
     }
   }
 
-  delete(role: Role): void {
-    if (!confirm(`Delete role "${role.name}"?`)) return;
-    this.roleService.delete(role.id!).subscribe({
-      next: () => {
-        this.roles = this.roles.filter(r => r.id !== role.id);
-        this.toastService.success('Role deleted');
-        this.cdr.detectChanges();
+  toggleStatus(role: Role): void {
+    this.statusTarget = role;
+    this.statusTargetActive = role.active !== true;
+    this.showStatusModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeStatusModal(): void {
+    this.showStatusModal = false;
+    this.statusTarget = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmStatusChange(): void {
+    if (!this.statusTarget?.id) return;
+    this.isUpdatingStatus = true;
+    this.roleService.updateStatus(
+      this.statusTarget.id, this.statusTargetActive).subscribe({
+      next: (updated) => {
+        const index = this.roles.findIndex(
+          r => r.id === updated.id);
+        if (index !== -1) this.roles[index] = updated;
+        this.isUpdatingStatus = false;
+        const state = updated.active ? 'activated' : 'deactivated';
+        this.toastService.success(`Role ${state} successfully`);
+        this.closeStatusModal();
       },
-      error: () =>
-        this.toastService.error('Failed to delete role')
+      error: () => {
+        this.isUpdatingStatus = false;
+        this.toastService.error('Failed to update role status');
+        this.cdr.detectChanges();
+      }
     });
   }
   formatPermissionName(name: string): string {

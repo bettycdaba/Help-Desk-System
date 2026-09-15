@@ -61,6 +61,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Department not found with id: " + request.getDepartmentId()));
 
+        if (Boolean.FALSE.equals(department.getActive())) {
+            throw new BadRequestException(
+                "Cannot create an account in an inactive department.");
+        }
+
         Set<Role> roles = resolveRoles(request.getRoleIds());
 
         if (roles.isEmpty()) {
@@ -281,6 +286,11 @@ public class UserServiceImpl implements UserService {
                 .findById(request.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Department not found with id: " + request.getDepartmentId()));
+
+        if (Boolean.FALSE.equals(department.getActive())) {
+            throw new BadRequestException(
+                "Cannot create an account in an inactive department.");
+        }
 
         Role employeeRole = roleRepository
                 .findByName("EMPLOYEE")

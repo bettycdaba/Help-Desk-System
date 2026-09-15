@@ -67,6 +67,16 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
+    public DepartmentResponseDTO updateDepartmentStatus(Long id, boolean active) {
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department not found with id: " + id));
+        department.setActive(active);
+        return mapToResponse(departmentRepository.save(department));
+    }
+
+    @Override
+    @Transactional
     public void deleteDepartment(Long id) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -79,6 +89,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .id(department.getId())
                 .name(department.getName())
                 .description(department.getDescription())
+                .active(department.getActive())
                 .build();
     }
 }

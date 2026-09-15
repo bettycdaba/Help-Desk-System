@@ -27,6 +27,10 @@ public class Role {
     @Column(length = 255)
     private String description;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
+
     // ADD THIS - Many-to-Many with Permission
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

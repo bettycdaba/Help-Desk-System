@@ -9,11 +9,12 @@ import { ToastService }
 import { Department } 
   from '../../core/models/department.model';
 import { AuthService } from '../../core/services/auth.service';
+import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
   selector: 'app-departments',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmModal],
   templateUrl: './departments.html',
   styleUrl: './departments.css'
 })
@@ -28,6 +29,10 @@ export class Departments implements OnInit {
   form: Department = { name: '', description: '' };
   editingId: number | null = null;
   searchText = '';
+  showStatusModal = false;
+  statusTarget: Department | null = null;
+  statusTargetActive = false;
+  isUpdatingStatus = false;
 
   constructor(
     private departmentService: DepartmentService,
@@ -144,21 +149,37 @@ export class Departments implements OnInit {
     }
   }
 
-  delete(dept: Department): void {
-    if (!confirm(
-      `Delete department "${dept.name}"?`)) return;
+  toggleStatus(dept: Department): void {
+    this.statusTarget = dept;
+    this.statusTargetActive = dept.active !== true;
+    this.showStatusModal = true;
+    this.cdr.detectChanges();
+  }
 
-    this.departmentService.delete(dept.id!).subscribe({
-      next: () => {
-        this.departments = this.departments.filter(
-          d => d.id !== dept.id);
-        this.toastService.success(
-          'Department deleted successfully');
-        this.cdr.detectChanges();
+  closeStatusModal(): void {
+    this.showStatusModal = false;
+    this.statusTarget = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmStatusChange(): void {
+    if (!this.statusTarget?.id) return;
+    this.isUpdatingStatus = true;
+    this.departmentService.updateStatus(
+      this.statusTarget.id, this.statusTargetActive).subscribe({
+      next: (updated) => {
+        const index = this.departments.findIndex(
+          d => d.id === updated.id);
+        if (index !== -1) this.departments[index] = updated;
+        this.isUpdatingStatus = false;
+        const state = updated.active ? 'activated' : 'deactivated';
+        this.toastService.success(`Department ${state} successfully`);
+        this.closeStatusModal();
       },
       error: () => {
-        this.toastService.error(
-          'Failed to delete department');
+        this.isUpdatingStatus = false;
+        this.toastService.error('Failed to update department status');
+        this.cdr.detectChanges();
       }
     });
   }

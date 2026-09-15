@@ -28,6 +28,11 @@ export class RoleService {
     return this.http.put<Role>(`${this.baseUrl}/${id}`, role);
   }
 
+  updateStatus(id: number, active: boolean): Observable<Role> {
+    return this.http.patch<Role>(
+      `${this.baseUrl}/${id}/status`, null, { params: { active } });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

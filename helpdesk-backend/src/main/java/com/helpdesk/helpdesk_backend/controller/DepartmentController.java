@@ -62,4 +62,13 @@ public class DepartmentController {
         departmentService.deleteDepartment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyAuthority('MANAGE_DEPARTMENTS', 'ROLE_ADMIN')")
+    public ResponseEntity<DepartmentResponseDTO> updateDepartmentStatus(
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        return ResponseEntity.ok(
+                departmentService.updateDepartmentStatus(id, active));
+    }
 }

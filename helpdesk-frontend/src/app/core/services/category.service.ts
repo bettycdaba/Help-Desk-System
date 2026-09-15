@@ -32,6 +32,11 @@ export class CategoryService {
       `${this.baseUrl}/${id}`, category);
   }
 
+  updateStatus(id: number, active: boolean): Observable<TicketCategory> {
+    return this.http.patch<TicketCategory>(
+      `${this.baseUrl}/${id}/status`, null, { params: { active } });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

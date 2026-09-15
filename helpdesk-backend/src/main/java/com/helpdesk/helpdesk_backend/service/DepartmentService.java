@@ -15,5 +15,7 @@ public interface DepartmentService {
 
     DepartmentResponseDTO updateDepartment(Long id, DepartmentRequestDTO request);
 
+    DepartmentResponseDTO updateDepartmentStatus(Long id, boolean active);
+
     void deleteDepartment(Long id);
 }

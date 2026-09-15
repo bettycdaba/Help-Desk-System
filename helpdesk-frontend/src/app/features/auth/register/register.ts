@@ -56,6 +56,10 @@ export class Register implements OnInit {
 
   }
 
+  get activeDepartments(): Department[] {
+    return this.departments.filter(dept => dept.active !== false);
+  }
+
 
 
 

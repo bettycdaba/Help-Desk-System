@@ -9,11 +9,12 @@ import { ToastService }
 import { TicketCategory } 
   from '../../core/models/category.model';
 import { AuthService } from '../../core/services/auth.service';
+import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmModal],
   templateUrl: './categories.html',
   styleUrl: './categories.css'
 })
@@ -28,6 +29,10 @@ export class Categories implements OnInit {
   form: TicketCategory = { name: '', description: '' };
   editingId: number | null = null;
   searchText = '';
+  showStatusModal = false;
+  statusTarget: TicketCategory | null = null;
+  statusTargetActive = false;
+  isUpdatingStatus = false;
 
   constructor(
     private categoryService: CategoryService,
@@ -142,19 +147,38 @@ export class Categories implements OnInit {
     }
   }
 
-  delete(cat: TicketCategory): void {
-    if (!confirm(
-      `Delete category "${cat.name}"?`)) return;
-    this.categoryService.delete(cat.id!).subscribe({
-      next: () => {
-        this.categories = this.categories.filter(
-          c => c.id !== cat.id);
-        this.toastService.success('Category deleted');
-        this.cdr.detectChanges();
+  toggleStatus(cat: TicketCategory): void {
+    this.statusTarget = cat;
+    this.statusTargetActive = cat.active !== true;
+    this.showStatusModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeStatusModal(): void {
+    this.showStatusModal = false;
+    this.statusTarget = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmStatusChange(): void {
+    if (!this.statusTarget?.id) return;
+    this.isUpdatingStatus = true;
+    this.categoryService.updateStatus(
+      this.statusTarget.id, this.statusTargetActive).subscribe({
+      next: (updated) => {
+        const index = this.categories.findIndex(
+          c => c.id === updated.id);
+        if (index !== -1) this.categories[index] = updated;
+        this.isUpdatingStatus = false;
+        const state = updated.active ? 'activated' : 'deactivated';
+        this.toastService.success(`Category ${state} successfully`);
+        this.closeStatusModal();
       },
-      error: () =>
-        this.toastService.error(
-          'Failed to delete category')
+      error: () => {
+        this.isUpdatingStatus = false;
+        this.toastService.error('Failed to update category status');
+        this.cdr.detectChanges();
+      }
     });
   }
 }

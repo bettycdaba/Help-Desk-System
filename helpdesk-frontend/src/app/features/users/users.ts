@@ -126,6 +126,14 @@ export class Users implements OnInit {
     return result;
   }
 
+  get selectableDepartments(): Department[] {
+    if (this.isEditing && this.form.departmentId) {
+      return this.departments.filter(dept =>
+        dept.active !== false || dept.id === this.form.departmentId);
+    }
+    return this.departments.filter(dept => dept.active !== false);
+  }
+
   openAddForm(): void {
     this.form = {
       employeeId: '',

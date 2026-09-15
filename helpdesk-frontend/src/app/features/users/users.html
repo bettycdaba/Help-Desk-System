@@ -102,7 +102,7 @@
           >
             <option [ngValue]="null">Select department</option>
 
-            @for (dept of departments; track dept.id) {
+            @for (dept of selectableDepartments; track dept.id) {
               <option [ngValue]="dept.id">
                 {{ dept.name }}
               </option>

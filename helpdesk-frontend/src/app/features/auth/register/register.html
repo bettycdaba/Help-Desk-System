@@ -90,7 +90,7 @@
             <option [ngValue]="null">
               Select department
             </option>
-            @for (dept of departments; track dept.id) {
+            @for (dept of activeDepartments; track dept.id) {
               <option [ngValue]="dept.id">
                 {{ dept.name }}
               </option>

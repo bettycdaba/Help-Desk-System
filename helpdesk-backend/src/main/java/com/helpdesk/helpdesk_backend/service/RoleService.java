@@ -15,5 +15,7 @@ public interface RoleService {
 
     RoleResponseDTO updateRole(Long id, RoleRequestDTO request);
 
+    RoleResponseDTO updateRoleStatus(Long id, boolean active);
+
     void deleteRole(Long id);
 }

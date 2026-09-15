@@ -30,6 +30,16 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional
+    public RoleResponseDTO updateRoleStatus(Long id, boolean active) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Role not found with id: " + id));
+        role.setActive(active);
+        return mapToResponse(roleRepository.save(role));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<RoleResponseDTO> getAllRoles() {
         return roleRepository.findAll()
@@ -72,6 +82,7 @@ public class RoleServiceImpl implements RoleService {
                 .id(role.getId())
                 .name(role.getName())
                 .description(role.getDescription())
+                .active(role.getActive())
                 .build();
     } 
 }

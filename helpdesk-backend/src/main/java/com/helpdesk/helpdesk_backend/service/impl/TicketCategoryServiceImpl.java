@@ -30,6 +30,16 @@ public class TicketCategoryServiceImpl implements TicketCategoryService {
     }
 
     @Override
+    @Transactional
+    public TicketCategoryResponseDTO updateCategoryStatus(Long id, boolean active) {
+        TicketCategory category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Category not found with id: " + id));
+        category.setActive(active);
+        return mapToResponse(categoryRepository.save(category));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<TicketCategoryResponseDTO> getAllCategories() {
         return categoryRepository.findAll()
@@ -72,6 +82,7 @@ public class TicketCategoryServiceImpl implements TicketCategoryService {
                 .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
+                .active(category.getActive())
                 .build();
     }
 }

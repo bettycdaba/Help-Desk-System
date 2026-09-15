@@ -54,4 +54,13 @@ public class TicketCategoryController {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyAuthority('MANAGE_CATEGORIES', 'ROLE_ADMIN')")
+    public ResponseEntity<TicketCategoryResponseDTO> updateCategoryStatus(
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        return ResponseEntity.ok(
+                categoryService.updateCategoryStatus(id, active));
+    }
 }

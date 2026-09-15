@@ -147,11 +147,13 @@
 
                     @if (hasPermission('MANAGE_CATEGORIES')) {
                       <button
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="delete(cat)"
-                        title="Delete category"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="toggleStatus(cat)"
+                        [title]="cat.active !== false ? 'Active' : 'Inactive'"
                       >
-                        <i class="bi bi-trash"></i>
+                        <i class="bi"
+                          [class.bi-toggle-on]="cat.active !== false"
+                          [class.bi-toggle-off]="cat.active === false"></i>
                       </button>
                     }
 
@@ -166,3 +168,14 @@
 
   </div>
 </div>
+
+<app-confirm-modal
+  [isVisible]="showStatusModal"
+  [title]="statusTargetActive ? 'Activate category' : 'Deactivate category'"
+  [message]="'Are you sure you want to ' + (statusTargetActive ? 'activate' : 'deactivate') + ' category ' + statusTarget?.name + '?'"
+  [confirmText]="statusTargetActive ? 'Activate' : 'Deactivate'"
+  cancelText="Cancel"
+  [isDanger]="!statusTargetActive"
+  (confirmed)="confirmStatusChange()"
+  (cancelled)="closeStatusModal()">
+</app-confirm-modal>

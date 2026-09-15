@@ -94,8 +94,11 @@
                     </button>
                     }
                     @if (hasPermission('MANAGE_DEPARTMENTS')) {
-                    <button class="btn-action delete" (click)="delete(dept)" title="Delete">
-                      <i class="bi bi-trash"></i>
+                    <button class="btn-action" (click)="toggleStatus(dept)"
+                      [title]="dept.active !== false ? 'Active' : 'Inactive'">
+                      <i class="bi"
+                        [class.bi-toggle-on]="dept.active !== false"
+                        [class.bi-toggle-off]="dept.active === false"></i>
                     </button>
                     }
                   </div>
@@ -122,8 +125,11 @@
                 </button>
                 }
                 @if (hasPermission('MANAGE_DEPARTMENTS')) {
-                <button class="btn-action delete" (click)="delete(dept)" title="Delete">
-                  <i class="bi bi-trash"></i>
+                <button class="btn-action" (click)="toggleStatus(dept)"
+                  [title]="dept.active !== false ? 'Active' : 'Inactive'">
+                  <i class="bi"
+                    [class.bi-toggle-on]="dept.active !== false"
+                    [class.bi-toggle-off]="dept.active === false"></i>
                 </button>
                 }
               </div>
@@ -137,3 +143,14 @@
     }
   </div>
 </div>
+
+<app-confirm-modal
+  [isVisible]="showStatusModal"
+  [title]="statusTargetActive ? 'Activate department' : 'Deactivate department'"
+  [message]="'Are you sure you want to ' + (statusTargetActive ? 'activate' : 'deactivate') + ' department ' + statusTarget?.name + '?'"
+  [confirmText]="statusTargetActive ? 'Activate' : 'Deactivate'"
+  cancelText="Cancel"
+  [isDanger]="!statusTargetActive"
+  (confirmed)="confirmStatusChange()"
+  (cancelled)="closeStatusModal()">
+</app-confirm-modal>

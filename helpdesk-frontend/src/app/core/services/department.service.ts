@@ -30,6 +30,11 @@ export class DepartmentService {
       `${this.baseUrl}/${id}`, department);
   }
 
+  updateStatus(id: number, active: boolean): Observable<Department> {
+    return this.http.patch<Department>(
+      `${this.baseUrl}/${id}/status`, null, { params: { active } });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
