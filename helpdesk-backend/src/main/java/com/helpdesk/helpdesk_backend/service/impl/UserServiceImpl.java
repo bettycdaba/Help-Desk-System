@@ -135,12 +135,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id: " + id));
 
-        if (!user.getEmail().equals(request.getEmail()) &&
-                userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException(
-                    "A user with this email already exists: " + request.getEmail());
-        }
-
         org.springframework.security.core.Authentication auth = 
             org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         boolean hasPrivileges = auth != null && auth.getAuthorities().stream()
@@ -159,13 +153,19 @@ public class UserServiceImpl implements UserService {
             if (request.getRoleIds() != null) {
                 user.setRoles(resolveRoles(request.getRoleIds()));
             }
-        }
+        } else {
+            if (!user.getEmail().equals(request.getEmail()) &&
+                    userRepository.existsByEmail(request.getEmail())) {
+                throw new BadRequestException(
+                        "A user with this email already exists: " + request.getEmail());
+            }
 
-        user.setEmployeeId(request.getEmployeeId());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPhoneNumber(request.getPhoneNumber());
+            user.setEmployeeId(request.getEmployeeId());
+            user.setFirstName(request.getFirstName());
+            user.setLastName(request.getLastName());
+            user.setEmail(request.getEmail());
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
 
         return mapToResponse(userRepository.save(user));
     }

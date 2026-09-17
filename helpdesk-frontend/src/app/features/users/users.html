@@ -26,7 +26,7 @@
             class="form-control"
             [(ngModel)]="form.employeeId"
             placeholder="EMP-001"
-            [disabled]="isSubmitting"
+            [disabled]="isSubmitting || isEditing"
           >
         </div>
 
@@ -38,7 +38,7 @@
             type="text"
             class="form-control"
             [(ngModel)]="form.firstName"
-            [disabled]="isSubmitting"
+            [disabled]="isSubmitting || isEditing"
           >
         </div>
 
@@ -50,7 +50,7 @@
             type="text"
             class="form-control"
             [(ngModel)]="form.lastName"
-            [disabled]="isSubmitting"
+            [disabled]="isSubmitting || isEditing"
           >
         </div>
 
@@ -62,7 +62,7 @@
             type="email"
             class="form-control"
             [(ngModel)]="form.email"
-            [disabled]="isSubmitting"
+            [disabled]="isSubmitting || isEditing"
           >
         </div>
 
@@ -72,7 +72,7 @@
             type="text"
             class="form-control"
             [(ngModel)]="form.phoneNumber"
-            [disabled]="isSubmitting"
+            [disabled]="isSubmitting || isEditing"
           >
         </div>
 
