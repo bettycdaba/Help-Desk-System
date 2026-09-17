@@ -167,6 +167,11 @@ ticketTabsScroll?: ElementRef<HTMLDivElement>;
       this.toastService.error('File too large. Max 10MB.');
       return;
     }
+    if (!this.canAddToClosedTicket()) {
+      this.toastService.error(
+        'Ticket creators and assignees cannot attach files to closed tickets.');
+      return;
+    }
 
     this.isUploadingFile = true;
     this.cdr.detectChanges();
@@ -323,6 +328,11 @@ scrollTabs(direction: 'left' | 'right'): void {
     return this.ticket?.createdById === userId;
   }
 
+  canAddToClosedTicket(): boolean {
+    if (this.ticket?.status !== 'CLOSED') return true;
+    return !this.isOwner() && !this.isAssignedToMe();
+  }
+
   isAssignedToMe(): boolean {
     const userId = this.getCurrentUserId();
     return this.ticket?.assignedToId === userId;
@@ -346,7 +356,9 @@ scrollTabs(direction: 'left' | 'right'): void {
   }
 
   canManageTicket(): boolean {
-    return this.isOwner() && !this.isActingAsAssignee();
+    return this.isOwner()
+        && !this.isActingAsAssignee()
+        && this.ticket?.status !== 'CLOSED';
   }
 
   canAssignTicket(): boolean {
@@ -523,6 +535,11 @@ canUpdateStatus(): boolean {
       return;
     }
     if (!this.ticket?.id) return;
+    if (!this.canAddToClosedTicket()) {
+      this.toastService.error(
+        'Ticket creators and assignees cannot comment on closed tickets.');
+      return;
+    }
 
     this.isSubmittingComment = true;
     const comment: TicketComment = {

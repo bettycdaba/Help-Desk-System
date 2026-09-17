@@ -4,6 +4,8 @@ import com.helpdesk.helpdesk_backend.dto.TicketAttachmentResponseDTO;
 import com.helpdesk.helpdesk_backend.entity.Ticket;
 import com.helpdesk.helpdesk_backend.entity.TicketAttachment;
 import com.helpdesk.helpdesk_backend.entity.User;
+import com.helpdesk.helpdesk_backend.entity.enums.TicketStatus;
+import com.helpdesk.helpdesk_backend.exception.BadRequestException;
 import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.TicketAttachmentRepository;
 import com.helpdesk.helpdesk_backend.repository.TicketRepository;
@@ -50,6 +52,15 @@ public class TicketAttachmentController {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket not found with id: " + ticketId));
+
+        if (ticket.getStatus() == TicketStatus.CLOSED
+            && ((ticket.getCreatedBy() != null
+                && ticket.getCreatedBy().getId().equals(uploadedById))
+                || (ticket.getAssignedTo() != null
+                && ticket.getAssignedTo().getId().equals(uploadedById)))) {
+            throw new BadRequestException(
+                "Ticket creators and assignees cannot attach files to closed tickets.");
+        }
 
         User uploadedBy = userRepository.findById(uploadedById)
                 .orElseThrow(() -> new ResourceNotFoundException(

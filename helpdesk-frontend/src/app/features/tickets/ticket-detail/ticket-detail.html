@@ -196,20 +196,22 @@
         <div class="card-body">
 
           @if (activeTab === 'attachments') {
-            <div class="upload-area mb-4" [class.drag-over]="isDraggingOnDetail"
-                 (dragover)="onDetailDragOver($event)" (dragleave)="onDetailDragLeave($event)"
-                 (drop)="onDetailDrop($event)" (click)="detailFileInput.click()">
-              <input #detailFileInput type="file" style="display: none"
-                accept="image/*,.pdf,.doc,.docx,.txt,.zip" (change)="onDetailFileSelected($event)">
-              @if (isUploadingFile) {
-                <div class="spinner-border spinner-border-sm text-primary me-2"></div>
-                <span class="text-muted">Uploading...</span>
-              } @else {
-                <i class="bi bi-cloud-upload upload-icon"></i>
-                <p class="mb-1">Drop a file here or <span class="text-primary">browse</span></p>
-                <small class="text-muted">Max 10MB — Images, PDF, Word, Text, ZIP</small>
-              }
-            </div>
+            @if (canAddToClosedTicket()) {
+              <div class="upload-area mb-4" [class.drag-over]="isDraggingOnDetail"
+                   (dragover)="onDetailDragOver($event)" (dragleave)="onDetailDragLeave($event)"
+                   (drop)="onDetailDrop($event)" (click)="detailFileInput.click()">
+                <input #detailFileInput type="file" style="display: none"
+                  accept="image/*,.pdf,.doc,.docx,.txt,.zip" (change)="onDetailFileSelected($event)">
+                @if (isUploadingFile) {
+                  <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                  <span class="text-muted">Uploading...</span>
+                } @else {
+                  <i class="bi bi-cloud-upload upload-icon"></i>
+                  <p class="mb-1">Drop a file here or <span class="text-primary">browse</span></p>
+                  <small class="text-muted">Max 10MB — Images, PDF, Word, Text, ZIP</small>
+                }
+              </div>
+            }
 
             @if (attachments.length === 0) {
               <div class="empty-state py-3">
@@ -275,19 +277,21 @@
               </div>
             }
 
-            <div class="add-comment">
-              <label class="form-label fw-semibold">Add Comment</label>
-              <textarea class="form-control mb-2" rows="3" placeholder="Write your comment..."
-                [(ngModel)]="newComment" [disabled]="isSubmittingComment"></textarea>
-              <button class="btn btn-primary" (click)="addComment()" [disabled]="isSubmittingComment">
-                @if (isSubmittingComment) {
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                } @else {
-                  <i class="bi bi-send me-2"></i>
-                }
-                Add Comment
-              </button>
-            </div>
+            @if (canAddToClosedTicket()) {
+              <div class="add-comment">
+                <label class="form-label fw-semibold">Add Comment</label>
+                <textarea class="form-control mb-2" rows="3" placeholder="Write your comment..."
+                  [(ngModel)]="newComment" [disabled]="isSubmittingComment"></textarea>
+                <button class="btn btn-primary" (click)="addComment()" [disabled]="isSubmittingComment">
+                  @if (isSubmittingComment) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  } @else {
+                    <i class="bi bi-send me-2"></i>
+                  }
+                  Add Comment
+                </button>
+              </div>
+            }
           }
 
           @if (activeTab === 'status') {

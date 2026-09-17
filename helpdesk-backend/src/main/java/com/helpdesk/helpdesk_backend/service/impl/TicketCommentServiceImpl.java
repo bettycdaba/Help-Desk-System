@@ -5,6 +5,8 @@ import com.helpdesk.helpdesk_backend.dto.TicketCommentResponseDTO;
 import com.helpdesk.helpdesk_backend.entity.Ticket;
 import com.helpdesk.helpdesk_backend.entity.TicketComment;
 import com.helpdesk.helpdesk_backend.entity.User;
+import com.helpdesk.helpdesk_backend.entity.enums.TicketStatus;
+import com.helpdesk.helpdesk_backend.exception.BadRequestException;
 import com.helpdesk.helpdesk_backend.exception.ResourceNotFoundException;
 import com.helpdesk.helpdesk_backend.repository.TicketCommentRepository;
 import com.helpdesk.helpdesk_backend.repository.TicketRepository;
@@ -38,6 +40,15 @@ public class TicketCommentServiceImpl implements TicketCommentService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket not found with id: " + ticketId));
+
+        if (ticket.getStatus() == TicketStatus.CLOSED
+                && ((ticket.getCreatedBy() != null
+                        && ticket.getCreatedBy().getId().equals(request.getUserId()))
+                    || (ticket.getAssignedTo() != null
+                        && ticket.getAssignedTo().getId().equals(request.getUserId())))) {
+            throw new BadRequestException(
+                    "Ticket creators and assignees cannot comment on closed tickets.");
+        }
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(
