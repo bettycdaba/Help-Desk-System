@@ -40,4 +40,13 @@ public class Role {
     )
     @Builder.Default
     private Set<Permission> permissions = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "role_supervisor",
+        joinColumns = @JoinColumn(name = "role_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @Builder.Default
+    private Set<User> supervisors = new HashSet<>();
 }

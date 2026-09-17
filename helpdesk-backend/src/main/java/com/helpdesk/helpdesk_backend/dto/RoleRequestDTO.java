@@ -24,4 +24,7 @@ public class RoleRequestDTO {
 
     @Builder.Default
     private Set<Long> permissionIds = Set.of();
+
+    @Builder.Default
+    private Set<Long> supervisorIds = Set.of();
 }

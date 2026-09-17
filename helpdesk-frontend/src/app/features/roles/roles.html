@@ -45,6 +45,36 @@
         [disabled]="isSubmitting"
       >
     </div>
+
+    <div class="col-12">
+      <label class="form-label">Supervisors</label>
+      <small class="text-muted d-block mb-2">
+        Select up to two active supervisors for this role.
+      </small>
+      <div class="d-flex flex-wrap gap-3">
+        @for (supervisor of supervisors; track supervisor.id) {
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [id]="'role-supervisor-' + supervisor.id"
+              [checked]="isSupervisorSelected(supervisor.id)"
+              (change)="toggleSupervisor(supervisor.id)"
+              [disabled]="isSubmitting"
+            >
+            <label
+              class="form-check-label"
+              [for]="'role-supervisor-' + supervisor.id"
+            >
+              {{ supervisor.firstName }} {{ supervisor.lastName }}
+            </label>
+          </div>
+        }
+        @if (supervisors.length === 0) {
+          <span class="text-muted">No active supervisors available.</span>
+        }
+      </div>
+    </div>
   </div>
 </div>
 
@@ -222,6 +252,7 @@
           <th>#</th>
           <th>Name</th>
           <th>Description</th>
+          <th>Supervisors</th>
           <th>Permissions</th>
           <th>Actions</th>
         </tr>
@@ -241,6 +272,10 @@
 
             <td class="text-muted role-description">
               {{ role.description || '—' }}
+            </td>
+
+            <td class="text-muted">
+              {{ role.supervisorNames?.join(', ') || '—' }}
             </td>
 
             <td class="role-permissions-cell">

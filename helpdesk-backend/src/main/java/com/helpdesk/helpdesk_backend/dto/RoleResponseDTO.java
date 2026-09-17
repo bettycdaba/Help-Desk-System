@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +17,6 @@ public class RoleResponseDTO {
     private String name;
     private String description;
     private Boolean active;
+    private Set<Long> supervisorIds;
+    private Set<String> supervisorNames;
 }

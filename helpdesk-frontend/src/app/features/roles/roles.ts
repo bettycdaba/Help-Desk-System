@@ -12,6 +12,8 @@ import { Role } from '../../core/models/role.model';
 import { Permission, RolePermissions } 
   from '../../core/models/permission.model';
 import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
+import { User } from '../../core/models/user.model';
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
@@ -24,6 +26,7 @@ import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-moda
 export class Roles implements OnInit {
 
   roles: Role[] = [];
+  supervisors: User[] = [];
   permissions: Permission[] = [];
   selectedRolePermissions: RolePermissions | null = null;
   selectedPermissionIds: number[] = [];
@@ -35,7 +38,7 @@ export class Roles implements OnInit {
   showPermissions = false;
   isEditing = false;
 
-  form: Role = { name: '', description: '' };
+  form: Role = { name: '', description: '', supervisorIds: [] };
   editingId: number | null = null;
   searchText = '';
   selectedRoleId: number | null = null;
@@ -47,6 +50,7 @@ export class Roles implements OnInit {
   constructor(
     private roleService: RoleService,
     private permissionService: PermissionService,
+    private userService: UserService,
     private toastService: ToastService,
     public authService: AuthService,
     private cdr: ChangeDetectorRef
@@ -54,6 +58,7 @@ export class Roles implements OnInit {
 
   ngOnInit(): void {
     this.loadRoles();
+    this.loadSupervisors();
     if (this.hasPermission('MANAGE_PERMISSIONS')) {
       this.loadPermissions();
     }
@@ -88,6 +93,17 @@ export class Roles implements OnInit {
       error: () => {
         this.toastService.error('Failed to load permissions');
       }
+    });
+  }
+
+  loadSupervisors(): void {
+    this.userService.getAll().subscribe({
+      next: (users) => {
+        this.supervisors = users.filter(user =>
+          user.active && user.roleNames?.includes('SUPERVISOR'));
+        this.cdr.detectChanges();
+      },
+      error: () => this.toastService.error('Failed to load supervisors')
     });
   }
 
@@ -196,7 +212,7 @@ openPermissions(role: Role): void {
   }
 
   openAddForm(): void {
-    this.form = { name: '', description: '' };
+    this.form = { name: '', description: '', supervisorIds: [] };
     this.isEditing = false;
     this.editingId = null;
     this.showForm = true;
@@ -204,7 +220,10 @@ openPermissions(role: Role): void {
   }
 
   openEditForm(role: Role): void {
-    this.form = { ...role };
+    this.form = {
+      ...role,
+      supervisorIds: role.supervisorIds ? [...role.supervisorIds] : []
+    };
     this.isEditing = true;
     this.editingId = role.id || null;
     this.showForm = true;
@@ -213,7 +232,7 @@ openPermissions(role: Role): void {
 
   closeForm(): void {
     this.showForm = false;
-    this.form = { name: '', description: '' };
+    this.form = { name: '', description: '', supervisorIds: [] };
     this.editingId = null;
     this.cdr.detectChanges();
   }
@@ -221,6 +240,11 @@ openPermissions(role: Role): void {
   onSubmit(): void {
     if (!this.form.name.trim()) {
       this.toastService.error('Role name is required');
+      return;
+    }
+
+    if ((this.form.supervisorIds?.length || 0) > 2) {
+      this.toastService.error('A role can have at most two supervisors');
       return;
     }
 
@@ -258,6 +282,26 @@ openPermissions(role: Role): void {
         }
       });
     }
+  }
+
+  isSupervisorSelected(userId: number | undefined): boolean {
+    return userId !== undefined
+      && (this.form.supervisorIds || []).includes(userId);
+  }
+
+  toggleSupervisor(userId: number | undefined): void {
+    if (userId === undefined) return;
+    const supervisorIds = this.form.supervisorIds || [];
+    const index = supervisorIds.indexOf(userId);
+    if (index >= 0) {
+      supervisorIds.splice(index, 1);
+    } else if (supervisorIds.length < 2) {
+      supervisorIds.push(userId);
+    } else {
+      this.toastService.error('A role can have at most two supervisors');
+    }
+    this.form.supervisorIds = supervisorIds;
+    this.cdr.detectChanges();
   }
 
   toggleStatus(role: Role): void {
