@@ -25,8 +25,8 @@ public interface UserService {
     void resetPassword(String email, 
                    String temporaryPassword, 
                    String newPassword);
+    void changePassword(Long userId, String currentPassword, String newPassword);
     boolean mustChangePassword(String email);
-
     List<UserResponseDTO> getActiveUsers();
 
     List<UserResponseDTO> getActiveSupportOfficers();

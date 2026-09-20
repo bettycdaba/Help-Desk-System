@@ -21,6 +21,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmployeeId(String employeeId);
 
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    Optional<User> findByPhoneNumber(String phoneNumber);
+
     List<User> findByActiveTrue();
 
     @Query("SELECT u FROM User u JOIN u.roles r " +

@@ -20,6 +20,12 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByAssignedToId(Long userId);
 
+    List<Ticket> findByArchivedTrue();
+
+    List<Ticket> findByCreatedByIdAndArchivedTrue(Long userId);
+
+    List<Ticket> findByAssignedToIdAndArchivedTrue(Long userId);
+
     List<Ticket> findByStatus(TicketStatus status);
 
     List<Ticket> findByPriority(TicketPriority priority);

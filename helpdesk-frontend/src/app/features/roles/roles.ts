@@ -220,6 +220,10 @@ openPermissions(role: Role): void {
   }
 
   openEditForm(role: Role): void {
+    if (role.active === false) {
+      this.toastService.error('Deactivated roles cannot be edited');
+      return;
+    }
     this.form = {
       ...role,
       supervisorIds: role.supervisorIds ? [...role.supervisorIds] : []

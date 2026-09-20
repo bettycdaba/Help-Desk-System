@@ -297,6 +297,7 @@
                   <button
                     class="btn btn-sm btn-outline-primary"
                     (click)="openEditForm(role)"
+                    [disabled]="role.active === false"
                     aria-label="Edit role"
                   >
                     <i class="bi bi-pencil"></i>

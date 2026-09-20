@@ -33,4 +33,8 @@ public class TicketResponseDTO {
 
     private Long categoryId;
     private String categoryName;
+
+    private Boolean archived;
+    private LocalDateTime archivedAt;
+    private Long archivedById;
 }

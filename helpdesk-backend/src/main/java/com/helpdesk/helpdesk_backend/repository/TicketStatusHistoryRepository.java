@@ -11,4 +11,6 @@ public interface TicketStatusHistoryRepository
         extends JpaRepository<TicketStatusHistory, Long> {
 
     List<TicketStatusHistory> findByTicketIdOrderByChangedAtDesc(Long ticketId);
+
+    boolean existsByTicketId(Long ticketId);
 }

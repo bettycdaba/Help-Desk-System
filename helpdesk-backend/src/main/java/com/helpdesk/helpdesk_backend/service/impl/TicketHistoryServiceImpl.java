@@ -60,9 +60,12 @@ public class TicketHistoryServiceImpl implements TicketHistoryService {
                 .oldAssigneeId(history.getOldAssignee().getId())
                 .oldAssigneeName(history.getOldAssignee().getFirstName()
                         + " " + history.getOldAssignee().getLastName())
-                .newAssigneeId(history.getNewAssignee().getId())
-                .newAssigneeName(history.getNewAssignee().getFirstName()
-                        + " " + history.getNewAssignee().getLastName())
+                .newAssigneeId(history.getNewAssignee() != null
+                        ? history.getNewAssignee().getId() : null)
+                .newAssigneeName(history.getNewAssignee() != null
+                        ? history.getNewAssignee().getFirstName()
+                                + " " + history.getNewAssignee().getLastName()
+                        : null)
                 .assignedById(history.getAssignedBy().getId())
                 .assignedByName(history.getAssignedBy().getFirstName()
                         + " " + history.getAssignedBy().getLastName())

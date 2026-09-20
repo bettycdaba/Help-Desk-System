@@ -32,6 +32,8 @@ public class TicketServiceImpl implements TicketService {
     private final TicketCategoryRepository categoryRepository;
     private final TicketAssignmentHistoryRepository assignmentHistoryRepository;
     private final TicketStatusHistoryRepository statusHistoryRepository;
+    private final TicketCommentRepository commentRepository;
+    private final TicketAttachmentRepository attachmentRepository;
     private final EmailService emailService;
     private final WebSocketNotificationService webSocketNotificationService;
     private final NotificationService notificationService;
@@ -101,9 +103,38 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketResponseDTO> getAllTickets() {
         return ticketRepository.findAll()
                 .stream()
+                .filter(ticket -> !Boolean.TRUE.equals(ticket.getArchived()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<TicketResponseDTO> getArchivedTickets() {
+                User currentUser = getAuthenticatedUser();
+                boolean canViewAll = currentUser.getRoles().stream()
+                                .anyMatch(role -> "ADMIN".equals(role.getName())
+                                                || "SUPERVISOR".equals(role.getName()));
+
+                List<Ticket> archivedTickets;
+                if (canViewAll) {
+                        archivedTickets = ticketRepository.findByArchivedTrue();
+                } else {
+                        archivedTickets = new java.util.ArrayList<>(
+                                        ticketRepository.findByCreatedByIdAndArchivedTrue(currentUser.getId()));
+                        ticketRepository.findByAssignedToIdAndArchivedTrue(currentUser.getId())
+                                        .forEach(ticket -> {
+                                                if (archivedTickets.stream().noneMatch(existing ->
+                                                                existing.getId().equals(ticket.getId()))) {
+                                                        archivedTickets.add(ticket);
+                                                }
+                                        });
+                }
+
+                return archivedTickets.stream()
+                                .map(this::mapToResponse)
+                                .collect(Collectors.toList());
+        }
 
     // =========================================================
     // GET TICKET BY ID
@@ -137,6 +168,7 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketResponseDTO> getTicketsByStatus(TicketStatus status) {
         return ticketRepository.findByStatus(status)
                 .stream()
+                .filter(ticket -> !Boolean.TRUE.equals(ticket.getArchived()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -150,6 +182,7 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketResponseDTO> getTicketsByPriority(TicketPriority priority) {
         return ticketRepository.findByPriority(priority)
                 .stream()
+                .filter(ticket -> !Boolean.TRUE.equals(ticket.getArchived()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -163,6 +196,7 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketResponseDTO> getTicketsByCreatedBy(Long userId) {
         return ticketRepository.findByCreatedById(userId)
                 .stream()
+                .filter(ticket -> !Boolean.TRUE.equals(ticket.getArchived()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -176,6 +210,7 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketResponseDTO> getTicketsByAssignedTo(Long userId) {
         return ticketRepository.findByAssignedToId(userId)
                 .stream()
+                .filter(ticket -> !Boolean.TRUE.equals(ticket.getArchived()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -643,13 +678,71 @@ public class TicketServiceImpl implements TicketService {
     }
 
     // =========================================================
-    // DELETE TICKET
+        // ARCHIVE TICKET
+    // =========================================================
+
+    @Override
+    @Transactional
+        public TicketResponseDTO archiveTicket(Long id, Long archivedById) {
+                Ticket ticket = findTicketById(id);
+                User archivedBy = userRepository.findById(archivedById)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "User not found"));
+
+                if (Boolean.TRUE.equals(ticket.getArchived())) {
+                        return mapToResponse(ticket);
+                }
+
+                ticket.setArchived(true);
+                ticket.setArchivedAt(LocalDateTime.now());
+                ticket.setArchivedBy(archivedBy);
+                return mapToResponse(ticketRepository.save(ticket));
+    }
+
+        @Override
+        @Transactional
+        public TicketResponseDTO unarchiveTicket(Long id) {
+                Ticket ticket = findTicketById(id);
+                ticket.setArchived(false);
+                ticket.setArchivedAt(null);
+                ticket.setArchivedBy(null);
+                return mapToResponse(ticketRepository.save(ticket));
+        }
+
+    // =========================================================
+    // DELETE TICKET (Only if no activity history)
     // =========================================================
 
     @Override
     @Transactional
     public void deleteTicket(Long id) {
-        ticketRepository.delete(findTicketById(id));
+        Ticket ticket = findTicketById(id);
+                User currentUser = getAuthenticatedUser();
+
+                if (ticket.getCreatedBy() == null
+                                || !Objects.equals(ticket.getCreatedBy().getId(), currentUser.getId())) {
+                        throw new BadRequestException(
+                                        "Only the ticket creator can delete this ticket.");
+                }
+                if (ticket.getAssignedTo() != null) {
+                        throw new BadRequestException(
+                                        "Assigned tickets cannot be deleted.");
+                }
+
+        boolean hasComments = commentRepository.existsByTicketId(id);
+        boolean hasAttachments = attachmentRepository.existsByTicketId(id);
+        boolean hasStatusHistory = statusHistoryRepository.existsByTicketId(id);
+        boolean hasAssignmentHistory = assignmentHistoryRepository.existsByTicketId(id);
+        boolean isAssigned = ticket.getAssignedTo() != null;
+        boolean hasAdvancedStatus = ticket.getStatus() != TicketStatus.OPEN
+                && ticket.getStatus() != TicketStatus.UNASSIGNED;
+
+        if (hasComments || hasAttachments || hasStatusHistory || hasAssignmentHistory || isAssigned || hasAdvancedStatus) {
+            throw new BadRequestException(
+                "Tickets with activity history cannot be permanently deleted to preserve records and support accountability. Please close or archive the ticket instead.");
+        }
+
+        ticketRepository.delete(ticket);
     }
 
     // =========================================================
@@ -793,6 +886,19 @@ public class TicketServiceImpl implements TicketService {
     // CHECK CURRENT USER
     // =========================================================
 
+        private User getAuthenticatedUser() {
+                var authentication = SecurityContextHolder
+                                .getContext()
+                                .getAuthentication();
+
+                if (authentication == null
+                                || !(authentication.getPrincipal() instanceof User user)) {
+                        throw new BadRequestException("Unable to identify the current user.");
+                }
+
+                return user;
+        }
+
     private boolean isCurrentUserEmployee() {
 
         var authentication = SecurityContextHolder
@@ -865,6 +971,10 @@ public class TicketServiceImpl implements TicketService {
                         ? ticket.getCategory().getId() : null)
                 .categoryName(ticket.getCategory() != null
                         ? ticket.getCategory().getName() : null)
+                .archived(ticket.getArchived())
+                .archivedAt(ticket.getArchivedAt())
+                .archivedById(ticket.getArchivedBy() != null
+                        ? ticket.getArchivedBy().getId() : null)
                 .build();
     }
 
@@ -882,6 +992,10 @@ public class TicketServiceImpl implements TicketService {
 
             List<Ticket> officerTickets =
                     ticketRepository.findByAssignedToId(officer.getId());
+
+            officerTickets = officerTickets.stream()
+                    .filter(ticket -> !Boolean.TRUE.equals(ticket.getArchived()))
+                    .collect(Collectors.toList());
 
             return TeamWorkloadDTO.builder()
                     .userId(officer.getId())

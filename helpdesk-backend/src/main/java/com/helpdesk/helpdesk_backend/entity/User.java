@@ -112,4 +112,5 @@ public class User implements UserDetails {
         @Column(name = "password_change_required", nullable = false)
     @Builder.Default
     private Boolean passwordChangeRequired = false;
+
     }

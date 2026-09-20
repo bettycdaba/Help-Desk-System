@@ -48,16 +48,18 @@ export class Register implements OnInit {
   ngOnInit(): void {
     this.departmentService.getAll().subscribe({
       next: (d) => {
-        this.departments = d;
+        this.departments = d || [];
         this.cdr.detectChanges();
       },
-      error: () => {}
+      error: (err) => {
+        console.error('Failed to fetch departments:', err);
+      }
     });
-
   }
 
   get activeDepartments(): Department[] {
-    return this.departments.filter(dept => dept.active !== false);
+    if (!this.departments) return [];
+    return this.departments.filter(dept => dept && dept.active !== false);
   }
 
 
@@ -69,6 +71,11 @@ export class Register implements OnInit {
     if (!this.firstName || !this.lastName ||
         !this.email || !this.password) {
       this.errorMessage = 'Please fill in all required fields.';
+      return;
+    }
+
+    if (!this.isValidEmail(this.email)) {
+      this.errorMessage = 'Please enter a valid email address.';
       return;
     }
 
@@ -116,5 +123,9 @@ const user = {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(email.trim());
   }
 }

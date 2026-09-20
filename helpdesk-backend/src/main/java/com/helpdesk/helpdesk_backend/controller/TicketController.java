@@ -33,6 +33,12 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.getAllTickets());
     }
 
+    @GetMapping("/archived")
+    @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
+    public ResponseEntity<List<TicketResponseDTO>> getArchivedTickets() {
+        return ResponseEntity.ok(ticketService.getArchivedTickets());
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
     public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable Long id) {
@@ -108,12 +114,27 @@ public ResponseEntity<TicketResponseDTO> rejectTicket(
         return ResponseEntity.ok(ticketService.updateStatus(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
-        ticketService.deleteTicket(id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/{id}/archive")
+    @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
+    public ResponseEntity<TicketResponseDTO> archiveTicket(
+            @PathVariable Long id,
+            @RequestParam Long archivedById) {
+        return ResponseEntity.ok(ticketService.archiveTicket(id, archivedById));
     }
+
+    @PatchMapping("/{id}/unarchive")
+    @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
+    public ResponseEntity<TicketResponseDTO> unarchiveTicket(@PathVariable Long id) {
+        return ResponseEntity.ok(ticketService.unarchiveTicket(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<java.util.Map<String, String>> deleteTicket(@PathVariable Long id) {
+        ticketService.deleteTicket(id);
+        return ResponseEntity.ok(java.util.Map.of("message", "Ticket deleted successfully"));
+    }
+
     @GetMapping("/workload")
     @PreAuthorize("hasAnyAuthority('VIEW_TICKETS', 'ROLE_ADMIN')")
 public ResponseEntity<List<TeamWorkloadDTO>> getTeamWorkload() {

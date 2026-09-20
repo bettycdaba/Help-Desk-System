@@ -29,12 +29,14 @@ import { User } from '../../../core/models/user.model';
 import { Subscription } from 'rxjs';
 import { AuthService }
   from '../../../core/services/auth.service';
+import { ConfirmModal }
+  from '../../../shared/components/confirm-modal/confirm-modal';
 
 
 @Component({
   selector: 'app-ticket-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmModal],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css'
 })
@@ -56,6 +58,8 @@ export class TicketDetail implements OnInit, OnDestroy, AfterViewInit {
   isAssigning = false;
   isAutoAssigning = false;
   isUpdatingStatus = false;
+  isDeletingTicket = false;
+  showDeleteModal = false;
 
   // Reject ticket
   isRejecting = false;
@@ -393,6 +397,46 @@ canUpdateStatus(): boolean {
     return this.isEmployee()
         && this.isOwner()
         && this.ticket?.status === 'CLOSED';
+  }
+
+  canDeleteTicket(): boolean {
+    return !!this.ticket && this.isOwner() && !this.ticket.assignedToId;
+  }
+
+  openDeleteModal(): void {
+    if (!this.canDeleteTicket()) {
+      this.toastService.error('You are not allowed to delete this ticket.');
+      return;
+    }
+    this.showDeleteModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeDeleteModal(): void {
+    if (this.isDeletingTicket) return;
+    this.showDeleteModal = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmDeleteTicket(): void {
+    if (!this.ticket?.id) return;
+
+    this.isDeletingTicket = true;
+    this.ticketService.delete(this.ticket.id).subscribe({
+      next: () => {
+        this.isDeletingTicket = false;
+        this.showDeleteModal = false;
+        this.toastService.success('Ticket deleted successfully.');
+        this.router.navigate(['/tickets']);
+      },
+      error: (err) => {
+        this.isDeletingTicket = false;
+        this.showDeleteModal = false;
+        const msg = err?.error?.message || 'Tickets with activity history cannot be deleted. Please close or archive the ticket instead.';
+        this.toastService.error(msg);
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   showActionPanel(): boolean {

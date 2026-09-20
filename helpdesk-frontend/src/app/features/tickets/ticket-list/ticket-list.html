@@ -72,7 +72,7 @@
     <i class="bi bi-collection me-1"></i> 
     @if (isAdmin()) { All Tickets } @else { My Tickets }
   </button>
-  @if (!isAdmin()  && !isSupervisor()) {
+  @if (!isAdmin() && !isSupervisor() && !isEmployee()) {
     <button class="btn btn-sm" [class.btn-primary]="ticketView === 'assigned'" 
             [class.btn-outline-primary]="ticketView !== 'assigned'"
             (click)="ticketView = 'assigned'; currentPage = 1">
@@ -83,6 +83,11 @@
           [class.btn-outline-primary]="ticketView !== 'unassigned'"
           (click)="ticketView = 'unassigned'; currentPage = 1">
     <i class="bi bi-inbox me-1"></i> Unassigned
+  </button>
+  <button class="btn btn-sm" [class.btn-primary]="ticketView === 'archived'" 
+          [class.btn-outline-primary]="ticketView !== 'archived'"
+          (click)="ticketView = 'archived'; currentPage = 1">
+    <i class="bi bi-archive me-1"></i> Archived
   </button>
 </div>
 
@@ -98,7 +103,9 @@
       <div class="empty-state">
         <i class="bi bi-inbox"></i>
         <p>
-          @if (ticketView === 'unassigned') {
+          @if (ticketView === 'archived') {
+            No archived tickets found
+          } @else if (ticketView === 'unassigned') {
             No unassigned tickets found
           } @else if (ticketView === 'assigned') {
             No tickets assigned to you
@@ -176,12 +183,18 @@
                     }
                   }
                   
-                  <!-- Delete Icon -->
-                  @if (canDeleteTicket(ticket)) {
+                  <!-- Archive / unarchive icon -->
+                  @if (ticket.archived) {
+                    <button class="btn btn-sm btn-outline-success"
+                        (click)="unarchiveTicket(ticket, $event)"
+                        title="Unarchive Ticket">
+                      <i class="bi bi-archive-fill"></i>
+                    </button>
+                  } @else if (canArchiveTicket(ticket)) {
                     <button class="btn btn-sm btn-outline-danger" 
-                            (click)="deleteTicket(ticket, $event)" 
-                            title="Delete Ticket">
-                      <i class="bi bi-trash"></i>
+                        (click)="archiveTicket(ticket, $event)" 
+                        title="Archive Ticket">
+                      <i class="bi bi-archive"></i>
                     </button>
                   }
                 </div>
@@ -219,6 +232,17 @@
   </div>
 </div>
 
+<app-confirm-modal
+  [isVisible]="showArchiveModal"
+  title="Archive ticket"
+  [message]="'Are you sure you want to archive ticket ' + archiveTarget?.ticketNumber + '? Subject: ' + archiveTarget?.subject + '. The ticket history will be preserved.'"
+  confirmText="Archive ticket"
+  cancelText="Cancel"
+  [isDanger]="true"
+  (confirmed)="confirmArchiveTicket()"
+  (cancelled)="closeArchiveModal()">
+</app-confirm-modal>
+
 <!-- Export PDF Modal -->
 @if (showExportModal) {
   <div class="export-modal-backdrop" (click)="closeExportModal()">
@@ -250,3 +274,14 @@
     </div>
   </div>
 }
+
+<app-confirm-modal
+  [isVisible]="showDeleteModal"
+  [title]="'Delete Ticket ' + (deleteTarget?.ticketNumber || '')"
+  [message]="'Are you sure you want to delete ticket ' + (deleteTarget?.ticketNumber || '') + '? Note: Only accidental tickets without activity history (comments, attachments, assignments) can be deleted. If this ticket has activity history, deletion will be blocked to preserve records (you can close or archive it instead).'"
+  [confirmText]="'Permanently Delete'"
+  [cancelText]="'Cancel'"
+  [isDanger]="true"
+  (confirmed)="confirmDeleteTicket()"
+  (cancelled)="closeDeleteModal()">
+</app-confirm-modal>

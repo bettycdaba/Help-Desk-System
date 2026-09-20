@@ -134,6 +134,7 @@
                   class="form-check-input"
                   [id]="'role-' + role.id"
                   [checked]="isRoleSelected(role.id)"
+                  [disabled]="isRoleDisabled(role)"
                   (change)="toggleRole(role.id)"
                 >
 

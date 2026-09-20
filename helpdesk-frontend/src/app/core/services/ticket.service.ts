@@ -15,12 +15,16 @@ import {
 })
 export class TicketService {
 
-  private baseUrl = 'http://localhost:8080/api/tickets';
+  private baseUrl = 'http://localhost:8081/api/tickets';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Ticket[]> {
     return this.http.get<Ticket[]>(this.baseUrl);
+  }
+
+  getArchived(): Observable<Ticket[]> {
+    return this.http.get<Ticket[]>(`${this.baseUrl}/archived`);
   }
 
   getById(id: number): Observable<Ticket> {
@@ -84,6 +88,17 @@ export class TicketService {
     request: TicketStatusUpdateRequest): Observable<Ticket> {
     return this.http.patch<Ticket>(
       `${this.baseUrl}/${id}/status`, request);
+  }
+
+  archive(id: number, archivedById: number): Observable<Ticket> {
+    return this.http.patch<Ticket>(
+      `${this.baseUrl}/${id}/archive`, {},
+      { params: { archivedById: archivedById.toString() } });
+  }
+
+  unarchive(id: number): Observable<Ticket> {
+    return this.http.patch<Ticket>(
+      `${this.baseUrl}/${id}/unarchive`, {});
   }
 
   delete(id: number): Observable<void> {

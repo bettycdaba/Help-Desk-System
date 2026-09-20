@@ -16,13 +16,15 @@ import { ToastService }
 import { Ticket } from '../../../core/models/ticket.model';
 import { TicketCategory } 
   from '../../../core/models/category.model';
+import { ConfirmModal }
+  from '../../../shared/components/confirm-modal/confirm-modal';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-ticket-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ConfirmModal],
   templateUrl: './ticket-list.html',
   styleUrl: './ticket-list.css'
 })
@@ -45,9 +47,14 @@ export class TicketList implements OnInit {
   sortColumn = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  ticketView: 'all' | 'assigned' | 'unassigned' = 'all';
+  ticketView: 'all' | 'assigned' | 'unassigned' | 'archived' = 'all';
+  archivedTickets: Ticket[] = [];
 
   showAssignDropdownForTicket: number | null = null;
+  showArchiveModal = false;
+  archiveTarget: Ticket | null = null;
+  showDeleteModal = false;
+  deleteTarget: Ticket | null = null;
 
   statuses = [
     'OPEN', 'ASSIGNED', 'IN_PROGRESS',
@@ -67,6 +74,7 @@ export class TicketList implements OnInit {
 
   ngOnInit(): void {
     this.loadTickets();
+    this.loadArchivedTickets();
     this.loadCategories();
     this.loadSupportOfficers();
   }
@@ -77,6 +85,10 @@ export class TicketList implements OnInit {
 
   isSupervisor(): boolean {
     return this.authService.isSupervisor();
+  }
+
+  isEmployee(): boolean {
+    return this.authService.isEmployee();
   }
 
   canAssignTicket(): boolean {
@@ -118,10 +130,8 @@ export class TicketList implements OnInit {
     });
   }
 
-  canDeleteTicket(ticket: Ticket): boolean {
-    if (this.isAdmin()) return true;
-    const userId = this.getCurrentUserId();
-    return ticket.createdById === userId && ticket.assignedToId !== userId;
+  canArchiveTicket(ticket: Ticket): boolean {
+    return !ticket.archived;
   }
 
   showExportModal = false;
@@ -203,6 +213,16 @@ export class TicketList implements OnInit {
     }
   }
 
+  loadArchivedTickets(): void {
+    this.ticketService.getArchived().subscribe({
+      next: (tickets) => {
+        this.archivedTickets = tickets;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
   loadUserTickets(userId: number): void {
     let createdTickets: Ticket[] = [];
     let assignedTickets: Ticket[] = [];
@@ -251,6 +271,10 @@ export class TicketList implements OnInit {
 
   get displayTickets(): Ticket[] {
     const userId = this.getCurrentUserId();
+
+    if (this.ticketView === 'archived') {
+      return this.archivedTickets;
+    }
     
     if (this.isAdmin() || this.isSupervisor()) {
       switch (this.ticketView) {
@@ -290,22 +314,83 @@ export class TicketList implements OnInit {
     return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
   }
 
+  archiveTicket(ticket: Ticket, event: Event): void {
+    event.stopPropagation();
+    if (!ticket.id) return;
+    this.archiveTarget = ticket;
+    this.showArchiveModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeArchiveModal(): void {
+    this.showArchiveModal = false;
+    this.archiveTarget = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmArchiveTicket(): void {
+    if (!this.archiveTarget?.id) return;
+
+    const ticket = this.archiveTarget;
+    const ticketId = ticket.id!;
+    this.ticketService.archive(ticketId, this.getCurrentUserId()).subscribe({
+      next: () => {
+        this.toastService.success(`Ticket ${ticket.ticketNumber} archived`);
+        this.closeArchiveModal();
+        this.loadTickets();
+      },
+      error: () => {
+        this.closeArchiveModal();
+        this.toastService.error('Unable to archive the ticket right now.');
+      }
+    });
+  }
+
+  unarchiveTicket(ticket: Ticket, event: Event): void {
+    event.stopPropagation();
+    if (!ticket.id) return;
+
+    this.ticketService.unarchive(ticket.id).subscribe({
+      next: () => {
+        this.toastService.success(`Ticket ${ticket.ticketNumber} unarchived`);
+        this.loadArchivedTickets();
+      },
+      error: () => {
+        this.toastService.error('Unable to unarchive the ticket right now.');
+      }
+    });
+  }
+
   deleteTicket(ticket: Ticket, event: Event): void {
     event.stopPropagation();
     if (!ticket.id) return;
-    const confirmDelete = confirm(
-      `Are you sure you want to delete ticket ${ticket.ticketNumber}?\n\n` +
-      `Subject: ${ticket.subject}\n\nThis action cannot be undone.`
-    );
-    if (confirmDelete) {
-      this.ticketService.delete(ticket.id).subscribe({
-        next: () => {
-          this.toastService.success(`Ticket ${ticket.ticketNumber} deleted`);
-          this.loadTickets();
-        },
-        error: () => this.toastService.error('Failed to delete ticket')
-      });
-    }
+    this.deleteTarget = ticket;
+    this.showDeleteModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.deleteTarget = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmDeleteTicket(): void {
+    if (!this.deleteTarget?.id) return;
+
+    const ticket = this.deleteTarget;
+    this.ticketService.delete(ticket.id!).subscribe({
+      next: () => {
+        this.toastService.success(`Ticket ${ticket.ticketNumber} deleted successfully.`);
+        this.closeDeleteModal();
+        this.loadTickets();
+      },
+      error: (err) => {
+        this.closeDeleteModal();
+        const msg = err?.error?.message || 'Tickets with activity history cannot be deleted. Please close or archive the ticket instead.';
+        this.toastService.error(msg);
+      }
+    });
   }
 
   applyFilters(): void {

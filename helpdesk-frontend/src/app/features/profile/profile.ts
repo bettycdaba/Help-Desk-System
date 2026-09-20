@@ -22,6 +22,9 @@ export class Profile implements OnInit {
   isSaving = false;
   isChangingPassword = false;
   showPasswordForm = false;
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
 
   editForm = {
     firstName: '',
@@ -103,6 +106,10 @@ export class Profile implements OnInit {
       this.toastService.error('Name is required');
       return;
     }
+    if (!this.isValidEmail(this.editForm.email)) {
+      this.toastService.error('Please enter a valid email address');
+      return;
+    }
 
     this.isSaving = true;
     this.cdr.detectChanges();
@@ -133,6 +140,10 @@ export class Profile implements OnInit {
   }
 
   changePassword(): void {
+    if (!this.passwordForm.currentPassword) {
+      this.toastService.error('Current password is required');
+      return;
+    }
     if (!this.passwordForm.newPassword || this.passwordForm.newPassword.length < 8) {
       this.toastService.error('Password must be at least 8 characters');
       return;
@@ -145,10 +156,26 @@ export class Profile implements OnInit {
     this.isChangingPassword = true;
     this.cdr.detectChanges();
 
-    // Add password change API call here if you have one
-    this.toastService.success('Password changed');
-    this.isChangingPassword = false;
-    this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
-    this.cdr.detectChanges();
+    this.authService.changePassword({
+      currentPassword: this.passwordForm.currentPassword,
+      newPassword: this.passwordForm.newPassword
+    }).subscribe({
+      next: () => {
+        this.toastService.success('Password changed');
+        this.isChangingPassword = false;
+        this.showPasswordForm = false;
+        this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isChangingPassword = false;
+        this.toastService.error(err?.error?.message || 'Password change failed');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(email.trim());
   }
 }

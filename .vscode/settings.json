@@ -1,4 +1,4 @@
 {
   "java.configuration.updateBuildConfiguration": "interactive",
-  "java.jdt.ls.vmargs": "-Xmx8G -XX:+UseG1GC -XX:+UseStringDeduplication"
+  "java.jdt.ls.vmargs": "-Xmx16G -XX:+UseG1GC -XX:+UseStringDeduplication"
 }

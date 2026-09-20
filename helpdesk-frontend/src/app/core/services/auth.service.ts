@@ -10,7 +10,7 @@ import { User } from '../models/user.model';
 })
 export class AuthService {
 
-  private baseUrl = 'http://localhost:8080/api';
+  private baseUrl = 'http://localhost:8081/api';
 
   private currentUserSubject =
     new BehaviorSubject<LoginResponse | null>(null);
@@ -127,6 +127,14 @@ export class AuthService {
   }): Observable<any> {
     return this.http.post(
       `${this.baseUrl}/auth/reset-password`, data);
+  }
+
+  changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/auth/change-password`, data);
   }
 
   checkMustChangePassword(email: string): Observable<any> {

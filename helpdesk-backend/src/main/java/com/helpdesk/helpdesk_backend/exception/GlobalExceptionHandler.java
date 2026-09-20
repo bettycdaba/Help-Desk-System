@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("error", "Bad Request");
         response.put("message",
-                "The category could not be updated. The name may already be in use or a value may be too long.");
+            "The request could not be completed because one or more values are already in use or too long.");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

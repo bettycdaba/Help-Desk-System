@@ -22,6 +22,10 @@ export class Login {
   errorMessage = '';
   showPassword = false;
 
+  get isUnverifiedError(): boolean {
+    return this.errorMessage.toLowerCase().includes('not verified');
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router,

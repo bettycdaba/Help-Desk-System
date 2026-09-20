@@ -71,6 +71,9 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Role not found with id: " + id));
+        if (Boolean.FALSE.equals(role.getActive())) {
+            throw new BadRequestException("Deactivated roles cannot be edited.");
+        }
                 role.setSupervisors(resolveSupervisors(request.getSupervisorIds(), id));
         role.setName(request.getName());
         role.setDescription(request.getDescription());

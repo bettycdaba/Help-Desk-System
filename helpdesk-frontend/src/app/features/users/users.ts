@@ -15,6 +15,7 @@ import { Department }
   from '../../core/models/department.model';
 import { Role } from '../../core/models/role.model';
 import { AuthService } from '../../core/services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-users',
@@ -102,6 +103,7 @@ export class Users implements OnInit {
     this.roleService.getAll().subscribe({
       next: (data) => {
         this.roles = data;
+        this.ensureDefaultRoleSelected();
         this.cdr.detectChanges();
       },
       error: () => {}
@@ -183,14 +185,40 @@ export class Users implements OnInit {
 
   isRoleSelected(roleId: number | undefined): boolean {
     if (!roleId) return false;
+    const role = this.roles.find(item => item.id === roleId);
+    if (role?.name === 'EMPLOYEE') return true;
     return this.form.roleIds.includes(roleId);
+  }
+
+  isRoleDisabled(role: Role): boolean {
+    if (this.isSubmitting || role.active === false) return true;
+    if (role.name === 'EMPLOYEE') return true;
+
+    const selectedNonDefaultRole = this.form.roleIds.some(id =>
+      this.roles.find(item => item.id === id)?.name !== 'EMPLOYEE');
+    return selectedNonDefaultRole && !this.isRoleSelected(role.id);
+  }
+
+  private ensureDefaultRoleSelected(): void {
+    const employeeRole = this.roles.find(role => role.name === 'EMPLOYEE');
+    if (employeeRole?.id && !this.form.roleIds.includes(employeeRole.id)) {
+      this.form.roleIds = [employeeRole.id, ...this.form.roleIds];
+    }
   }
 
   toggleRole(roleId: number | undefined): void {
     if (!roleId) return;
+    const selectedRole = this.roles.find(role => role.id === roleId);
+    if (!selectedRole || selectedRole.name === 'EMPLOYEE') return;
+
     const index = this.form.roleIds.indexOf(roleId);
     if (index === -1) {
-      this.form.roleIds.push(roleId);
+      const employeeRoleId = this.roles.find(role =>
+        role.name === 'EMPLOYEE')?.id;
+      this.form.roleIds = [
+        ...(employeeRoleId ? [employeeRoleId] : []),
+        roleId
+      ];
     } else {
       this.form.roleIds.splice(index, 1);
     }
@@ -208,6 +236,10 @@ export class Users implements OnInit {
     }
     if (!this.form.email.trim()) {
       this.toastService.error('Email is required');
+      return;
+    }
+    if (!this.isValidEmail(this.form.email)) {
+      this.toastService.error('Please enter a valid email address');
       return;
     }
     if (!this.form.employeeId.trim()) {
@@ -253,7 +285,12 @@ export class Users implements OnInit {
       }
 
       this.userService.update(
-        this.editingId, updatePayload).subscribe({
+        this.editingId, updatePayload).pipe(
+          finalize(() => {
+            this.isSubmitting = false;
+            this.cdr.detectChanges();
+          })
+        ).subscribe({
         next: (updated) => {
           const index = this.users.findIndex(
             u => u.id === this.editingId);
@@ -264,7 +301,6 @@ export class Users implements OnInit {
               ...this.users.slice(index + 1)
             ];
           }
-          this.isSubmitting = false;
           this.closeForm();
           this.toastService.success(
             'User updated successfully');
@@ -272,7 +308,6 @@ export class Users implements OnInit {
         },
         error: (err) => {
           console.log(err)
-          this.isSubmitting = false;
           const message =
             err?.error?.message || err||
             'Failed to update user. Please try again.';
@@ -318,5 +353,9 @@ export class Users implements OnInit {
         }
       });
     }
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(email.trim());
   }
 }

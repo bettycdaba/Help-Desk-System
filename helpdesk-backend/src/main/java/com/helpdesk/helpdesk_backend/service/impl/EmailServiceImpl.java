@@ -8,7 +8,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.InternetAddress;
 
@@ -18,6 +17,9 @@ import jakarta.mail.internet.InternetAddress;
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
+
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:bethlehemchemeda@gmail.com}")
+    private String mailFrom;
 
     @Override
     @Async
@@ -61,23 +63,23 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(toEmail, emailSubject, body);
     }
 
-    private void sendHtmlEmail(String toEmail, String subject, String htmlBody) {
+    private boolean sendHtmlEmail(String toEmail, String subject, String htmlBody) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
-            // 👇 Set sender name as "Help Desk System"
-            helper.setFrom(new InternetAddress("bethlehemchemeda@gmail.com", "Help Desk System"));
+            String fromAddr = (mailFrom != null && !mailFrom.isBlank()) ? mailFrom : "bethlehemchemeda@gmail.com";
+            helper.setFrom(new InternetAddress(fromAddr, "Help Desk System"));
             
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
             mailSender.send(message);
             log.info("Email sent successfully to: {}", toEmail);
-        } catch (MessagingException e) {
-            log.error("Failed to send email to: {}. Error: {}", toEmail, e.getMessage());
-        } catch (java.io.UnsupportedEncodingException e) {
-            log.error("Failed to set sender name. Error: {}", e.getMessage());
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to send email to {}: {}", toEmail, e.getMessage(), e);
+            return false;
         }
     }
 
@@ -172,4 +174,5 @@ public class EmailServiceImpl implements EmailService {
             + "</div>";
         sendHtmlEmail(toEmail, subject, body);
     }
+
 }

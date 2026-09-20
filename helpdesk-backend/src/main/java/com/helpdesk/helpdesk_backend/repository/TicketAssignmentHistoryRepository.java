@@ -14,6 +14,8 @@ public interface TicketAssignmentHistoryRepository
 
     List<TicketAssignmentHistory> findByTicketIdOrderByAssignedAtDesc(Long ticketId);
 
+    boolean existsByTicketId(Long ticketId);
+
     @Query("SELECT DISTINCT h.assignedBy.id FROM TicketAssignmentHistory h " +
        "WHERE h.ticket.id = :ticketId " +
        "AND h.rejectionReason IS NOT NULL")

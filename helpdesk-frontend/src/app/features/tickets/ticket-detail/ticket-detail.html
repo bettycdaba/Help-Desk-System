@@ -36,11 +36,23 @@
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span>{{ ticket.subject }}</span>
-          @if (canManageTicket()) {
-            <button class="btn btn-sm btn-outline-primary" (click)="openEditForm()">
-              <i class="bi bi-pencil me-1"></i>Edit
-            </button>
-          }
+          <div class="d-flex gap-2">
+            @if (canManageTicket()) {
+              <button class="btn btn-sm btn-outline-primary" (click)="openEditForm()">
+                <i class="bi bi-pencil me-1"></i>Edit
+              </button>
+            }
+            @if (canDeleteTicket()) {
+              <button class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()" [disabled]="isDeletingTicket">
+                @if (isDeletingTicket) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                } @else {
+                  <i class="bi bi-trash me-1"></i>
+                }
+                Delete Ticket
+              </button>
+            }
+          </div>
         </div>
         <div class="card-body">
           
@@ -224,7 +236,7 @@
                   <div class="attachment-card">
                     <div class="attachment-preview">
                       @if (isImageFile(att.fileType)) {
-                        <img [src]="'http://localhost:8080' + att.downloadUrl"
+                        <img [src]="'http://localhost:8081' + att.downloadUrl"
                              [alt]="att.fileName" class="attachment-image"
                              (error)="$event.target.style.display='none'">
                       } @else {
@@ -332,7 +344,11 @@
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
                       <p class="mb-1">
-                        <strong>{{ h.newAssigneeName }}</strong> assigned by
+                        @if (h.newAssigneeName) {
+                          <strong>{{ h.newAssigneeName }}</strong> assigned by
+                        } @else {
+                          <strong>Unassigned</strong> after rejection by
+                        }
                         <strong>{{ h.assignedByName }}</strong>
                       </p>
                       <small class="text-muted">{{ h.assignedAt | date:'medium' }}</small>
@@ -553,6 +569,41 @@
             <span class="spinner-border spinner-border-sm me-1"></span> Rejecting...
           } @else {
             Confirm Rejection
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- DELETE CONFIRMATION MODAL -->
+@if (showDeleteModal) {
+  <div class="modal-backdrop-custom" (click)="closeDeleteModal()">
+    <div class="reject-modal" (click)="$event.stopPropagation()">
+      <div class="reject-modal-header bg-danger text-white">
+        <h5 class="mb-0 text-white">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Ticket
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDeleteModal()" [disabled]="isDeletingTicket"></button>
+      </div>
+      <div class="reject-modal-body">
+        <p class="fs-6">
+          Are you sure you want to delete ticket <strong>{{ ticket?.ticketNumber }}</strong> (<em>{{ ticket?.subject }}</em>)?
+        </p>
+        <div class="alert alert-warning py-2 small mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          <strong>Note:</strong> Only accidental tickets without activity history (comments, attachments, assignments) can be permanently deleted. If this ticket has activity history, deletion will be prevented to preserve records (you can close or archive it instead).
+        </div>
+      </div>
+      <div class="reject-modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isDeletingTicket">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDeleteTicket()" [disabled]="isDeletingTicket">
+          @if (isDeletingTicket) {
+            <span class="spinner-border spinner-border-sm me-1"></span> Deleting...
+          } @else {
+            <i class="bi bi-trash me-1"></i> Permanently Delete
           }
         </button>
       </div>

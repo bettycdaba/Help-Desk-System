@@ -14,6 +14,9 @@ export interface Ticket {
   assignedToName?: string;
   categoryId?: number;
   categoryName?: string;
+  archived?: boolean;
+  archivedAt?: string;
+  archivedById?: number;
 }
 
 export interface TicketComment {

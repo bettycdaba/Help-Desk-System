@@ -94,12 +94,31 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-4">
+                <label class="form-label">Current Password</label>
+                <div class="input-group">
+                  <input [type]="showCurrentPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="passwordForm.currentPassword">
+                  <button type="button" class="btn btn-outline-secondary" (click)="showCurrentPassword = !showCurrentPassword" [attr.aria-label]="showCurrentPassword ? 'Hide current password' : 'Show current password'">
+                    <i class="bi" [class.bi-eye]="!showCurrentPassword" [class.bi-eye-slash]="showCurrentPassword"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4">
                 <label class="form-label">New Password</label>
-                <input type="password" class="form-control" [(ngModel)]="passwordForm.newPassword">
+                <div class="input-group">
+                  <input [type]="showNewPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="passwordForm.newPassword">
+                  <button type="button" class="btn btn-outline-secondary" (click)="showNewPassword = !showNewPassword" [attr.aria-label]="showNewPassword ? 'Hide new password' : 'Show new password'">
+                    <i class="bi" [class.bi-eye]="!showNewPassword" [class.bi-eye-slash]="showNewPassword"></i>
+                  </button>
+                </div>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" [(ngModel)]="passwordForm.confirmPassword">
+                <div class="input-group">
+                  <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="passwordForm.confirmPassword">
+                  <button type="button" class="btn btn-outline-secondary" (click)="showConfirmPassword = !showConfirmPassword" [attr.aria-label]="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'">
+                    <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+                  </button>
+                </div>
               </div>
               <div class="col-md-4 d-flex align-items-end gap-2">
                 <button class="btn btn-primary" (click)="changePassword()" [disabled]="isChangingPassword">

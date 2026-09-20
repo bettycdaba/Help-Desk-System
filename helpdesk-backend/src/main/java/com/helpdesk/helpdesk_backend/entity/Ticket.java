@@ -59,4 +59,15 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_category_id", nullable = false)
     private TicketCategory category;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean archived = false;
+
+    @Column(name = "archived_at")
+    private LocalDateTime archivedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "archived_by", nullable = true)
+    private User archivedBy;
 }

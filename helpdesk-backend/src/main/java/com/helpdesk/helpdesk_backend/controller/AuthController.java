@@ -100,6 +100,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(
+            @Valid
             @RequestBody ResetPasswordRequest request) {
         userService.resetPassword(
                 request.getEmail(),
@@ -110,6 +111,18 @@ public class AuthController {
         response.put("message", "Password reset successfully");
         return ResponseEntity.ok(response);
     }
+
+        @PostMapping("/change-password")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<Map<String, String>> changePassword(
+                        @AuthenticationPrincipal User user,
+                        @Valid @RequestBody ChangePasswordRequest request) {
+                userService.changePassword(
+                                user.getId(), request.getCurrentPassword(), request.getNewPassword());
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Password changed successfully");
+                return ResponseEntity.ok(response);
+        }
 
     @GetMapping("/must-change-password")
     public ResponseEntity<Map<String, Boolean>> mustChange(

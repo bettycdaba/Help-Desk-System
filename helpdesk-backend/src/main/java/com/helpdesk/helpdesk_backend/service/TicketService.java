@@ -12,6 +12,8 @@ public interface TicketService {
 
     List<TicketResponseDTO> getAllTickets();
 
+    List<TicketResponseDTO> getArchivedTickets();
+
     TicketResponseDTO getTicketById(Long id);
 
     TicketResponseDTO getTicketByNumber(String ticketNumber);
@@ -33,6 +35,10 @@ public interface TicketService {
     TicketResponseDTO autoAssignTicket(Long ticketId, Long assignedById);
 
     TicketResponseDTO updateStatus(Long id, TicketStatusUpdateRequestDTO request);
+
+    TicketResponseDTO archiveTicket(Long id, Long archivedById);
+
+    TicketResponseDTO unarchiveTicket(Long id);
 
     void deleteTicket(Long id);
 
