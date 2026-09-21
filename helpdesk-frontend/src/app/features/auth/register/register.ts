@@ -68,10 +68,10 @@ export class Register implements OnInit {
   onRegister(): void {
     this.errorMessage = '';
 
-    if (!this.firstName || !this.lastName ||
-        !this.email || !this.password) {
-      this.errorMessage = 'Please fill in all required fields.';
-      return;
+    if (!this.employeeId || !this.firstName || !this.lastName ||
+        !this.email || !this.phoneNumber || !this.password) {
+        this.errorMessage = 'Please fill in all required fields.';
+        return;
     }
 
     if (!this.isValidEmail(this.email)) {
@@ -112,14 +112,14 @@ const user = {
       next: () => {
         this.isLoading = false;
         this.toastService.success(
-          'Account created! Please log in.');
-        this.router.navigate(['/login']);
+          'Account created! Check your email for the verification code.');
+        this.router.navigate(['/verify-registration'], {
+          queryParams: { email: this.email }
+        });
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage =
-          err?.error?.message ||
-          'Registration failed. Please try again.';
+        this.errorMessage = this.registrationErrorMessage(err);
         this.cdr.detectChanges();
       }
     });
@@ -127,5 +127,18 @@ const user = {
 
   private isValidEmail(email: string): boolean {
     return /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(email.trim());
+  }
+
+  private registrationErrorMessage(err: any): string {
+    if (err?.error?.message) {
+      return err.error.message;
+    }
+
+    const fieldErrors = err?.error?.errors;
+    if (fieldErrors && typeof fieldErrors === 'object') {
+      return Object.values(fieldErrors)[0] as string;
+    }
+
+    return 'Registration failed. Please try again.';
   }
 }

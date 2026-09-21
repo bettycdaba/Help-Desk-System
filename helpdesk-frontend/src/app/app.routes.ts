@@ -46,6 +46,12 @@ export const routes: Routes = [
         .then(m => m.Register)
   },
   {
+    path: 'verify-registration',
+    loadComponent: () =>
+      import('./features/auth/verify-registration/verify-registration')
+        .then(m => m.VerifyRegistration)
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./features/auth/forgot-password/forgot-password')

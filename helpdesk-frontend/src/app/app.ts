@@ -38,6 +38,7 @@ export class App implements OnInit, OnDestroy {
     '/home',
     '/login',
     '/register',
+    '/verify-registration',
     '/forgot-password',
     '/reset-password'
   ];

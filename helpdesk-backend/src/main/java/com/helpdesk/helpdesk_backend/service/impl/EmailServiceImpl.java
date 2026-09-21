@@ -175,4 +175,20 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(toEmail, subject, body);
     }
 
+    @Override
+    @Async
+    public void sendEmailVerificationCode(String toEmail, String recipientName, String verificationCode) {
+        String subject = "Help Desk - Verify your email address";
+        String body = "<div style='font-family:Arial,sans-serif;max-width:600px'>"
+                + "<h2 style='color:#2f6fed'>Verify your email address</h2>"
+                + "<p>Hello <strong>" + recipientName + "</strong>,</p>"
+                + "<p>Use this verification code to activate your Help Desk account:</p>"
+                + "<div style='background:#f4f6f8;padding:16px;border-radius:8px;"
+                + "margin:16px 0;font-size:24px;font-weight:bold;letter-spacing:4px;text-align:center'>"
+                + verificationCode + "</div>"
+                + "<p>This code expires in 15 minutes. If you did not create this account, you can ignore this email.</p>"
+                + "<p style='color:#888'>Help Desk System</p></div>";
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
 }

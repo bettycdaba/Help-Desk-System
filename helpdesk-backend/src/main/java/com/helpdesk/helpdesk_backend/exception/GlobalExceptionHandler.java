@@ -2,6 +2,7 @@ package com.helpdesk.helpdesk_backend.exception;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         logger.warn("Data integrity violation", ex);
         return errorResponse(HttpStatus.BAD_REQUEST, "Bad Request",
-                "The request could not be completed because one or more values are already in use or too long.");
+                dataIntegrityMessage(ex));
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -81,5 +82,24 @@ public class GlobalExceptionHandler {
             response.put("message", message);
         }
         return response;
+    }
+
+    private String dataIntegrityMessage(DataIntegrityViolationException ex) {
+        String cause = ex.getMostSpecificCause().getMessage();
+        String details = cause == null ? "" : cause.toLowerCase(Locale.ROOT);
+
+        if (details.contains("employee_id")) {
+            return "An account with this employee ID already exists.";
+        }
+        if (details.contains("email")) {
+            return "An account with this email address already exists.";
+        }
+        if (details.contains("phonenumber") || details.contains("phone_number")) {
+            return "An account with this phone number already exists.";
+        }
+        if (details.contains("data too long")) {
+            return "One of the entered values is too long.";
+        }
+        return "The request could not be completed because one or more values are already in use or too long.";
     }
 }

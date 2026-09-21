@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -43,6 +44,24 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private Boolean active;
+
+    @Column(name = "email_verified")
+    @Builder.Default
+    private Boolean emailVerified = false;
+
+    @Column(name = "email_verification_code", length = 255)
+    private String emailVerificationCode;
+
+    @Column(name = "email_verification_expires_at")
+    private LocalDateTime emailVerificationExpiresAt;
+
+    @Column(name = "verification_attempts", nullable = false)
+    @Builder.Default
+    private Integer verificationAttempts = 0;
+
+    @Column(name = "verification_resend_count", nullable = false)
+    @Builder.Default
+    private Integer verificationResendCount = 0;
 
     @Column(name = "password", nullable = false, length = 255)
     private String password;

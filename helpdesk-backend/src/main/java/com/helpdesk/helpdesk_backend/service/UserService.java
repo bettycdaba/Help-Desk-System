@@ -13,6 +13,10 @@ public interface UserService {
 
     UserResponseDTO registerUser(UserRequestDTO request);
 
+    void verifyEmail(String email, String code);
+
+    void resendVerificationCode(String email);
+
     List<UserResponseDTO> getAllUsers();
 
     UserResponseDTO getUserById(Long id);

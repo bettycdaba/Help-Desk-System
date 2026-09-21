@@ -20,4 +20,6 @@ public interface EmailService {
                                 String recipientName, 
                                 String temporaryPassword);
 
+    void sendEmailVerificationCode(String toEmail, String recipientName, String verificationCode);
+
 }

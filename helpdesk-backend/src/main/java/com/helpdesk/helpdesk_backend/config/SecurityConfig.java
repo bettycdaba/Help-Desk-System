@@ -45,7 +45,8 @@ public class SecurityConfig {
                 // Public endpoints - NO TOKEN NEEDED
                 .requestMatchers("/api/auth/login", "/api/auth/register",
                         "/api/auth/forgot-password", "/api/auth/reset-password",
-                    "/api/auth/must-change-password").permitAll()
+                    "/api/auth/must-change-password", "/api/auth/verify-email",
+                    "/api/auth/resend-verification-code").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/departments").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/roles").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()

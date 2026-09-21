@@ -42,6 +42,16 @@ export class AuthService {
       `${this.baseUrl}/auth/register`, user);
   }
 
+  verifyEmail(email: string, code: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/auth/verify-email`, { email, code });
+  }
+
+  resendVerificationCode(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/auth/resend-verification-code`, null, { params: { email } });
+  }
+
   logout(): void {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');

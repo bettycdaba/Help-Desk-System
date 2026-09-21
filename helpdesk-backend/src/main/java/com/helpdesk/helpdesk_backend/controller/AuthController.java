@@ -50,6 +50,19 @@ public class AuthController {
         return ResponseEntity.ok(toLoginResponse(user, null, null));
     }
 
+    @PostMapping("/verify-email")
+    public ResponseEntity<Map<String, String>> verifyEmail(
+            @Valid @RequestBody EmailVerificationRequest request) {
+        userService.verifyEmail(request.getEmail(), request.getCode());
+        return messageResponse("Email verified successfully. You can now log in.");
+    }
+
+    @PostMapping("/resend-verification-code")
+    public ResponseEntity<Map<String, String>> resendVerificationCode(@RequestParam String email) {
+        userService.resendVerificationCode(email);
+        return messageResponse("A new verification code has been sent to your email.");
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         userService.forgotPassword(request.getEmail());
@@ -80,6 +93,9 @@ public class AuthController {
                 .orElseThrow(() -> new BadRequestException("Invalid email or password."));
         if (!Boolean.TRUE.equals(user.getActive())) {
             throw new BadRequestException("Your account has been deactivated. Please contact your administrator.");
+        }
+        if (Boolean.FALSE.equals(user.getEmailVerified())) {
+            throw new BadRequestException("Your email is not verified. Please enter the verification code we sent you.");
         }
     }
 

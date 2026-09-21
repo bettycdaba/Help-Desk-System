@@ -29,12 +29,17 @@ import java.util.stream.Collectors;
 
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.time.LocalDateTime;
+import java.security.SecureRandom;
 
 import com.helpdesk.helpdesk_backend.repository.TicketRepository;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int VERIFICATION_CODE_EXPIRY_MINUTES = 15;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
         "^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?@"
@@ -380,6 +385,7 @@ public class UserServiceImpl implements UserService {
         roles.add(employeeRole);
 
         User userToSave;
+        String verificationCode;
         if (existingUser != null) {
             existingUser.setEmployeeId(request.getEmployeeId());
             existingUser.setFirstName(request.getFirstName());
@@ -389,6 +395,7 @@ public class UserServiceImpl implements UserService {
             existingUser.setDepartment(department);
             existingUser.setRoles(roles);
             existingUser.setActive(true);
+            verificationCode = prepareEmailVerification(existingUser);
             userToSave = existingUser;
         } else {
             userToSave = User.builder()
@@ -403,9 +410,13 @@ public class UserServiceImpl implements UserService {
                     .roles(roles)
                     .mustChangePassword(false)
                     .build();
+            verificationCode = prepareEmailVerification(userToSave);
         }
 
         User saved = userRepository.save(userToSave);
+
+        emailService.sendEmailVerificationCode(
+                saved.getEmail(), saved.getFirstName(), verificationCode);
 
         notifyNewRoles(saved, roles.stream()
             .filter(role -> !"EMPLOYEE".equals(role.getName()))
@@ -415,6 +426,52 @@ public class UserServiceImpl implements UserService {
         notifyAdmins(saved, "New account created via registration");
 
         return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("Invalid verification code."));
+
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            return;
+        }
+
+        if (user.getEmailVerificationExpiresAt() == null
+                || user.getEmailVerificationExpiresAt().isBefore(LocalDateTime.now())
+                || !passwordEncoder.matches(code, user.getEmailVerificationCode())) {
+            throw new BadRequestException("The verification code is invalid or has expired.");
+        }
+
+        user.setEmailVerified(true);
+        user.setEmailVerificationCode(null);
+        user.setEmailVerificationExpiresAt(null);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void resendVerificationCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("No account was found for this email address."));
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new BadRequestException("This email address is already verified.");
+        }
+
+        String verificationCode = prepareEmailVerification(user);
+        userRepository.save(user);
+        emailService.sendEmailVerificationCode(
+                user.getEmail(), user.getFirstName(), verificationCode);
+    }
+
+    private String prepareEmailVerification(User user) {
+        String code = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+        user.setEmailVerified(false);
+        user.setEmailVerificationCode(passwordEncoder.encode(code));
+        user.setEmailVerificationExpiresAt(
+                LocalDateTime.now().plusMinutes(VERIFICATION_CODE_EXPIRY_MINUTES));
+        return code;
     }
 
     @Override
